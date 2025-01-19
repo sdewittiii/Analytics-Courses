@@ -1,0 +1,691 @@
+---
+title: "Regression Analysis"
+author: "Crime Analytics (CJUS 6106)"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2); library(shiny); library(haven); library(car); library(dplyr)
+library(readxl)
+options(scipen=25)
+```
+
+# Outline
+
+I.  Scatterplots
+II. Correlation coefficient (Pearson's $r$)
+III. Bivariate regression equation
+IV. Multivariate regression
+V.  Evaluating assumptions of a regression model
+
+# Scatterplots
+
+Correlation and regression are used to assess the relationship between two continuous variables. One variable is defined as the dependent variable (which we denote Y), and the other is defined as the independent variable (which we denote X).
+
+One simple way to assess the relationship between two variables is to use a scatterplot, or graphical display that summarizes the nature of the association between a continuous independent and dependent variable. The X-axis is the independent variable, and the Y-axis is the dependent variable. Each observation receives a dot at its respective X- and Y-values.
+
+Let's start with an example. It is well known that one of the strongest predictors of sentence length is a defendant's prior record. We collect data from a sample of 10 inmates convicted of burglary, and ask them how many months they received in their sentence (sent_length) and how many arrests they had prior to conviction (prior_arrests).
+
+```{r, echo=TRUE, fig.align="center"}
+reclength<-data.frame(prior_arrests<-c(0,1,1,1,2,2,3,5,7,10), 
+                      sent_length<-c(3,6,9,9,12,15,18,24,24,36))
+ggplot(data=reclength, aes(x=prior_arrests, y=sent_length)) +
+  geom_point() + geom_smooth(method="lm", se=FALSE, color="red")
+```
+
+Let's say that we also gathered data from 10 youths in juvenile detention on average school performance (grades) and the number of juvenile arrests (arrests).
+
+```{r, echo=TRUE, fig.align="center"}
+school<-data.frame(arrests<-c(10,8,8,6,5,6,4,2,3,1),
+                   grades<-c(50,55,60,65,70,75,80,85,90,95))
+ggplot(school, aes(x=arrests,y=grades))+
+  geom_point()+stat_smooth(method=lm,se=FALSE,color="red")
+```
+
+We see that as school performances increases, juvenile arrests decrease. Thus, there is a negative relationship between school performance and juvenile arrest. In other words, youths with high school performance tend to have a low number of arrests.
+
+Scatterplots thus tell us something about the direction of the association between two variables. We can add a trend line to the scatterplot to aid in the interpretation of the direction of association, or what we will refer to later as a regression line.
+
+A second piece of information that we can obtain is the amount of variation there is around the regression line, which is an indication of the strength of the association. The closer the dots are to the regression line, the stronger the association between X and Y.
+
+An advantage offered by scatterplot is the ability to identify outliers. The disadvantage of using a scatterplot to summarize the relationship between two variables is that it is not very precise. We can only determine that prior record and sentence length are positively related, and we can only "eyeball" the regression line.
+
+Our ultimate goal is to be a little more exact in describing the nature of the relationship between X and Y. There are two statistics that we can compute to be more precise: a correlation coefficient or a regression equation.
+
+# Correlation coefficient (Pearson's r)
+
+A correlation "standardizes" the association between two variables. To compute Pearson's r, we need to calculate the variance of X, the variance of Y, and the crossproduct (or covariance) of X and Y. Pearson's r is the sample counterpart to the population correlation coefficient, $\rho$ (rho)
+
+More generally, correlation coefficients range from -1.0 to +1.0 and have similar interpretive rules as $\phi$ from $\chi^{2}$ and $\eta$ from ANOVA.
+
+That is, correlations with absolute values from 0.01 to 0.29 are considered weak, absolute values from 0.30 to 0.49 are considered moderate, and absolute values at or above 0.50 are considered strong.
+
+The direction of the correlation coefficients indicates the direction of the relationship between two variables. If it is negative, we expect an increase in one variable to be associated with a decrease in the other. By contrast, if the coefficient is positive, an increase in one variable is associated with an increase in the other variable.
+
+Further, values closer to an absolute value of 1 indicate a stronger relationship, while correlation coefficient values closer to 0 indicate a lack of a relationship between the variables. The interactive tool below shows how this relationship may look from values of -1 (perfect negative correlation) to values of 1 (perfect positive correlation).
+
+```{r, echo=FALSE}
+ui <- fluidPage(
+  titlePanel("Adjust Correlation and Display Scatterplot"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("corr", "Correlation:",
+                  min = -1, max = 1, value = 0, step = 0.1)
+    ),
+    mainPanel(
+      plotOutput("scatterplot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+# Generate two variables with specified correlation
+  data <- reactive({
+    x <- rnorm(100)
+    y <- input$corr * x + sqrt(1 - input$corr^2) * rnorm(100)
+    data.frame(x, y)
+  })
+  
+# Display scatterplot with best fit line
+  output$scatterplot <- renderPlot({
+    ggplot(data(), aes(x = x, y = y)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = FALSE) + # Add best fit line
+      labs(x = "Variable X", y = "Variable Y", title = "Scatterplot with Best Fit Line") +
+      theme_minimal()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+Now let's take a look at the correlations for the two sets of variables we used in the prior section:
+
+```{r}
+with(reclength, cor(prior_arrests, sent_length))
+with(school, cor(arrests, grades))
+```
+
+Those are both strong correlations, but the first is positive and the second is negative, consistent with what we saw in the scatterplots above.
+
+What if we wanted to know if these were significant correlations? That brings us into the realm of null hypothesis significance testing (NHST).
+
+## A Quick Detour into NHST
+
+We don't have an awful lot of time in this class to dive deep enough into that topic, but a short summary is necessary.
+
+NHST positions two competing claims against one another - the first is that there is no systematic difference between whatever statistics you are comparing and whatever difference you have observed is due to random fluctuations about some true population value. This is generally called the null hypothesis.
+
+The second claim is that there is a significant difference in the statistics you are comparing - the difference is systematic, not random. This indicates that the samples used to create the statistics are taken from different populations with different true population values. This is generally called the alternative or research hypothesis.
+
+We determine which claim is right by comparing the statistics using an equation that produces a test statistic. This test statistic is placed along some distribution of potential test statistics we could observe if the null hypothesis is true. All possible test statistic values have an associated probability.
+
+We are interested in the probability of observing a test statistic more extreme than the one we have obtained. If that probability is low, that tells us that the difference we have observed is very unlikely if the null hypothesis is actually true. We may, at that point, question whether that null hypothesis is correct.
+
+General standards for how extreme a statistic has to be to call it a **significant difference** are that the probability of it occurring is less than .05, .01, or .001 - we refer to these as **alpha levels**.
+
+Here's a figure showing what that looks like along a normal distribution:
+
+```{r, echo=FALSE, fig.align='center'}
+# Define the x-axis limits
+x_limits <- c(-4, 4)
+
+# Create a data frame for the normal distribution
+x_values <- seq(-4, 4, length = 1000)
+normal_dist <- data.frame(x = x_values, y = dnorm(x_values))
+
+# Create a rejection region plot
+ggplot(normal_dist, aes(x = x, y = y)) +
+  stat_function(fun = dnorm, aes(color = "PDF"),
+                show.legend=FALSE) +
+  scale_x_continuous(limits = x_limits, expand = c(0, 0)) +
+  geom_ribbon(aes(x = x, ymin = 0, ymax = ifelse(x < qnorm(0.05), y, 0)),
+              fill = "#F8766D", alpha = 0.5) +
+  geom_ribbon(aes(x = x, ymin = 0, ymax = ifelse(x < qnorm(0.01), y, 0)),
+              fill = "#00BFC4", alpha = 0.5) +
+  geom_ribbon(aes(x = x, ymin = 0, ymax = ifelse(x < qnorm(0.001), y, 0)),
+              fill = "#619CFF", alpha = 0.5) +
+  geom_ribbon(aes(x = x, ymin = 0, ymax = ifelse(x > qnorm(0.95), y, 0)),
+              fill = "#F8766D", alpha = 0.5) +
+  geom_ribbon(aes(x = x, ymin = 0, ymax = ifelse(x > qnorm(0.99), y, 0)),
+              fill = "#00BFC4", alpha = 0.5) +
+  geom_ribbon(aes(x = x, ymin = 0, ymax = ifelse(x > qnorm(0.999), y, 0)),
+              fill = "#619CFF", alpha = 0.5) +
+  annotate("text", x = qnorm(0.025), y = 0.12, label = "p < 0.05", size = 3) +
+  annotate("text", x = qnorm(0.0040), y = 0.12, label = "p < 0.01", size = 3) +
+  annotate("text", x = qnorm(0.00025), y = 0.12, label = "p < 0.001", size = 3) +
+  annotate("text", x = qnorm(0.975), y = 0.12, label = "p < 0.05", size = 3) +
+  annotate("text", x = qnorm(0.996), y = 0.12, label = "p < 0.01", size = 3) +
+  annotate("text", x = qnorm(0.99975), y = 0.12, label = "p < 0.001", size = 3) +
+  geom_vline(xintercept = qnorm(0.05), linetype = "dashed") +
+  geom_vline(xintercept = qnorm(0.01), linetype = "dashed") +
+  geom_vline(xintercept = qnorm(0.001), linetype = "dashed") +
+    geom_vline(xintercept = qnorm(0.95), linetype = "dashed") +
+  geom_vline(xintercept = qnorm(0.99), linetype = "dashed") +
+  geom_vline(xintercept = qnorm(0.999), linetype = "dashed") +
+  labs(title = "Rejection Region Plot",
+       x = "Test Statistic",
+       y = "Probability Density") +
+  theme_minimal()
+```
+
+The shaded regions correspond to test statistics with p-values less than 0.05, 0.01, and 0.001.
+
+If an observed test statistic lies in such a region, this implies, in an overly simplistic explanation, that the probability of observing a result like that one **if** the null hypothesis were true, is less than 5 times in 100, 1 time in 100, or 1 time in 1000.
+
+We'll return to this concept in a moment when we discuss the results from a test of the correlations from the sentencing and arrests data.
+
+## Testing Correlation Coefficients
+
+Back to regularly schedule programming...
+
+Now, let's say we want to test whether either of those correlation coefficients are significant. We can accomplish that using the cor.test() function.
+
+```{r}
+with(reclength, cor.test(prior_arrests, sent_length))
+with(school, cor.test(arrests, grades))
+```
+
+The test statistic for the first test is provided in the *t=* text - 11.334. The associated probability value for this test statistic is $3.309 * 10^{-6}$, or `r format(3.309*(10^-6), digits=4)`.
+
+It's easy to tell that that is far below a value of 0.001, so we would reject the null hypothesis and conclude that the correlation between sentence length and prior arrests is significantly different from 0.
+
+In turn, the test statistic for the relationship between arrests and grades is -10.508, with an associated probability of $5.857 * 10^{-6}$, or `r format(5.857*(10^-6), digits=4)`. Again, this is much lower than 0.001, so we conclude that the correlation between arrests and grades is significantly different from zero.
+
+Notice that I only said **different from zero** above? This is because these are two-tailed tests, so my alternative hypothesis is not greater than or less than zero, but different from it.
+
+A two-tailed test is agnostic as to the direction of the test statistic and only concerns its magnitude.
+
+# Bivariate Regression Equation
+
+This leads us to the bivariate regression equation.
+
+When a scatterplot indicates that two variables are more or less linearly related, it is convenient to draw a straight line through the middle of the data points.
+
+When we estimate the regression line (as opposed to trying to eyeball it), it can be shown that it is the **best-fitting** line, which means that the line falls as close to every data point as possible.
+
+A regression equation *in the population* is of the form: $$Y=\alpha +\beta X + \epsilon$$
+
+In this equation, $\alpha$ and $\beta$ are the population parameters that summarize the association between $X$ and $Y$ while $\epsilon$ represents any error in using the regression equation to predict values for $Y$.
+
+A regression equation using sample data to estimate these parameters is of the form: $$Y=a+bX+e$$ In this equation, $a$ is the $y$-intercept (or constant), and $b$ is the slope (and $e$ is the sample data equivalent of $\epsilon$).
+
+Once these two parameters are estimated, we can substitute any value for $X$ to determine the "best guess" of $Y$ for that particular value of $X$. The estimate $b$ tells us the effect on $Y$ of a one-unit increase in $X$.
+
+It is calculated by the formula: $$b=\frac{\sum{(X-\overline{X})(Y-\overline{Y})}}{\sum{(X-\overline{X})^{2}}}=\frac{n \sum{XY}-(\sum{X})(\sum{Y})}{n\sum{X^{2}}-(\sum{X})^{2}}=\frac{\sum{XY}-n\overline{X}\overline{Y}}{\sum{X^{2}}-n\overline{X}^{2}}$$
+
+The $y$-intercept, $a$, is very simply the value of $Y$ when $X=0$. The purpose of the intercept is to "anchor" the regression line to the $y$-axis. Once we know $b$, we can solve for the intercept by: $$a=\overline{Y}-b\overline{X}$$
+
+It's helpful to begin with what is know as an **intercept-only** model. If we just include the intercept in a regression model, it simply returns the mean of the outcome variable in the y-intercept term.
+
+Let's look at one now using the prior record and sentence length data:
+
+```{r}
+int_only <- lm(sent_length~1, data=reclength)
+summary(int_only)
+mean(reclength$sent_length)
+```
+
+As you can see, the mean sentence length is 15.6, and this value is reflected in the estimate for the intercept term.
+
+This is because linear regression models (also sometimes called **ordinary least squares** (OLS)), reduces the sum of the squared differences from the predicted values of the outcome variable.
+
+Therefore, if you only have the outcome in an OLS model, it returns the average of the outcome (if you remember from stats, the mean has the least squared differences property).
+
+Adding additional variable to the model then calculates the expected average of the outcome given values of those variables. These are known as **conditional means**. This has led some to call OLS "fancy averaging" - and, that's essentially what it is.
+
+Now, let's estimate the regression equation with the same data, but adding the prior arrests variable:
+
+```{r}
+lm1 <- lm(sent_length ~ prior_arrests, data=reclength)
+summary(lm1)
+```
+
+The **Estimate** column lists the coefficients for the intercept and the prior_arrests variable.
+
+The **intercept** value of 5.7904 means that we expect someone with zero prior arrests to be sentenced to 5.7904 months in prison, on average. This is the **conditional mean** of Y given that X=0.
+
+The **slope coefficient** for prior_arrests means that, for every additional arrest, we expect the number of months sentenced to prison to increase by 3.0655, on average.
+
+The **t-value** column reports the test statistics for each coefficient. These are the values along the distribution you saw earlier (but this is a t-distribution, not a z-distribution).
+
+The **Pr(\>\|t\|)** column reports the probability values for the test statistics *if the null hypothesis were true*. R will automatically list asterisks to the right of a p-value if it is significant at alpha=.05 (\*); alpha=.01 (\*\*), and alpha=.001 (\*\*\*).
+
+# Multivariate Regression
+
+Now, let's complicate matters a bit by estimating a regression model with multiple independent variables. For this example, I will use the longitudinal data on state crime rates, economic health, and text expenditures you've seen in prior lectures.
+
+```{r}
+state_data <- read_stata("state_data.dta")
+state_data <- state_data[complete.cases(state_data),]
+state_data$total_crime <- with(state_data, rmurd + rrape + rrobb +
+                                 raggr + rburg + rlarc + rauto)
+str(state_data)
+```
+
+We are going to be predicting values of the total crime rate using a few of the variables in these data. Before we start adding on variable, let's run an **intercept-only** model first.
+
+```{r}
+lm_state_data <- lm(total_crime~1, data=state_data)
+summary(lm_state_data)
+```
+
+Okay, so the unconditional average value for the *total_crime* variable is 3545.44 crimes per 100,000 population.
+
+Let's see how that changes as we add some variables to the model.
+
+```{r}
+lm_state_data <- lm(total_crime~top_1+avgincome+urate+gdp+txsocl, 
+                    data=state_data)
+summary(lm_state_data)
+```
+
+I'll just focus on the significant coefficients here:
+
+For every 1 percentage point increase in the top 0.1 percent of the income share (**top_1**), the total crime rate is expected to be 31.10 crimes per 100,000 greater (p\<.05), controlling for all other variables in the model.
+
+For every additional \$1 in average income (**avgincome**), we expect 0.04 fewer crimes per 100,000 (p\<.001), controlling for all other variables in the model.
+
+For every one million dollar increase in gross domestic product (**gdp**), we expect the total crime rate to increase by 0.001 crimes per 100,000 (p\<.05), controlling for all other variables in the model.
+
+What do I mean by **controlling for all other variables in the model**? Well, it means that the relationship between each variable and the outcome is accounting for the influence of the other variables in the model.
+
+We can also plot this multivariate regression model accounting for other variables. To do this we will use the avPlots() function from the **car** package.
+
+```{r}
+avPlots(lm_state_data, terms=~top_1)
+```
+
+That plot clearly shows a positive relationship between the top 0.1% income share and the total crime rate - much as we expected from the multivariate regression model.
+
+What about the simple bivariate relationship between those variables?
+
+```{r}
+ggplot(state_data, aes(x=top_1, y=total_crime)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE)
+```
+
+That regression line is negative! So before we ran the multivariate model, the relationship between these variables was negative but after it is positive.
+
+That's because there are parts of the relationship that overlap with other variables. Once we account for those, the relationship between the two becomes positive.
+
+## Factor Variables in Multivariate Regression
+
+Factor variables in a multivariate regression have very different formats for their coefficients.
+
+What happens with a factor variable in a regression is that one category is left out, and the remaining categories represent changes from the conditional average for the left out category. The conditional average for the reference category is then represented by the intercept term.
+
+It's helpful to see an example to understand this. For this example, I am going to focus on the **top_1** variable, but after I transform it into a categorical variable representing the different quintiles of the distribution.
+
+```{r}
+state_data$top_1quint <- as.factor(ntile(state_data$top_1, 5))
+table(state_data$top_1quint)
+tapply(state_data$top_1, state_data$top_1quint, summary)
+ggplot(state_data, aes(x=top_1quint, y=top_1)) +
+  geom_boxplot()
+```
+
+Okay, we have the variable now and have confirmed that the transformation worked as intended, now to estimate the regression model:
+
+```{r}
+lm_topquint <- lm(total_crime~top_1quint, data=state_data)
+summary(lm_topquint)
+with(state_data, tapply(total_crime, top_1quint, mean))
+```
+
+Okay, let's start with the intercept. The **reference category** that is left out is the bottom 20%, and it's average value for the total crime rate is now in the intercept (3562.86).
+
+The coefficient for the next quintile is 18.42, this simply reflects the difference in the average expected total crime rate for cases in this category. If we add the coefficient value to the intercept (3562.86 + 18.42), we get the average total crime rate in that category - `r 3562.86+18.42`.
+
+Here's a table showing all of the calculations:
+
+| Category        |   Mean   | Coefficient |                Result                 |
+|---------------|:-----------:|:-----------:|:------------------------------:|
+| First Quintile  | 3562.86  |   3562.86   |                3562.86                |
+| Second Quintile | 3581.282 |    18.42    |  3562.86 + 18.42 = `r 3562.86+18.42`  |
+| Third Quintile  | 3524.028 |   -38.83    |  3562.86 - 38.83 = `r 3562.86-38.83`  |
+| Fourth Quintile | 3550.933 |   -11.93    |  3562.86 - 11.93 = `r 3562.86-11.93`  |
+| Fifth Quintile  | 3507.683 |   -55.18    | 3562.86 - 55.18 = `r 3562.86 - 55.18` |
+
+## Evaluating Assumptions of a Regression Model
+
+Evaluating the assumptions of a regression model boils down to a few easy checks against violations of those assumptions. 
+
+Briefly, the assumptions of a regression equation can be grouped into three categories:
+
+- Assumptions about the response (outcome) variable
+- Assumptions about the regressors (predictor variables)
+- Assumptions about the residuals
+
+There are ten total assumptions across these categories:
+
+- Response variable
+  - Linearity: The response variable is linearly related to the regressors
+  - Additivity: The response variable is additively related to the regressors
+  - Reliable measurement: The response variable is measured without error
+- Regressor variables
+  - Linear independence: The regressors are not perfectly linearly related
+  - Reliable measurement: The regressors are measured without error
+  - Exogeneity: The regressors are not correlated with the residual
+- Residuals
+  - Zero mean: The residuals have an expected value of zero
+  - Homoscedasticity: The residuals have constant variance
+  - Serial independence: The residuals are independent
+  - Normality: The residuals are normally distributed
+  
+With the exception of the normality assumption, these are known as **Gauss-Markov** assumptions.
+
+When these assumptions are satisfied, the least squares estimator (multivariate OLS) is BLUE (the best linear unbiased estimator).
+
+Some assumptions are more central than others, while others can be violated with little practical consequence. There are also some straightforward remedies in instances where they are likely to be violated. 
+
+I'll tough briefly on a few of these assumptions now. 
+
+### Assumptions Concerning the Response Variable: Linearity
+
+This assumptions means that the relationship between the outcome and each of the regressors is well captured by a straight line. In practice, this is not always true - sometimes there are nonlinearities in the relationship between X and Y where the best fit line should bend.
+
+The typical multivariate OLS equation looks like so: $$Y_{i} + \beta_{0} + \beta_{1}X_{i1} + ...+\beta_{j}X_{ij}+\epsilon_{i}$$
+
+
+In the event that we expect nonlinearities, we could satisfy a more general assumption that the relationship between X and Y is **linear in the parameters**. This equation instead is: $$f(Y_{i}) = \beta_{0} + \beta_{1}f(X_{i1})+...+\beta_{j}f(X_{ij})+\epsilon_{i}$$
+
+Some examples of fundamentally non-linear models that can be expressed as linear in the parameters are: 
+
+$$\text{Polynomial model: } Y_{i} + \beta_{0} + \beta_{1}X_{i} + \beta_{2}X^{2}_{i}+\beta_{3}X^{3}_{i}+\epsilon_{i}$$
+$$\text{Loglinear (exponential) model: } ln(Y_{i}) = \beta_{0}+\beta_{1}X_{i}+\epsilon_{i}$$
+$$\text{Semilog (logarithmic) model: } Y_{i} = \beta_{0} + \beta_{1}ln(X_{i1})+\epsilon_{i}$$
+$$\text{Loglog model: } ln(Y_{i}) = \beta_{0} + \beta_{1}ln(X_{i1}) + \epsilon_{i}$$
+
+#### Linearity Diagnostics - Polynomial Models
+
+Let’s begin with the polynomial model. A good way to evaluate the linearity assumption is to plot the model residuals against each of the regressors. 
+
+We want to ensure that a straight line provides a reasonably good fit to the data. This can be done using the crPlots() function in the car package, or augmented component‐plus‐residual plot, which will provide post‐estimation plots of the residuals against the regressors.
+
+In addition to including a regression line, we can add a lowess smoother, which is a nonparametric estimator that can accommodate very flexible functional forms.
+
+I'll use an alternate data set for this example. These data are from the 2002 edition of the Statistical Abstracts of the United States. Variables include:
+
+- the violent crime rate
+- percent under the poverty line
+- percent of the population over 25 that is college-educated
+- percent of the population that is Black
+- percent of the population that lives in an urban area
+- State region
+
+
+```{r}
+abstracts_data <- read_excel("abstracts_data.xls")
+lm1<-lm(violrate~povrate+college+black+urban+region, 
+        data=abstracts_data)
+```
+
+```{r, warning=FALSE, fig.align='center'}
+crPlots(lm1, terms=~povrate, line=T, smooth=T, ylab="Comp+Resid")
+```
+
+```{r, warning=FALSE, fig.align='center'}
+crPlots(lm1, terms=~college, line=T, smooth=T, ylab="Comp+Resid")
+```
+
+```{r, warning=FALSE, fig.align='center'}
+crPlots(lm1, terms=~black, line=T, smooth=T, ylab="Comp+Resid")
+```
+
+```{r, warning=FALSE, fig.align='center'}
+crPlots(lm1, terms=~urban, line=T, smooth=T, ylab="Comp+Resid")
+```
+
+There appears to be some mild non‐linearity, mostly in the percent black variable. So let’s augment our original regression model with the square of this regressor. The model to be estimated is:
+
+$$\text{Violence}_{i} = \beta_{0} + \beta_{1}\text{Poverty}_{i}+\beta_{2}\text{College}_{i}+ \beta_{3}\text{Black}_{i}+\beta_{4}\text{Urban}_{i}+\beta_{5}\text{Region}_{i}+\beta_{6}\text{Black}^{2}_{i}+\epsilon_{i}$$
+
+```{r}
+abstracts_data$black_sq<-abstracts_data$black^2
+summary(lm(violrate~povrate+college+black+black_sq+urban+region,
+           data=abstracts_data))
+```
+
+There is indeed some non‐linearity in black, as indicated by the significance of the quadratic term. The fact that the linear term is positive (27.6) and the quadratic term is negative (–0.58) indicates something about the functional form. 
+
+The story appears to be that increases in percent black correspond with higher violent crime rates until a threshold is reached, at which point further increases in percent black are uncorrelated with violence.
+
+In order to determine where this threshold occurs, we first need to differentiate the model with respect to percent black:
+
+$$\frac{\partial\text{Violence}_{i}}{\partial\text{Black}_{i}} =\frac{\partial[\beta_{0} + \beta_{1}\text{Poverty}_{i}+\beta_{2}\text{College}_{i}+ \beta_{3}\text{Black}_{i}+\beta_{4}\text{Urban}_{i}+\beta_{5}\text{Region}_{i}+\beta_{6}\text{Black}^{2}_{i}+\epsilon_{i}]}{\partial\text{Black}_{i}} = \beta_{3} + 2*\beta_{6}\text{Black}_{i} $$
+
+Then, we set the first derivative equal to zero:
+
+$$\beta_{3} + 2*\beta_{6}\text{Black}_{i}=0$$
+
+Finally, we solve the equation for black to identify the inflection point, which in this case is a maximum:
+
+$$\text{Max}(\text{Black}_{i}) = \frac{-\beta_{3}}{2*\beta_{6}}=\frac{-27.547}{2*(-0.576)} = 23.91$$
+
+#### Linearity Diagnostics: Logarithmic Model
+
+When we have variables that are continuous and non-zero, it can also be advantageous to consider a logarithmic transformation. Let's first have a look at some scatterplots. 
+
+```{r}
+abstracts_data$lnviolrate<-with(abstracts_data, log(violrate))
+abstracts_data$lnpovrate<-with(abstracts_data, log(povrate))
+abstracts_data$lncollege<-with(abstracts_data, log(college))
+abstracts_data$lnblack<-with(abstracts_data, log(black))
+abstracts_data$lnurban<-with(abstracts_data, log(urban))
+```
+
+```{r, message=FALSE, fig.align='center'}
+ggplot(abstracts_data, aes(x=lnpovrate, y=lnviolrate)) + 
+  geom_point() +
+  geom_smooth(method="loess", se=F, linetype="dashed", color="darkred") +
+  geom_smooth(method="lm", se=F, color="red")
+```
+
+```{r, message=FALSE, fig.align='center'}
+ggplot(abstracts_data, aes(x=lncollege, y=lnviolrate)) + 
+  geom_point() +
+  geom_smooth(method="loess", se=F, linetype="dashed", color="darkred") +
+  geom_smooth(method="lm", se=F, color="red")
+```
+
+```{r, message=FALSE, fig.align='center'}
+ggplot(abstracts_data, aes(x=lnblack, y=lnviolrate)) + 
+  geom_point() +
+  geom_smooth(method="loess", se=F, linetype="dashed", color="darkred") +
+  geom_smooth(method="lm", se=F, color="red")
+```
+
+```{r, message=FALSE, fig.align='center'}
+ggplot(abstracts_data, aes(x=lncollege, y=lnviolrate)) + 
+  geom_point() +
+  geom_smooth(method="loess", se=F, linetype="dashed", color="darkred") +
+  geom_smooth(method="lm", se=F, color="red")
+```
+
+With the possible exception of lnblack, the functions again all appear to be strictly linear. For the time being, we will assume linearity and retain all of the continuous variables in log metric. We will concern ourselves with a log‐log model of the form:
+
+$$\text{ln(Violence}_{i}) = \beta_{0} + \beta_{1}ln(\text{Poverty}_{i})+\beta_{2}ln(\text{College}_{i})+ \beta_{3}ln(\text{Black}_{i})+\beta_{4}ln(\text{Urban}_{i})+\beta_{5}\text{Region}_{i}+\epsilon_{i}$$
+
+In this model, the slopes for the log‐transformed regressors (lnpoverty, lncollege, lnblack, lnurban) are all known as “elasticities,” and they represent the percentage difference in Yi for two hypothetical observations which differ by one percent in $X_{i}$. 
+
+The slopes for the dummy regressors (region) represent proportional differences in violent crime between the noted region and the reference region. 
+
+```{r}
+summary(lm(lnviolrate~lnpovrate+lncollege+lnblack+lnurban+region,
+           data=abstracts_data))
+```
+
+Note that elasticities are more often multiplied by 10 to make their interpretation meaningful. 
+
+Let's focus on the coefficient for lnpovrate. It indicates that a state possessing a poverty rate that is 10% higher than a counterpart state (say, 11% poverty versus 10% poverty, or 22% versus 20%) has a violent crime rate that is 3.7% higher, on average and all else equal. 
+
+NOTE: Technically, for a state with 10% higher poverty, the percent difference in the violent crime rate is $100*{[110/100]^{0.370}-1} = 3.59\%)$. 
+
+With respect to the regional dummies, the slopes are best multiplied by 100 to give them a **percent difference** interpretation. 
+
+For example the coefficient for West indicates that the violent crime rate of Western states is 42.6% higher than Midwestern states, on average and all else equal. 
+
+In addition to altering the metric of the model, the natural logarithm has one characteristic that can be advantageous. Namely, it can accommodate a relationship between $X_{i}$ and $Y_{i}$ that is fundamentally non-linear. 
+
+Let's return to the regressor for percent black, for which we have already seen that violent crime exhibits mild non-linearity. 
+
+We will inspect two scatterplots - one which keeps **violrate** and **black** in their original metric and one which performs a log-transformation on both.
+
+```{r, message=FALSE, fig.align='center'}
+ggplot(abstracts_data, aes(x=black, y=violrate)) + 
+  geom_point() +
+  geom_smooth(method="loess", se=F, linetype="dashed", color="darkred")
+```
+
+```{r, message=FALSE, fig.align='center'}
+ggplot(abstracts_data, aes(x=lnblack, y=lnviolrate)) + 
+  geom_point() +
+  geom_smooth(method="loess", se=F, linetype="dashed", color="darkred")
+```
+
+Interestingly, the log-log scatterplot linearizes the relationship between percent black and violent crime rates. 
+
+While there remains very mild non-linearity in the log-log scatterplot, the fact that the regression line is always increasing (i.e., there is no inflection point) indicates that we could preserve degrees of freedom by estimating a log-log model as opposed to a polynomial model.
+
+### Assumptions Concerning the Regressors: Linear Independence
+
+A key assumption for identifiability of the regression model is linear independence of the regressors. 
+
+Specifically, a regressor cannot be a perfect linear combination of other regressors, and the regressors cannot be perfectly correlated with each other. 
+
+Another way to express this is to say that the matrix of regressors must have “full column rank.” 
+
+Perfect linear dependence characterizes a categorical variable which is coded into dummy variables. 
+This is the reason that, when we perform regression with dummy regressors, we must omit the dummy variable for one of the categories, which is labeled the reference category. 
+
+Consider the census region example used earlier. Perfect linear dependence arises because, once we know that a state is coded 0 on neast, west, and south, it must be coded 1 on mwest. 
+
+So the sum of all four dummy variables is 1 for all states, which means there is a perfect linear combination of the dummy regressors unless one of them is excluded from the model.
+
+It is easy to know if perfect linear combinations of regressors exist because the regression model will break down when it is estimated. 
+
+On the other hand, we can still estimate the regression model if we have high correlations among any of the regressors, and it can create problems. 
+
+High correlations lead to a problem known as **multicollinearity**, and it can make regression coefficients highly unstable. The first place to start is with an examination of a correlation matrix of the variables included in the model. We are looking for unusually high correlations.
+
+```{r, echo=TRUE}
+abstracts_data$neast<-ifelse(abstracts_data$region=="Northeast",1,0)
+abstracts_data$mwest<-ifelse(abstracts_data$region=="Midwest",1,0)
+abstracts_data$west<-ifelse(abstracts_data$region=="West",1,0)
+abstracts_data$south<-ifelse(abstracts_data$region=="South",1,0)
+df_reg<-with(abstracts_data, data.frame(lnpovrate, lncollege, lnblack, lnurban,
+                                      neast, mwest, south, west))
+cormat<-round(cor(df_reg),2)
+cormat
+```
+
+None of these correlations gives cause for alarm. 
+
+However, a disadvantage of this diagnostic approach is that it only provides information about collinearity problems which are bivariate. 
+
+If there are linear combinations of three or more variables, an alternative test is required. After the model is estimated, we can inspect the variance inflation factors (VIFs). One general rule is to be concerned about a VIF that exceeds 2.0 and especially one that is in proximity to 5.0.
+
+```{r, echo=TRUE}
+vifs<-vif(lm(lnviolrate~lnpovrate+lncollege+lnblack+
+               lnurban+mwest+south+west,
+             data=abstracts_data))
+vifs
+```
+
+There might be a reason to be concerned about collinearity problems in this model. 
+
+The highest VIF is for lnblack, but this regressor is already statistically significant, so it does not seem that multicollinearity is creating any efficiency problems for this variable. 
+
+On the other hand, notice that lnurban and the regional dummies all have VIFs larger than 2.0, and the dummy regressor for southern states has a modestly large VIF. 
+
+### Assumptions Concerning the Residuals: Homoscedasticity
+
+The assumption of **homoscedasticity** is the assumption of constant variance of the residuals, conditional on the regressors. Formally, this assumption is represented as: 
+
+$$V(\epsilon_{i} \mid X_{i1},...,X_{ik}) = E(\epsilon^{2}_{i} \mid X_{i1},...,X_{ik}) = \sigma^{2}_{\epsilon} \text{ } \forall \text{ } i$$
+
+We can evaluate violation of the constant variance assumption by plotting the residuals against the model-fitted values. We are looking for any evidence that the residuals fan out.
+
+```{r, echo=T, fig.align='center'}
+lm2<-lm(lnviolrate~lnpovrate+lncollege+lnblack+lnurban+region,
+        data=abstracts_data)
+ggplot(, aes(x=lm2$fitted.values, y=lm2$residuals)) +
+  geom_point() + 
+  geom_hline(yintercept=0, color='red', linetype='dashed')
+```
+
+In this figure, heteroscedasticity is difficult to judge, although it does not appear to be a major problem. 
+
+There are a couple of numerical tests that we can employ. A caveat, though, is that these tests are sensitive to the normality assumption, which we have not yet evaluated for this model. 
+
+```{r, echo=TRUE, message=FALSE}
+library(lmtest); library(olsrr)
+bptest(lm2)
+ols_test_score(lm2)
+```
+
+By these criteria, the residuals appear to be homoscedastic. 
+
+Had we concluded otherwise, it would have been wise to use the coeftest() function in the lmtest package to estimate heteroscedasticity-robust standard errors, or what are also known as Huber-White standard errors. 
+
+These are appropriate for arbitrary forms of heteroscedasticity. In fact, robust standard errors are generally a good idea in any regression model.
+
+Regular Standard Errors:
+```{r, echo=TRUE}
+summary(lm2)
+```
+
+Robust Standard Errors:
+```{r, echo=TRUE}
+library(sandwich)
+coeftest(lm2, vcov=vcovHC, type="HC1")
+```
+
+### Assumptions Concerning the Residuals: Normality
+
+Normality of the residuals is not a required assumption of the linear model. 
+
+Even if this assumption is violated, the estimates from the model are still unbiased and efficient. 
+Rather, approximate normality is only necessary for hypothesis testing because a distributional assumption is made in order to compute p-values for the refression coefficients. 
+
+Formally, the assumption is:
+
+$$\epsilon_{i} \mid X_{i1},...,X_{ik} \sim N(0, \sigma^{2}_{\epsilon})$$
+
+In practice, of course, we rely on the t-distribution rather than the z-distribution, with df=k, in order to estimate the p-values. 
+
+We can assess normality with a kernel density plot of the residuals, which is like a histogram, but with very narrow bins. The normal density can be overlaid to assess the degree to which the residuals depart from normality:
+
+```{r, echo=T, fig.align='center', fig.height=2.5, fig.width=5}
+ggplot(data=data.frame(residuals<-lm2$residuals),aes(x=residuals)) + 
+  geom_density() + 
+  stat_function(fun=dnorm, color='red', linetype='dashed',
+                args=list(mean=mean(residuals),
+                          sd=sd(residuals)))
+```
+
+As you can see, the log-log model performs quite well with respect to the normality assumption. An alternative to the density plot is a standardized normal probability plot, in which case we would like to see the data points line up along the diagonal:
+
+```{r, echo=T, fig.align='center', message=FALSE}
+library(ggpubr)
+ggqqplot(lm2$residuals)
+```
+
+A formal test of the normality of the residuals is provided by the Shapiro-Wilk test (among others):
+
+```{r, echo=F}
+shapiro.test(lm2$residuals)
+```
+
+The test confirms our visual diagnosis of no serious evidence of non-normality. 
+
+# Two Questions
+
+What are your two questions today?
+
+![Just Give Me the Answer!](answer_gif.gif)

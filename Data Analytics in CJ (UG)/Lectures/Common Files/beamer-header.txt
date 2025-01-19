@@ -1,0 +1,32 @@
+\setbeameroption{hide notes}
+\setbeamertemplate{note page}[plain]
+
+\usetheme{Dresden}
+\beamertemplatenavigationsymbolsempty
+\hypersetup{pdfpagemode=UseNone} % don't show bookmarks on initial view
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber
+}
+
+\usepackage{amsmath,amssymb,amscd}
+\usepackage{booktabs}
+\usepackage[color,matrix,arrow]{xy}
+\usepackage[scale=2]{ccicons}
+\usepackage[normalem]{ulem} 
+\usepackage{setspace}
+
+\usefonttheme{professionalfonts}
+\usefonttheme{serif}
+
+\setbeamertemplate{itemize subitem}{{\textendash}}
+
+\addtobeamertemplate{note page}{\setlength{\parskip}{12pt}}
+
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\ig}{\includegraphics}
+\newcommand{\subt}[1]{{\footnotesize \color{subtitle} {#1}}}

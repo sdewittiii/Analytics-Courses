@@ -1,0 +1,367 @@
+---
+title: '"Data Sources, Types, and Structures"'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# "Mommy, where do data come from?"
+
+**Focus for today:**
+
+* Data sources
+* Data file types
+* Principles of "good" data
+* Opening data in R
+* Interacting with data in R
+
+## Data Sources
+
+**Primary and Secondary Data**
+
+- Primary Data are data that you collect yourself
+- Secondary data are any data that already exist (someone else collected it)
+
+The good thing about primary data is that you get to collect exactly the information you (think you) need. 
+
+It can be expensive and slow to do this.
+
+Secondary already exist, so it's much quicker. Often cheaper. May even be free (if data are open source or publicly available).
+
+The catch with secondary data is that the data may not be in exactly the form you need, or measure exactly what you need to measure.
+
+***
+
+*Most of what happens in data analytics involves secondary data.*
+
+The data already exist - it's just a matter of interacting with it, cleaning it, getting it into a useful form where you can analyze it.
+
+This likely will involve lots of work up front to get the data into the form that you need it.
+
+* Data cleaning
+
+***
+
+**Raw versus processed data**
+
+* Raw data
+     + The original source 
+     + Hard to use this for any analysis
+     + Data analytics of raw data must include data processing
+     + May need to process once, may need multiple or continual processs
+
+* Processed data
+     + Data is ready for analysis
+     + Processing at this stage may be merging, subsetting, filtering, or transforming variables
+
+*All of steps you take in processing or cleaning your data need to be recorded*
+
+***
+
+**Data files can come from lots of places**
+
+* Websites
+* Social Media (e.g. Twitter, Facebook)
+* Government Files (e.g. UCR)
+* Surveys
+* Company data (sales, employee data)
+* Medical records
+
+Think about how much data you generate on a daily basis.
+
+* Buy something?
+* Send an email?
+* Tweet?
+* Fitbit?
+* GPS?
+* Go to the doctor?
+
+-- *What else do you do that generates data?*
+
+All that data gets stored! And somebody is using it.
+
+**ALL OF IT.**
+
+***
+
+## What is Big Data? (And why should I care?)
+
+"Big" is often confused for large. 
+
+Big data is not just large.
+
+**Data Storage in today's world**
+
+Your typical smart phone has a storage capacity of 64 to 128 GB of storage.
+
+But what does that mean? 
+
+* 1000 Bytes = 1 Kilobyte (KB)
+* 1000 Kilobytes = 1 Megabyte (MB)
+* 1000 Megabytes = 1 Gigabyte (GB)
+* 1000 Gigabytes = 1 Terabyte (TB)
+* 1000 Terabytes = 1 Petabyte (PB)
+* 1000 Petabytes = 1 Zetabytes (ZB)
+
+Today's data storage capacity is not measured in megabytes and gigabytes. It's measured in petabytes and zetabytes.
+
+Most standard computers come with at least 256 GB (0.25 TB) of storage. Good ones will have twice that or more. 
+
+*Moore's Law*
+
+* The processing power of computers doubles every two years.
+
+*Kryder's Law* 
+
+* The storage capacity of computers doubles every two years.
+
+**So, big data isn't just large.**
+
+Big data is data that is so large that its size is part of the problem.
+
+* Volume
+* Variety
+* Velocity
+
+Big data is large. Big data is messy. And it's coming at you at high speed.
+
+Data analytics involves statistics, but the crux of the issue is data handling.
+
+Regression is about a century old. When it was created, 100 cases was considered large. It's common to have over a *million* cases now. Statistical significance in those situations isn't a relevant concept anymore. The challenge for today's data analyst or data scientist is how to wrangle the data in the first place.
+
+***
+
+## How is Big Data handled?
+
+Where do you store all that data?
+
+* Offsite data servers or data centers
+* Cloud 
+* Distributed network of storage
+
+Interacting with the data - a few popular choices exist
+
+* **Hadoop**
+
+A big data platform that uses multiple computers linked together to store smaller portions of a very large data file, to query the relevant sections, and to analyze that information.
+
+
+```{r, echo=FALSE}
+library(jpeg)
+hadoop<-readJPEG("hadoop1.jpg",native=TRUE)
+plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+rasterImage(hadoop,0,0,1,1)
+```
+
+The Hadoop Ecosystem (Zookeeper)
+
+```{r, echo=FALSE}
+eco<-readJPEG("hadoopecosystem.jpg",native=TRUE)
+plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+rasterImage(eco,0,0,1,1)
+```
+
+The Hadoop Distributed File System (HDFS)
+
+```{r, echo=FALSE}
+systempic<-readJPEG("SystemIllustration.jpg",native=TRUE)
+plot(0:1,0:1,type="n",ann=FALSE,axes=FALSE)
+rasterImage(systempic,0,0,1,1)
+```
+
+Companies who use this system for data problems
+
+* Google
+* Facebook
+* LinkedIn
+* Amazon
+
+***
+
+## Data Sources in Criminal Justice and Criminology
+
+Data in these disciplines are still being used for analytics
+
+* Police records
+* Government
+* Surveys
+* Court records
+* Historical records (archives, newspapers, etc.)
+* Registries (firearm, or sex offender)
+* Social media
+* Body cameras
+* Surveillance cameras
+
+*Think of the possibilities if you could put those together in real time.*
+
+We're swamped by data. The availability of the data isn't the problem. It's how we extract information from all that data, and how we make good decisions based on the data.
+
+* Ask the right questions
+* Figure out the right structure of the data needed to answer the question
+* Analyze the data
+* Present the results of the analysis in way that people can understand and trust
+
+***
+
+## Data File Types
+
+Data may exist, or may be stored, in a variety of formats.
+
+* Excel spreadsheets (.xls)
+* Text files or tables (.txt)
+* JSON objects (.JSON - social media, for example)
+* "Foreign" file types (.sav, .dta, .sas7bdat)
+
+One of the most common file types - the Comma Separated Value (.csv)
+
+R can read any of these - if you ask it nicely.
+
+The most basic function R uses to open data is:
+
+> read.table()
+
+Flexible, but requires lots of options to be specified
+
+Important options - file, header, sep, row.names, nrows
+
+To read CSV files, R can use a related function.
+
+> read.csv()
+
+You need fewer options to be specified, since R already knows its supposed to be opening a CSV file type.
+
+***
+
+## Opening Data in R
+
+Now that we understand a little about data sources and data structures, let's open some data.
+
+Remember that R is an object oriented language. We create objects and execute functions on those objects.
+
+The first step in creating objects - come up with a good name.
+
+When you open data, you're creating an object - that object will be your data file.
+
+That name might be something as simple as "data", or you might give it a more substantive name. If you're opening a data set on homicides, call it "homicide", or a police record data could be "police".
+
+Quick conventions
+
+* Give it a name you can remember
+* Give it a name you can type easily
+* Give it a name you don't mind typing a lot
+
+Rules for naming objects in R
+
+* Can use letters A-Z, or a-z
+* Can use numbers 0-9
+* Can use decimals and underscores ( . and _ )
+
+Example data frame names: 
+
+> mydata
+
+> myData
+
+> ht.data
+
+> ucr.2017
+
+> gtd_full
+
+**Okay, let's open some data.**
+
+For this example, I'm going to open the drug-related homicide data from Mexico. These were gathered by Reforma, a daily newspaper based in Mexico City.
+
+> mex.data <- read.csv(file.choose(),header=TRUE) 
+
+This code does a couple things.
+
+1. Creates a new object, called "mex.data"
+2. Asks R to read a CSV file (read.csv())
+3. Asks R to open a file browser to let you manually select the file you want (file.choose(),)
+4. Tells R the first row of the data is a header, or contains the variable names (header=TRUE)
+5. After it reads in that data, it passes the data to the object you created and stores it as a data frame
+
+Remember that R uses the "assignment operator" to pass the contents on the right to the object on the left
+
+The assignment operator is the "less than" symbol followed by a hyphen. 
+
+> <-
+
+You'll use that thing a lot, so get used to it.
+
+**Now that we've created an object and put into R's memory, we can do stuff with it.**
+
+We can use the class() function to ask for the object's class. It should be a data frame.
+
+We can ask for the structure using the str() function.
+
+We can ask for a summary using the summary() function.
+
+```{r,echo=FALSE}
+mex.data <- read.csv("reforma_ejecutometro.csv",header=TRUE)
+```
+
+```{r}
+class(mex.data) # Checks the class of the mex.data object
+str(mex.data) # Checks the structure
+summary(mex.data) # Asks for a summary of the object
+```
+
+Remember that you can use the "$" operator to references specific variables in the data frame.
+
+```{r}
+class(mex.data$QuintanaRoo)
+mean(mex.data$Veracruz)
+summary(mex.data$Zacatecas)
+```
+
+***
+
+## Other super helpful functions for data entry and data construction
+
+**Column-binding and row-binding**
+
+* Adding a new column to the end of a data frame
+* Adding a new row to the bottom of a data frame
+
+> cbind()
+
+> rbind()
+
+The logic here is to column bind your new column to the old data frame, and pass the contents to the data frame. This exploits the dynamic language part of R. 
+
+> data.frame <- cbind(dataframe, newvariable)
+
+**Changing the class of an object**
+
+It's very common to have an object (like a variable), stored in one type, but to need to change it to a different class (for reasons we'll get into later in the course)
+
+There are a series of functions to do that.
+
+> as.factor()
+
+> as.character()
+
+> as.numeric()
+
+> as.data.frame()
+
+The code would look something like this.
+
+> my.variable <- as.factor(my.variable)
+
+Here's a real example. Let's change the month variable to be a character class variable. 
+
+```{r}
+class(mex.data$Month)
+month2 <- as.character(mex.data$Month)
+class(month2)
+table(month2)
+mex.data <- cbind(mex.data,month2)
+str(mex.data)
+```
+
+![Don't go home yet, there's more lecture](deadpool_stillhere.png)

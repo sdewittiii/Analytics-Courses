@@ -1,0 +1,23 @@
+---
+title: "loadcsv"
+author: "Samuel DeWitt"
+date: "4/1/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data<-read.table('Lethal Interventions 1980-2000.csv', sep=",", header=TRUE)
+summary(data)
+```
+
+```{r}
+data$lethint_abavg<-with(data, ifelse(lethint>mean(lethint),1,0))
+```
+
+```{r}
+with(data, table(lethint_abavg,recode_crimrt))
+```

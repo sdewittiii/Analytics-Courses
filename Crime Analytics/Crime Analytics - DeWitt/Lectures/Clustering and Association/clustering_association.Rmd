@@ -1,0 +1,336 @@
+---
+title: "Clustering and Association"
+author: "CJUS 6106 - Crime Analytics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven); library()
+options(scipen=20)
+```
+
+## Clustering and Association
+
+The techniques we discuss in this lecture involve detecting similarities between observations in a data set, generally with no *a priori* assumptions about what characteristics should drive the search for similarities. 
+
+Clustering analyses such as these are sometimes referred to as **unsupervised learners** because the algorithm is not provided instructions for which characteristics to use to detect similarity but is left to select these characteristics on its own. 
+
+This family of algorithms is especially helpful when:
+- Not much is known about some phenomenon or its associated characteristics.
+- You want to run a classification analysis on some data but do not know where to start. 
+
+Within this category of methods, there are a few more popular choices for cluster analysis - these include **principal components analysis** and **k-means**. Today, we will review each, beginning with the former. 
+
+## Principal Components Analysis
+
+One of the more typical applications of **principal components analysis** in the social sciences is variable reduction. 
+
+As an example, let's say that we are trying to predict recidivism of an individual who has just left prison and we have multiple variables describing their characteristics, including a pretty exhaustive set of attitude scores we know to be associated with new criminal behavior. In this example, let's suppose we have ten such scores. 
+
+The problem is that those ten scores are highly correlated with one another. If I include all of them in a regression model, chances are high that there will be very little unique variation left in each to explain the outcome. Instead, I would use **principal components analysis** to compute what is known as a **factor score**. 
+
+What **principal components analysis** technically does is to assume that there is a *p-dimensional space* (where there is one dimension for each variable) in which values on variables cluster together. The algorithm simplifies this by minimizing dimensions into those where observations vary more. 
+
+![Simpson's 3-Dimensional Space](homer_3d.gif)
+
+This process results typically results in one or more underlying **latent** factors (though usually no more than three or so that are very interesting). These **latent** factors represent some concept that ties specific attitudes together such that individuals high on one score also tend to be high or low on other scores. 
+
+After we have detected these factors, we can then replace the ten original attitude scores in the models with the reduced number of factors, which now has fewer highly correlated variables (and, therefore, less severe multicollinearity issues).
+
+Variable reduction is very helpful (and recommended) in scenarios where you have a lot of information (variables) about units of analysis, but few of the units themselves to analyze. Generally speaking, you want some large number of units per variable in a model (the number 30 is arbitrarily thrown around) and this number will depend on the unique values of the variable itself. 
+
+Let's begin with an example using some data myself and a colleague put together for a project about violent crime and state expenditures. 
+
+```{r}
+state_data<-as.data.frame(read_dta("state_data.dta"))
+state_data <- state_data[complete.cases(state_data),]
+state_names <- state_data$state
+state_data[,1] <- NULL
+str(state_data)
+```
+
+Lots of information here! To put it simply, there are the typical index crimes measured here but we also focused on social assistance programs and various economic indicators. The ultimate question is, do states with more generous social assistance programs and healthier economics also have lower crime rates (property and violent)?
+
+Let's run some PCA and see how the states tend to cluster:
+
+```{r}
+pca_out <- prcomp(state_data, scale=TRUE, rank=4)
+pca_out$center
+pca_out$scale
+```
+
+I specify rank=4 to keep just the top for principal components. This is mostly for the sake of simplicity in this example. Otherwise the number is much larger. Practically speaking, though, the significance of components beyond that number were fairly low so those would have been cutoff later on, anyhow. 
+
+I also specify scale=TRUE. What this means is that not only are all numeric variables centered at their mean, but they are also standardized to have a standard deviation of one (what else has a mean of zero and a standard deviation of one?). 
+
+I do this because these variables are measured on various scales and some have very large variances whereas others have low variances. The problem with large differences in variance is that the PCA is driven by explaining the variance in some underlying latent variable - larger variances will overwhelm this process and weight the results so that variables with larger variances have higher loadings onto the latent components. 
+
+Simply put, standardize your numeric variables before using PCA, otherwise the results will favor variables with larger variances. 
+
+
+Okay, now that we have the PCA estimated, let's see show the rotation vector to see which variables load into which component:
+
+```{r}
+pca_out$rotation
+```
+
+From the looks of it, the first factor has to do with how a state spends its tax dollars, the second mostly concerns the crime rate, the third is a mixture of poverty and other income indicators, and the last component is a blend of crime rates and income. 
+
+Now, let's look at a biplot for the first two factors:
+
+```{r}
+plot <- biplot(pca_out, scale=0, cex=c(0.3,0.6), cex.axis=0.6)
+plot + abline(h=0, col="grey", lty=4)
+plot + abline(v=0, col="grey", lty=4)
+plot
+```
+
+A little messy, but we can see how the individual variables load into the two factors. The dashed lines represent scores of 0 on either component or, for the secondary axis, loadings onto either factor.
+
+Interpreting all of these results is generally pretty tricky as there are also more than two factors from this analysis. But, an example or two is helpful:
+- The avwage (average wages) loads positively on component 2 but negatively on component 1 - it's about a magnitude of 0.2 for both. 
+- By contrast, the poverty rate (poverty) loads negatively onto both components; about 0.1 for component 1 and 0.2 for component 2. 
+
+We will also want to know how much of the total variance across all four components is explained by each. We can calculate estimates for this by computing the variance for each component then dividing it by the sum of these variances. 
+
+```{r}
+pca_variance <- pca_out$sdev^2
+pca_explained <- pca_variance/sum(pca_variance)
+pca_explained
+```
+
+The explained variance still spits out for all the components the PCA identified, but we are only interested in the first four. We can see here that the first component explained a little over 33% of the total variance across the components, the second explained almost 20%, the third about 10%, and the fourth about 9%. There are definitely diminishing returns with each subsequent component!
+
+This makes sense, because the components are unrelated to one another. By design, the PCA will start computing components to maximize explained variance, then move onto variance that CANNOT be explained by the first component to maximize explained variance for the second component, and so on...
+
+One final note, we can extract scores on these components from the **x** vector within the **pca_out** object, like so:
+
+```{r}
+factors <- data.frame(pca_out$x)
+str(factors)
+```
+
+If you use the rbind() function you can then collect these scores into the state_data data frame to use later on. Note that each value within each column represents the factor loading for that observation for that component.
+
+In practice, I recommend putting the variable you want to run a factor analysis on into a separate data frame, running the PCA, then adding the factor score vectors back into the original data frame. 
+
+### A Final Note on Eigenvalues and Variable Reduction
+
+If you search for "factor analysis" on Google you will undoubtedly come across the terms eigenvector and eigenvalue. We don't have time to discuss the intricacies of each, but I want to provide some direction on the latter. 
+
+An eigenvalue is simply a scaled eigenvector. Eigenvectors are represented by the standard deviations stored by the prcomp() function. You can display these like so:
+
+```{r}
+pca_out$sdev
+```
+
+Where each value represents the eigenvector of the nth principal component in these data. If we were to square these values, we would obtain eigenvalues, which are typically used to decide which components to retain. As a general rule, eigenvalues above 1.00 are considered worthwhile to retain as factors. 
+
+Let's look at the eigenvalues in these data now - we can obtain these values by squaring the sdev vector from the stored PCA analysis:
+
+```{r}
+pca_out$sdev^2
+```
+
+So it looks like we could decide to keep the top five factors instead of the top four because the fifth eigenvalue is about 1.51. The sixth is only slightly above one, so I don't think it's prudent to keep that one. 
+
+If you were to apply this to your own analysis, you would instead keep the first five factors by changing the rank= option to rank=5. You could then examine the loadings onto each component, then change the name to something menaingful for the loading patterns. 
+
+The benefit to this approach is that you could reduce your number of variables from some large number - in this example, 28, to a much smaller value (around five, depending on factor loadings). 
+
+This simplifies a regression model and is especially useful when you do not have very many observations or have to choose from a very large number of variables. 
+
+## k-Means Clustering
+
+The **k-means** algorithm attempts to identify some number of clusters in the data, where *k* is that number, based upon the position of the clusters with respect to the center point across the number of groups. 
+
+That seems very obtuse and requires some additional explanation. The process is somewhat similar to PCA, but in this case we identify clusters, not factors - the distinction is not very meaningful in theory or practice, I think. 
+
+Whereas PCA expressly calculates factors based upon variance, the **k-means** algorithm calculates clustering based upon distance from a centroid, which is itself not very dissimilar from a variance. 
+
+The chief difference is that the **k-means** algorithm expects you to provide **k**, while PCA will compute as many factors as are evident in the data. Both methods are inherently finding more homogeneous groups within heterogeneous data, but often for different purposes. 
+
+In terms of explaining what **k-means** does, it's easiest in graph format. I'll keep using the *state_data* data frame but I want to cut out some variables for the sake of simplicity. I'll use the subset function and the select option to do so:
+
+```{r}
+state_data_red <- subset(state_data, 
+                         select=c("inc_rate", "poverty"))
+```
+
+Now, I can run the kmeans function on the reduced data frame using an initial number of 3 clusters (chosen arbitrarily!) like so:
+
+```{r}
+set.seed(03151813)
+kmeans_out <- kmeans(state_data_red, 3)
+```
+
+First, we will take a look at the numeric results:
+
+```{r}
+kmeans_out
+```
+
+The first part of these results show the variable averages for the different clusters. It's helpful to compare these to the overall sample averages:
+
+```{r}
+kmeans_out$centers
+summary(state_data_red)
+```
+
+We see that Cluster 1 has a slightly below average value for the incarceration rate as well as a below average value for the poverty rate, Cluster 2 has an above average value for the incarceration rate and a much higher than average value for poverty, and Cluster 3 has an about average value for the incarceration rate and a slightly higher than average poverty rate. 
+
+The overall picture I see here is that the relationship between the poverty rate and incarceration rate is positive - higher values of one variable tend to correspond to higher values of the other. 
+
+Let's now take a look at the plot of these clusters, with the assigned cluster representing the color of each dot:
+
+```{r}
+plot(state_data_red, col=(kmeans_out$cluster +1), # +1 to suppress default color
+     main="K-Means Clustering of Reduced State Data with K=3",
+     pch=20, cex=2)
+```
+
+It looks like the groups are fairly separate in two-dimensional space, but there is definitely some overlap on both the x and y-axis. 
+
+We may want to assess the performance of this model with respect to randomly assigning each observation to a random cluster and seeing what values of the within-cluster sum-of-squares are calculated for the best models.
+
+We focus on the within-cluster sum-of-squares because this provides an indicator of how much variation there is within the cluster. We want the smallest values on this as possible because that means that observations within a cluster are more similar to each other than they are dissimilar.
+
+We can do this by assigning different values to the nstart= option within the kmeans() function like so:
+
+```{r}
+kmeans1 <- kmeans(state_data_red, 3, nstart=1)
+kmeans1$tot.withinss
+```
+
+That's a really high value! There's no standard for what the value should be, as it will depend upon how the variable is measured, but both the poverty rates and incarceration rates are pretty low values, so a within-cluster sum-of-squares that high tells us that there is a lot of within-cluster variation. 
+
+Let's increase the nstart value and see if we can minimize that a bit:
+
+```{r}
+kmeans2 <- kmeans(state_data_red, 3, nstart=50)
+kmeans2$tot.withinss
+```
+
+Wow. No movement whatsoever. Despite a pretty decent bivariate correlation between these variables (not shown, but cor.test provides a positive correlation of 0.39) there remains a LOT of variability within the clusters. This leads me to...
+
+### How to Identify the Optimal Number of Clusters
+
+There are two different methods to identify the optimal number of clusters in a k-means algorithm. The first is known as the **Elbow** method. This involves assessing which number of clusters minimizes the within-group sum-of-squares. 
+
+Recall that this algorithm is trying to maximize homogeneity within groups - so this means that we want to have as many groups as we need to obtain a minimum amount of within-group variation on the variables included in the clustering algorithm. 
+
+This is fairly straightforward to do, and involves plotting the within-group sum-of-squares values for a range of possible values for k. You can automate this process like so:
+
+```{r}
+set.seed(03151813)
+scaled_state_data <- as.data.frame(scale(state_data_red, 
+                                         center=TRUE, 
+                                         scale=TRUE))
+k.max <-20
+wss <- sapply(1:k.max, 
+              function(k){kmeans(scaled_state_data,
+                                 k, nstart=50,
+                                 iter.max = 15 )$tot.withinss})
+wss
+plot(1:k.max, wss,
+     type="b", pch = 19, frame = FALSE, 
+     xlab="Number of clusters K",
+     ylab="Total within-clusters sum of squares")
+```
+
+The *elbow* in this plot is where the curve begins to flatten out and there are diminishing returns to reducing the within-group sum-of-squares for each additional group. It appears that we could choose k=4 or k=5 groups to best minimize within-group variation. 
+
+Before we do that, let's explore the silhouette method. This method...**fill in details here**
+
+We can implement this method using the following code. Note that this requires you to install and load the **cluster** package to use the *silhouette()* function. 
+
+```{r}
+silhouette_score <- function(k){
+  km <- kmeans(scaled_state_data, centers = k, nstart=25)
+  ss <- silhouette(km$cluster, dist(df))
+  mean(ss[, 3])
+}
+k <- 2:20
+avg_sil <- sapply(k, silhouette_score)
+plot(k, type='b', avg_sil, xlab='Number of clusters', ylab='Average Silhouette Scores', frame=FALSE)
+```
+
+### Adding Some Complexity to k-Means Clustering
+
+The two variable example above was selected for its simplicity. In practice, we may use many different variables in the clustering model, but that can make the output a bit unwieldy (especially the plots!). 
+
+Let's try a more complex model now with more variables. First, I want to select more variable from the state_data and I want to create a total crime rate variable:
+
+```{r}
+state_data$ttl_crime <- with(state_data, rmurd+rrape+rrobb+raggr+
+                               rburg+rlarc+rauto)
+state_data_red <- subset(state_data, 
+                         select=c("inc_rate", "poverty", "txsocl", "ttl_crime"))
+```
+
+Now, I want to scale the variables so it's easier to read the subsequent plots. I can use the scale() function to accomplish this:
+
+```{r}
+scaled_state_data <-as.data.frame(scale(state_data_red, 
+                                        center=TRUE, scale=TRUE))
+```
+
+Before we move forward, let's take a quick look at summaries from both data frames:
+
+```{r}
+summary(state_data_red)
+summary(scaled_state_data)
+```
+
+We can confirm that the means for the scaled data frame are 0 - if you wanted to also check the standard deviations they would all have a value around 1. 
+
+Now, let's run the kmeans function again, specifying the same number of groups:
+
+```{r}
+scaled_kmeans <-kmeans(scaled_state_data, 3, nstart=20)
+scaled_kmeans
+```
+
+And now, let's see what the new plot looks like:
+
+```{r}
+plot(scaled_state_data, col=(scaled_kmeans$cluster +1),
+     main="K-Means Clustering Results with K=3",
+     pch=20, cex=2)
+```
+
+This now produces a matrix of plots with different x and y-axes corresponding to the different variables used for the clustering algorithm. 
+
+For an example, let's look at the plots in the third column. In this column, the amount of US dollars spent on social programs is along the x-axis, while the other variables are on the y-axis. 
+
+The groups are fairly distinct in these plots - states that spend more than average on social programs tend to have average values of total crime rates, poverty rates, and incarceration rates. 
+
+By contrast, states that spend lower than average dollars on social programs are split into two groups - one having higher than average values for incarceration, poverty, and crime rates and the other group having average or below average values for these rates. 
+
+As a final exercise, let's let the model run wild a bit and give it all the scaled variables as inputs:
+
+```{r}
+scaled_state_data <- as.data.frame(scale(state_data, 
+                                         center=TRUE,
+                                         scale=TRUE))
+full_kmeans <- kmeans(scaled_state_data, 10, nstart=50)
+full_kmeans
+plot(scaled_state_data[,c(8,14,19,28,29)], col=(full_kmeans$cluster +1),
+     main="Model Ran Wild, K=10",
+     pch=20, cex=2)
+```
+
+### Final Notes
+
+There are methods to detect the ideal number of clusters in the data as well as methods (like the hclust() function) that can work without specifying the number of clusters before running the model. 
+
+I don't have time to further explore these today, but this was a rudimentary introduction to two different types of unsupervised learning techniques that try to summarize homogeneity in your data. 
+
+
+
+## Two Questions
+
+What are your two questions?
+
+![Time to Go Home](bueller_gif.gif)

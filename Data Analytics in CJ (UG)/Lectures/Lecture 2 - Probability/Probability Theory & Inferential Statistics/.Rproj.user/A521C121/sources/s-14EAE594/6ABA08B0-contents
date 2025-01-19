@@ -1,0 +1,316 @@
+
+
+###################################
+# LECTURE DES FICHIERS EXCEL
+###################################
+
+library(openxlsx)
+library(plyr)
+
+banque=read.xlsx("S:/CLIENTS 2017/F. Dufour, Isabelle/Creation de donnees/Banque donn?es 14-08-17.xlsx",
+                 sheet = 1, 
+                 detectDates = TRUE)
+
+LSCMI=read.xlsx("S:/CLIENTS 2017/F. Dufour, Isabelle/Creation de donnees/LSCMI.xlsx",
+                sheet = 1, 
+                detectDates = TRUE)
+
+cohorte=read.xlsx("S:/CLIENTS 2017/F. Dufour, Isabelle/Creation de donnees/Cohorte hommes.xlsx",
+                  sheet = 1, 
+                  detectDates = TRUE)
+
+
+# creation des periodes a l'etude
+periodeInf=seq(as.Date("2009-04-01"),as.Date("2016-04-01"), by = "quarter")[(1:26)%%2==1][-15]
+periodeSup=seq(as.Date("2009-09-30"),as.Date("2016-09-30"), by = "quarter")[(1:26)%%2==1][-15]
+
+cbind(as.character(periodeInf), as.character(periodeSup))
+
+nbPer=length(periodeInf)
+
+
+###################################
+# MANIPULATION DES DONNEES
+# banque 
+# Banque donn?es 14-08-17.xlsx
+###################################
+
+# donnees des 9000 convictions des quelques 3000 incarceres au moins 185 jours 
+# du 1er avril 2009 au 31 mars 2012
+banque$CdGrav2=ifelse(banque$CdGrav==9999999,NA,banque$CdGrav)
+
+# recoder le code de gravite de delit
+banque=within(banque,{graviteCAT = ifelse(CdGrav2<3600,6,
+                                      ifelse(CdGrav2<31000,5,
+                                        ifelse(CdGrav2<56000,4,
+                                          ifelse(CdGrav2<134000,3,
+                                            ifelse(CdGrav2<236000,2,
+                                              ifelse(CdGrav2>=236000,1,NA))))))})
+
+banque=within(banque, {gravite = 10000000/CdGrav2})
+
+table(banque$graviteCAT)
+
+banque2=banque[banque$Contact==0,]
+
+# creation de la base de donnees et des nouvelles variables
+banque_large=matrix(ncol=71,nrow=1591)
+colnames(banque_large)=c("Id",
+                           paste0("prison",1:nbPer),
+                           paste0("violence",1:nbPer),
+                           paste0("violence2_",1:nbPer),
+                           paste0("nbCrimes",1:nbPer),
+                           paste0("etablissement",1:nbPer))
+
+# numeros de tous les 1591 incarceres et de tous les etablissements
+incarceres=unique(banque2$Id_denomalise)
+
+# on itere sur les detenus et toutes les periodes analysees
+l=1
+for(i in incarceres){
+  
+  banque_large[l,"Id"]=i
+
+  # pour plus d'efficacite, on extrait les donnees du detenu i
+  tempo=banque2[banque2$Id_denomalise==i,]
+  
+  for(k in 1:nbPer){
+    
+    # le detenu i etait-il en prison a la periode k?
+    cond=((tempo$Dtd_Parcours<periodeSup[k] & periodeSup[k]<tempo$Dtf_Parcours)|
+          (tempo$Dtd_Parcours<periodeInf[k] & periodeInf[k]<tempo$Dtf_Parcours)|
+          (tempo$Dtd_Parcours>periodeInf[k] & periodeSup[k]>tempo$Dtf_Parcours))
+    
+    # etait-il la? si oui, la violence?, l'etablissement?
+    banque_large[l,paste0("prison",k)]=any(cond)
+    banque_large[l,paste0("violence",k)]=sum(tempo$graviteCAT[cond])
+    banque_large[l,paste0("violence2_",k)]=sum(tempo$gravite[cond])
+    banque_large[l,paste0("nbCrimes",k)]=length(tempo$gravite[cond])
+    
+    toto=sort(na.omit(unique(tempo$CdEtab[cond])))
+    tt=length(toto)
+    etabl=toto[1]
+    if(tt>1){
+      for(bb in 2:tt) etabl=paste(etabl,toto[bb],sep="-")
+    } 
+    
+    banque_large[l,paste0("etablissement",k)]=ifelse(any(cond),etabl,"MAISON")
+  }
+  
+  l=l+1
+}
+
+###################################
+# MANIPULATION DES DONNEES
+# LCSI
+# LSCMI_ULaval_34ans_V2.xlsx
+###################################
+
+detenus=unique(LSCMI$Id_Denomalise) # bcp moins de detenus...?
+which(!(incarceres %in% detenus))
+
+LSCMI$dtent=as.Date(LSCMI$dtent,origin= "1899-12-30")
+
+lscmi_large=matrix(ncol=1+22*14,nrow=length(detenus))
+colnames(lscmi_large)=c("Id",
+                        paste0("s12_q09_",1:nbPer),
+                        paste0("s12_q10_",1:nbPer),
+                        paste0("s12_q11_",1:nbPer),
+                        paste0("s12_q13_",1:nbPer),
+                        paste0("s12_q15_",1:nbPer),
+                        paste0("s13_q18_",1:nbPer),
+                        paste0("s13_q19_",1:nbPer),
+                        paste0("s13_q20_",1:nbPer),
+                        paste0("s15_q25_",1:nbPer),
+                        paste0("s16_q28_",1:nbPer),
+                        paste0("s16_q29_",1:nbPer),
+                        paste0("s16_q30_",1:nbPer),
+                        paste0("s16_q31_",1:nbPer),
+                        paste0("s16_q32_",1:nbPer),
+                        paste0("s16_q33_",1:nbPer),
+                        paste0("s16_q34_",1:nbPer),
+                        paste0("s16_q35_",1:nbPer),
+                        paste0("s17_q36_",1:nbPer),
+                        paste0("s17_q37_",1:nbPer),
+                        paste0("s17_q38_",1:nbPer),
+                        paste0("s17_q39_",1:nbPer),
+                        paste0("s31_q08_",1:nbPer))
+
+l=1
+for(i in detenus){
+  
+  lscmi_large[l,"Id"]=i
+  
+  # pour plus d'efficacite, on extrait les donnees du detenu i
+  tempo=LSCMI[LSCMI$Id_Denomalise==i,]
+  
+  for(k in 1:nbPer){
+    
+    # le detenu i etait-il en prison a la periode k?
+    cond=(tempo$dtent<periodeSup[k] & periodeInf[k]<tempo$dtent)
+    # etait-il la? si oui, reponses aux questions ...
+    
+    for (var in c("s12_q09", "s12_q10", "s12_q11", "s12_q13", "s12_q15",
+                  "s13_q18", "s13_q19", "s13_q20", "s15_q25", "s16_q28",
+                  "s16_q29", "s16_q30", "s16_q31", "s16_q32", "s16_q33",
+                  "s16_q34", "s16_q35", "s17_q36", "s17_q37", "s17_q38",
+                  "s17_q39", "s31_q08")){
+    
+      if(any(cond)) lscmi_large[l,paste0(var,"_",k)] = mean(tempo[cond,var])
+      else lscmi_large[l,paste0(var,"_",k)] = NA
+    
+    }
+    
+  }
+  
+  l=l+1
+}
+
+
+
+###################################
+# MANIPULATION DES DONNEES
+# cohorte
+# Cohorte hommes.xlsx
+###################################
+
+
+# individu manquant ! "BNF83496630"
+
+incarceresRef=unique(cohorte$Id_Denomalise)
+incarceres[which(!(incarceres %in% incarceresRef))]
+length(which(!(incarceres %in% detenus)))
+length(which(!( detenus %in% incarceres)))
+
+# Repetitions de certains individus
+
+incarRep=table(cohorte$Id_Denomalise)
+incarRep[incarRep==2]
+
+# recodage ethnie
+
+cohorte$ethnie=ifelse(cohorte$Cd_Ethn=="AN","AN",
+                       ifelse(cohorte$Cd_Ethn=="AT","AT",
+                              ifelse(cohorte$Cd_Ethn=="FR","FR","AU")))
+table(cohorte$ethnie)
+table(cohorte$Cd_Ethn)
+
+
+# manipulation donnees
+
+cohorte_large=matrix(ncol=7,nrow=1590)
+colnames(cohorte_large)=c("Id","age","test","ethnie","etablissement_ref","etatcivil_ref","scolarite_ref")
+
+l=1
+for(i in incarceresRef){
+  
+  cohorte_large[l,"Id"]=i
+  
+  tempo=cohorte[cohorte$Id_Denomalise==i,]
+  
+  cohorte_large[l,"ethnie"]=unique(tempo$ethnie)
+  cohorte_large[l,"age"]=as.character(mean(tempo$Dt_Nais))
+  cohorte_large[l,"test"]=var(tempo$Dt_Nais)
+  
+  toto=sort(na.omit(unique(tempo$Cd_Etab)))
+  tt=length(toto)
+  etabl=toto[1]
+  if(tt>1){
+    for(bb in 2:tt) etabl=paste(etabl,toto[bb],sep="-")
+  } 
+  
+  cohorte_large[l,"etablissement_ref"]=etabl
+  cohorte_large[l,"etatcivil_ref"]=unique(tempo$Cd_Etat_Civ)
+  cohorte_large[l,"scolarite_ref"]=unique(tempo$Cd_Niv_Scol)
+  
+  l=l+1
+}
+
+# test pas d'erreur dans les dates
+all(cohorte_large[,"test"]==0,na.rm = TRUE)
+
+# tres peu de non celibataire
+length(which(cohorte_large[,"etatcivil_ref"]!="CE"))
+
+###################################
+# COMBINER LES TROIS ENSEMBLES
+###################################
+
+data=join(as.data.frame(banque_large, stringsAsFactors = FALSE),
+          as.data.frame(cohorte_large[,-3], stringsAsFactors = FALSE),
+          by="Id")
+
+
+# # ou sont les erreurs avec les etablissement
+# 
+# ee1=strsplit(as.character(data$etablissement1),split="-")
+# ee2=strsplit(as.character(data$etablissement2),split="-")
+# ee3=strsplit(as.character(data$etablissement3),split="-")
+# ee4=strsplit(as.character(data$etablissement4),split="-")
+# eeref=strsplit(as.character(data$etablissement_ref),split="-")
+# 
+# erreur=1:1590
+# for(i in 1:1590){
+#   erreur[i]=(!(any(ee1[[i]]%in%eeref[[i]])|any(ee2[[i]]%in%eeref[[i]])|any(ee3[[i]]%in%eeref[[i]])|any(ee4[[i]]%in%eeref[[i]])))
+# }
+# erreur2=ifelse(erreur==1,TRUE,FALSE)
+# ERR=data[erreur2,c("Id",paste0("etablissement",1:nbPer),"etablissement_ref")]
+
+# write.table(ERR,file="S:/CLIENTS 2017/F. Dufour, Isabelle/erreur_etablissement.csv",sep=";",row.names=FALSE)
+
+# donnees completes!
+dataFinal=join(as.data.frame(data, stringsAsFactors = FALSE),
+     as.data.frame(lscmi_large, stringsAsFactors = FALSE),
+     by="Id")
+dataFinal$age=as.Date(dataFinal$age)
+
+# enlever le mineur
+
+dataFinal2 = dataFinal[as.numeric(format(dataFinal$age,"%Y"))<1994,]
+
+######################################################
+#                                                    #
+#          BOUCHER LES TROUS DU LSCMI                #
+#                                                    #
+######################################################
+
+
+donnees=dataFinal2
+
+nbInd = nrow(dataFinal2)
+
+for(i in 1:nbInd){
+  
+  for (var in c("s12_q09", "s12_q10", "s12_q11", "s12_q13", "s12_q15",
+                "s13_q18", "s13_q19", "s13_q20", "s15_q25", "s16_q28",
+                "s16_q29", "s16_q30", "s16_q31", "s16_q32", "s16_q33",
+                "s16_q34", "s16_q35", "s17_q36", "s17_q37", "s17_q38",
+                "s17_q39", "s31_q08")){
+    
+    vecteur = as.numeric(dataFinal2[i, paste0(var,"_",1:14)])
+    tempo = na.omit(vecteur)[1]
+    
+    for(j in 1:nbPer){
+      
+      if (!is.na(vecteur[j])) tempo = dataFinal2[i, paste0(var,"_",j)]
+      else donnees[i, paste0(var,"_",j)] = tempo
+      
+    }
+    
+  }
+    
+}
+  
+  
+######################################################
+#                                                    #
+#                 EXPORTER DONNEES                   #
+#                                                    #
+######################################################
+
+write.table(dataFinal2,file="S:/CLIENTS 2018/F. Dufour, Isabelle/Creation de donnees/detenus_large_final_9juillet2019.csv",sep=";",row.names=FALSE,na="")
+
+
+# save(dataFinal,file="S:/CLIENTS 2018/F. Dufour, Isabelle/detenus_large_20-02-2018.Rdata")
+
+

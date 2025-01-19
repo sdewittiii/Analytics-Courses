@@ -1,0 +1,72 @@
+################################################
+## GETTING NLSY97 DATA PREPPED FOR EXERCISE 2 ##
+################################################
+
+## IMPORT DATA
+exercise_2 <- read.csv("I:/My Drive/Prepped Courses/Crime Analytics/Crime Analytics - DeWitt/Exercises/Exercise #2/Raw Data/exercise_2.csv")
+
+## LOAD LIBRARIES
+  library(dplyr); library(sjlabelled)
+
+## CHANGE DATA NAME
+  nlsy97 <-exercise_2
+  
+## CHANGE COLUMN NAMES IN DATA FRAME
+  colnames(nlsy97) <- c("nlsy97_id", "sex", "birth_year", "race", "hh_struc98", 
+                        "int_year98", "cigs_thirty99", "marij_thirty99", 
+                        "coke_thirty99", "destprop_num99", "stllt50_num99", 
+                        "stlgt50_num99", "othprop_num99", "selldrugs_num99", 
+                        "alc_thirty99", "empweeks_num98")
+  
+## CHANGE MISSING VALUES TO MISSING OR ZERO
+  nlsy97 <- nlsy97 %>% 
+    mutate_all(~replace(., .==-4, 0))
+  
+  nlsy97 <- nlsy97 %>% 
+    mutate_all(~replace(., .==-1 | .==-2 | .==-3 | .==-5, NA))
+  
+## CREATE AGE VARIABLE
+    nlsy97$age98 <- nlsy97$int_year - nlsy97$birth_year
+    
+## CREATE COLUMN LABELS
+    nlsy97_labels <- c("Unique ID", "Biological sex", "Birth Year", 
+                       "Race/Ethnicity", "Household Structure (98 Interview)",
+                       "Interview Year (98 Interview)", 
+                       "Number of cigarettes smoked in last 30 days (99 Interview)",
+                       "Number times smoked marijuana in the last 30 days (99 Interview)",
+                       "Number of times did cocaine or other hard drugs in last 30 days (99 Interview)",
+                       "Number of times destroyed property since last interview (99 Interview)",
+                       "Number of times stole <$50 since last interview (99 Interview)",
+                       "Number of times stole >$50 since last interview (99 Interview)",
+                       "Number times committed other property crimes since last interview (99 Interview)",
+                       "Number times sold drugs since last interview (99 Interview)",
+                       "Number of times drank alcohol in the last 30 days (99 Interview)",
+                       "Number of weeks employed since the last interview (98 Interview)",
+                       "Respondent Age (98 Interview)")
+    nlsy97 <- set_label(nlsy97, nlsy97_labels)
+    
+## RECODE THE HOUSEHOLD STRUCTURE VARIABLE
+  nlsy97$hh_struc98[nlsy97$hh_struc98==1] <- "Both bio"
+  nlsy97$hh_struc98[nlsy97$hh_struc98==2 | 
+                    nlsy97$hh_struc98==3] <- "One bio/One step"
+  nlsy97$hh_struc98[nlsy97$hh_struc98==4 |
+                    nlsy97$hh_struc98==5] <- "One bio"
+  nlsy97$hh_struc98[nlsy97$hh_struc98==6 |
+                    nlsy97$hh_struc98==7 |
+                    nlsy97$hh_struc98==8 |
+                    nlsy97$hh_struc98==9 |
+                    nlsy97$hh_struc98==10] <- "Other"
+    
+## RECODE SEX VARIABLE
+  nlsy97$sex[nlsy97$sex==1] <- "Male"
+  nlsy97$sex[nlsy97$sex==2] <- "Female"
+  
+## RECODE RACE/ETHNICITY VARIABLE
+  nlsy97$race[nlsy97$race==1] <- "Black"
+  nlsy97$race[nlsy97$race==2] <- "Hispanic"
+  nlsy97$race[nlsy97$race==3] <- "Two or more races"
+  nlsy97$race[nlsy97$race==4] <- "White"
+    
+## SAVE DATA
+    setwd("I:/My Drive/Prepped Courses/Crime Analytics/Crime Analytics - DeWitt/Exercises/Exercise #2/Exercise Data")
+    save(nlsy97, file="nlsy97.Rdata")

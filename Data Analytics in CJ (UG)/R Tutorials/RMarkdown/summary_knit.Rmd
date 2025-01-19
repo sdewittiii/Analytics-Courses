@@ -1,0 +1,27 @@
+---
+title: "Introduction to Code Chunks"
+author: "Samuel DeWitt"
+date: "3/31/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summarize the USArrests Data Frame
+
+```{r summarize,echo=TRUE}
+data(USArrests)
+summary(USArrests)
+head(USArrests)
+```
+
+## Add Variables to USArrests
+
+```{r addvar,echo=TRUE}
+USArrests$Murder_Diff<-USArrests$Murder-mean(USArrests$Murder)
+USArrests$Rape_Diff<-USArrests$Rape-mean(USArrests$Rape)
+USArrests$Assault_Diff<-USArrests$Assault-mean(USArrests$Assault)
+summary(USArrests)
+```

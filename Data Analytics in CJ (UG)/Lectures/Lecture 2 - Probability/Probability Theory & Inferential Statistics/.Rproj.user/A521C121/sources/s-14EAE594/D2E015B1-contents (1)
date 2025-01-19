@@ -1,0 +1,112 @@
+---
+title: "RStudio Tutorial and Introduction to NLSY97"
+author: "Samuel DeWitt, Ph.D."
+output: 
+  beamer_presentation:
+    includes:
+      in_header: C:/Users/sd662/Google Drive/Fall 2019 Classes/Causes and Consequences of Crime/Lectures/Common Files/beamer-header.txt
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## RStudio - What is it?
+
+RStudio is a UI overlay for the base R package, which is an open-source statistical program. 
+
+R is quickly becoming a *very* popular programming language due to its:
+
+1) Versatility (lots **can** be done in R - does *not* necessarily mean you should, though)
+2) It's free!
+3) That's basically it - \#2 is pretty big for government agencies (stats programs like SPSS, SAS, or Stata are hard on budgets)
+
+In turn, RStudio is a popular overlay because:
+
+1) It makes R look more like other popular stats programs
+2) It allows for many functions to be completed through point-and-click (I highly advise against this!)
+
+## How to Install R and & RStudio on your Home PC
+
+First step - install R
+
+1) Navigate to http://rweb.crmda.ku.edu/cran/
+2) Select the R download for your OS (Linux, Mac, or Windows)
+3) Download and run the installer (default install options are appropriate for most users)
+
+Second step - install RStudio
+
+1) Navigate to https://www.rstudio.com/products/rstudio/download/#download
+2) Select the RStudio download for your OS (Linuc, Mac, or Windows)
+3) Download and run the installer (default install options are appropriate for most users)
+
+Third step - there isn't one. Just open the program (RStudio) now. 
+
+## Introduction to the NLSY97
+
+The National Longitudinal Survey of Youth 1997 (NLSY97) is the data set we will become familiarized with over the course of this semester. 
+
+It includes data on nearly 9000 US youth ages 12 to 16 as of 1997 and has been following them ever since. 
+
+The additional readings you have for this course *all* use the NLSY97, and all of your programming assignments and exams will also use this data set. 
+
+Simply stated, prepare to become quite familiar with these data over the semester.
+
+## Where Do I Get Data From the NLSY97?
+
+The data set is conveniently located here - https://www.nlsinfo.org/investigator/pages/search.jsp?s=NLSY97
+
+The 'Investigator' webpage allows you to select the variable you want, then export the data in a specified format. 
+
+**Most** variables are measured on a semi-yearly basis for the beginning years of the survey. Interviews *generally* occurred once a year, so most questions asked of these youth are "since the date of the last interview (DLI)"
+
+I'll give you a tour of the Investigator now, and show you how I select the variables I use for this introduction. 
+
+## Now What Do I Do With The Data?
+
+We've downloaded the data in our desired format, now what?
+
+Well, we need to import it into RStudio (pretty simple) and then *clean* the data (not at all simple). 
+
+Importing the data can be accomplished with code (you should do it this way) or through point-and-click menus (you should not use this method!). 
+
+## Importing Data into RStudio
+
+They have made this quite simple. After you download the data and unzip the file, simply open the inclded R file. 
+
+At the very top of this file is a line of code for setting your working directory.
+
+1) Uncomment that line (i.e., remove the \#) and then write the path to your extracted .csv file. 
+2) Run the entire list of commands (ctrl+A then ctrl+D).
+3) Sit back and watch (cross your fingers for no errors to appear). 
+
+## A Quick Reminder on File Paths in R
+
+Remember that the backslash ("\\") is an *escape* character in R - you'll need to escape each backslash in the file path if you are using Windows.
+
+So, the following file path: "C:\\Users\\yourid\\etc..." will **not** work and you'll get an error. 
+
+Instead, use the following path: "C:\\\\Users\\\\yourid\\\\etc..." and you will avoid that error. 
+
+Alternatively, you could also replace all backslashes (\\) in the file path with forward slashes (/) - up to you. 
+
+## Back to Regularly Scheduled Programming
+
+\center \huge Get it, because I'm a college professor mind-programming my students....
+
+## The Data is In RStudio, Now What?
+
+Now, we will begin to explore a few common functions you will need to use throughout the semester. 
+
+1) Getting help: ? and ??
+2) Installing new packages: install.packages()
+3) Loading packages: library()
+4) Setting a working directory: setwd() (and getwd())
+5) Creating a data frame: data.frame()
+6) Summarizing a vector or data frame: summary()
+7) The concatenate command: c()
+8) The basic plot command: plot()
+9) A more advanced plot command suite: ggplot2
+10) Recoding values of a pre-existing variable: (also the use of if and else)
+

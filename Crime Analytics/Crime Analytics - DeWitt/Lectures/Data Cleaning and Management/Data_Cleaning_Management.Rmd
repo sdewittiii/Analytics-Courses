@@ -1,0 +1,462 @@
+---
+title: "Data Cleaning and Management"
+author: "Crime Analytics (CJUS 6106)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data: Care and Feeding
+
+How do we actually change the data we *have* into the data we *need*.
+
+Most of the heavy lifting involved in data analytics is really a process of data cleaning and data transformation. Running statistical models or hypothesis tests doesn't take very much time (or code), once you have the data in the form you need. Getting the data to that stage is the trick.
+
+This lesson will go over these essential data management skills:
+
+* Data merging
+* Data transformation
+* Data recoding
+
+We'll be using data on drug seizures from a large sample of countries between 1980 and 2006. The data are stored in two files:
+
+* A file that has demographic data (population, region) for each country
+* A file that has drug seizure amount (in kg) for four substances
+     + Cannabis
+     + Cocaine
+     + Heroin
+     + Opium
+
+The first thing we need to do is pull those two data sets into R's memory.
+
+```{r data import}
+demographics <- read.csv("UNODC Drug Seizure Data Pt 1.csv")
+
+seizures <- read.csv("UNODC Drug Seizure Data Pt 2.csv")
+
+str(demographics)
+
+str(seizures)
+```
+
+Both the **Country** and **Year** variables are present in both data sets. We need to pull those two together, merging them. 
+
+## Merging data
+
+Merging the data by a common variable requires the merge() function.
+
+```{r merge}
+drugs <- merge(demographics,seizures, by="Country")
+str(drugs)
+```
+
+That looks like it works at first glance, but **Year** is repeated.... *27 times*. And the length is way off!
+
+We can actually merge by two variables.
+
+```{r merge2}
+drugs <- merge(demographics, seizures, by=c("Country","Year"))
+str(drugs)
+```
+
+Obviously, if you only have one common variable, just merge by that one.
+
+## Transforming Variables
+
+You might need to do any number of transformations, including: 
+
+* Mathematical operations (summing, subtracting, etc)
+* Logarithmic transformations
+* Centering variables
+
+Anytime you go messing around with data recoding, transformations, etc., it's a good idea to make a copy of the original variables, then tinker with the copies.
+
+```{r}
+mj <- drugs$Cannabis
+heroin <- drugs$Heroin
+coke <- drugs$Cocaine
+opium <- drugs$Opium
+pop <- drugs$Population
+```
+
+Now we can go to town.
+
+### Summing variables
+
+Let's get the total seizures for each country. 
+
+```{r}
+total <- mj + heroin + coke + opium
+summary(total)
+```
+
+What if wanted to calculate a seizure rate? 
+
+Rate = how often something happens divided by the population
+
+Example:
+
+* Number of homicides per 100,000 population
+
+Since we already have the population, we can use it in our calculation.
+
+```{r}
+szrate <- (total/pop)*100000
+summary(szrate)
+```
+
+### Logarithmic transformation
+
+Logarithm - the logarithm of a number is the power to which you must raise the natural number e to produce the number itself
+
+e = 2.718
+
+```{r}
+log(100)
+```
+
+> $e^{4.60517} = 100$
+
+Logarithmic transformations have small effects on small numbers, and very big effects on big numbers. They're good to use when you have a highly skewed distribution (a few really really high values)
+
+```{r}
+log.total <- log(total+1)
+summary(log.total)
+```
+
+You need to add 1 to the values before you take the natural log if you have any zeroes in your data, because the natural log of zero is undefined. You can't raise e to any power and get zero.
+
+But the natural log of 1 is zero.
+
+> $e^{0}=1$
+
+```{r}
+log(1)
+```
+
+So, if you have zeroes, and you add 1, then take the natural log, those observations just go back to zero. 
+
+Neat, huh?
+
+### Centering variables
+
+It's sometimes a good idea to change a variable to be centered around its mean. The interpretations are generally cleaner because you're interpreting changes from the average case, rather than from a case with a value of zero.
+
+The new variable, after you center it, will have a mean of zero, and all observations less that the original mean will have a negative value on the new variable, and all observations greater than the original mean will have a positive value on the new variable.
+
+Here's how it works.
+
+```{r}
+summary(total)
+ctr.total <- total - mean(total)
+summary(ctr.total)
+```
+
+## Recoding Variables
+
+Finally, let's suppose you want to recode variables that you have into new variables.
+
+There's a variable in the data set called "Region". The very first thing to do is look at the old variable, the original one.
+
+```{r}
+table(drugs$Region)
+```
+
+Let's suppose we want to create a new variable that gives a numerical flag for each region according to this scheme.
+
+* 1 = Africa
+* 2 = Americas
+* 3 = Asia
+* 4 = Europe
+* 5 = Oceania
+
+The next thing to do is to create a new empty variable
+
+```{r}
+regioncode<-vector()
+```
+
+It's important that the new variable has the same length as the old one. You can manually set the length to be the same. Easy.
+
+```{r}
+length(regioncode) <- length(drugs$Region)
+```
+
+Now we can assign the values of the new variable based on the values of the old one.
+
+```{r}
+regioncode[drugs$Region=="Africa"]<-1
+regioncode[drugs$Region=="Americas"]<-2
+regioncode[drugs$Region=="Asia"]<-3
+regioncode[drugs$Region=="Europe"]<-4
+regioncode[drugs$Region=="Oceania"]<-5
+```
+
+You need to use the quotation marks in the code above to tell R to look for a character string.
+
+Lastly, look at the new variable to make sure the recoding did what you wanted it to do.
+
+```{r}
+table(regioncode, drugs$Region)
+```
+
+Note - this is just an example of **how** to do this. Generally you can just make the region variable a factor using the as.factor() function and R will assign the numbers for you but still show the category labels. 
+
+Or, maybe we want to recode an interval/ratio variable into an ordinal one.
+
+```{r}
+summary(total)
+totalbins <- vector()
+length(totalbins) <- length(total)
+totalbins[total >= 0 & total < 10000]<-1
+totalbins[total >= 10000 & total < 50000]<-2
+totalbins[total >= 50000]<-3
+table(totalbins)
+```
+
+## Aggregating the variables into a single data frame
+
+Since we took the time to make all those cool new variables, we want to add them to our data set.
+
+We want to add them as columns, since we know that each column in our tidy data should be one unique variable. 
+
+We want to bind those variables as columns to the data frame that already exists. We do this using the **cbind()** function (meaning "column bind").
+
+```{r}
+drugs <- cbind(drugs,total,totalbins,szrate,ctr.total,regioncode)
+```
+
+It's crucial to include the original data frame inside the cbind() statement! You're replacing the old data frame with the combination of the old data frame with the addition of all the new variables.
+
+```{r}
+str(drugs)
+```
+
+**Uh-oh**, looks like the "totalbins" and "regioncode" variables are numeric. We need them to be factors.
+
+```{r}
+drugs$totalbins<-as.factor(drugs$totalbins)
+drugs$regioncode<-as.factor(drugs$regioncode)
+str(drugs)
+```
+
+## Changing Column Names in a Data Frame
+
+Sometimes you may want to change the names of columns in a data frame (the variable names) without having to create copies of them, which can be cumbersome. 
+
+There's a simple function called colnames() which allows you to do that!
+
+Let's suppose that I do not want to worry about case-sensitive variable names in the demographics data frame and want to make all those names lowercase. 
+
+I'll first copy the existing data set so we can see the difference. 
+
+```{r}
+demographics_copy<-demographics
+```
+
+Now, I will change the column names to be all lowercase. 
+
+```{r}
+colnames(demographics_copy) <- c("country", "year", "region", "population")
+```
+
+Now, let's compare the data frames using the str() function to see the difference. 
+
+```{r}
+str(demographics)
+str(demographics_copy)
+```
+
+You can also do this one column at a time, but need to index the data frame so that the colnames() function knows to change the right column name. 
+
+Because the column names are case-sensitive, merging the data frames together will be more difficult if one has lowercase names and the other has capitalized column names. Let's revert that change but just for the country and year columns. 
+
+```{r}
+colnames(demographics_copy)[1] <- c("Country")
+colnames(demographics_copy)[2] <- c("Year")
+str(demographics_copy)
+```
+
+## Labeling Columns in a Data Frame
+
+Having tidy data also means that you label your variable columns. I'm guilty of not **always** doing this in R, but I know it's helpful to have clear labels when you are first starting out coding. 
+
+To apply labels easily, you will need to install and load the "sjlabelled" package. 
+
+```{r}
+library(sjlabelled)
+```
+
+The next step is to apply an informative label to an object in your working environment. In this example, I want to label the column for the ctr.total variable so that I remembered it is mean centered. 
+
+```{r}
+drugs$ctr.total <- set_label(drugs$ctr.total, "Mean-centered total number of seizures")
+```
+
+You can inspect the drugs data frame again and you will see that the label now appears under the column name like so:
+
+![A Column Label in a Data Frame](labelled_column.png)
+
+## New Dog, Old Tricks
+
+I'm going to grab some data from a (kinda) recent Warhammer tournament. 
+
+What is Warhammer, you ask? It's a super fun miniature war game. Find out more at <https://www.games-workshop.com/en-US/Home>.
+
+![Warhammer](warhammer.jpg)
+
+
+Anywho, a bunch of dudes got together and had a tournament. These data reflect the results of that tournament.
+
+```{r}
+warhammer <- read.csv("warhammer.csv",header=TRUE)
+str(warhammer)
+summary(warhammer)
+```
+
+### What the heck does this have to do with criminal justice?
+
+**Nothing!**
+
+But the data are really handy for showing some data manipulation techniques.
+
+At the crux of the game, you have futuristic humans fighting aliens. So it might be a good idea to know whether the tournament participants were playing a **human** army or an **alien** army.
+
+Because we have to nerd up the situation, players refer to the armies as *factions*, and factions can either be *Imperial* or *Xenos* factions
+
+For our purposes...
+
+* "Imperial" means "humans"
+* "Xenos" means "aliens"
+
+Notice that there is a variable in the data set called "Army"
+
+```{r}
+table(warhammer$Army)
+```
+
+In total, **21** different factions were represented in this tournament. That's a categorical variable, but it's unwieldy. Let's recode a new variable that just tells us whether the army played was Imperial or Xenos (human or alien).
+
+The catch is that we'll have to do this 21 times. 
+
+```{r}
+human_alien <- vector()
+length(human_alien) <- length(warhammer$Army)
+human_alien[warhammer$Army=="Adeptus Astartes"]<-"Imperial"
+human_alien[warhammer$Army=="Aeldari"]<-"Xenos"
+human_alien[warhammer$Army=="Astra Militarum"]<-"Imperial"
+human_alien[warhammer$Army=="Asuryani"]<-"Xenos"
+human_alien[warhammer$Army=="Blood Angels"]<-"Imperial"
+human_alien[warhammer$Army=="Chaos Demons"]<-"Xenos"
+human_alien[warhammer$Army=="Chaos Space Marines"]<-"Xenos"
+human_alien[warhammer$Army=="Cult Mechanicus"]<-"Imperial"
+human_alien[warhammer$Army=="Dark Angels"]<-"Imperial"
+human_alien[warhammer$Army=="Eldar"]<-"Xenos"
+human_alien[warhammer$Army=="Genestealer Cult"]<-"Xenos"
+human_alien[warhammer$Army=="Harlequins"]<-"Xenos"
+human_alien[warhammer$Army=="Imperial Knights"]<-"Imperial"
+human_alien[warhammer$Army=="Maynarkh"]<-"Xenos"
+human_alien[warhammer$Army=="Necrons"]<-"Xenos"
+human_alien[warhammer$Army=="Orks"]<-"Xenos"
+human_alien[warhammer$Army=="Space Wolves"]<-"Imperial"
+human_alien[warhammer$Army=="Tau"]<-"Xenos"
+human_alien[warhammer$Army=="Tyranids"]<-"Xenos"
+human_alien[warhammer$Army=="Ultramarines"]<-"Imperial"
+human_alien[warhammer$Army=="World Eaters"]<-"Xenos"
+table(human_alien)
+```
+
+If you're keeping score... I'm a Dark Angels player.
+
+![Dark Angels](darkangels.jpg)
+
+Having gone to that trouble, I can add that new variable into my big data set.
+
+```{r}
+warhammer <- cbind(warhammer,human_alien)
+```
+
+### Then, I could ask a question like "Did Imperial or Xenos Armies do better in this tournament?"
+
+```{r}
+library(psych)
+describeBy(warhammer$Score,warhammer$human_alien)
+```
+
+Looks like the Imperial forces did slightly better
+
+*Purge the Xenos!!*
+
+Sorry, force of habit.
+
+### What about overall tournament rank?
+
+```{r}
+describeBy(warhammer$Rank, warhammer$human_alien)
+```
+
+Again, Imperial Armies did better, since lower rank means better performance.
+
+## Subsetting Data Frames
+
+What if we want to perform analyses on only a portion of the data? 
+
+A simple solution would be to create a data frame that's just a subset of the original one. That's really easy to do with the **subset()** function.
+
+### Subsetting on a single condition
+
+Let's say I only want to consider Imperial armies. I can create a new data frame (let's call it *imperial* for the sake of originality) that only includes cases from the *warhammer* data frame in which the Army is an Imperial one.
+
+```{r}
+imperial <- subset(warhammer, warhammer$human_alien=="Imperial")
+summary(imperial)
+str(imperial)
+```
+
+### Subsetting on multiple conditions
+
+You can also mix and match in the subset function.
+
+If you want multiple conditions to be true (AND)...
+
+This requires use of the **ampersand** operator
+
+```{r}
+# Imperial Armies with above the mean score
+imperial_winners <- subset(warhammer,
+                           warhammer$human_alien=="Imperial" &
+                           warhammer$Score > 44.99)
+str(imperial_winners)
+```
+
+Or, maybe I want to quickly grab just the forces of Chaos...
+
+So if the Army is Chaos Demons or Chaos Space Marines or World Eaters...
+
+This will require the use of the **pipe** operator
+
+```{r}
+chaos <- subset(warhammer,
+                warhammer$Army=="Chaos Demons" |
+                warhammer$Army=="Chaos Space Marines" |
+                warhammer$Army=="World Eaters")
+str(chaos)
+```
+
+## Where to go from here
+
+There are lots of more advanced data cleaning functions
+
+* apply()
+* sapply()
+* lapply()
+* for{}
+* ifelse()
+
+Using them requires a more nuanced understanding of what you're trying to do. The code we've walked through today will get you pretty much wherever you want to go on your data cleaning journey.
+
+## The End
+
+![Does History Channel Have History Anymore?](history_channel_theend.jpg)

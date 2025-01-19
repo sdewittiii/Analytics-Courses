@@ -1,0 +1,736 @@
+---
+title: 'Data Visualization Part I: Exploratory Graphics'
+author: "Crime Analytics (CJUS 6106)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\doublespacing
+
+## Visualizing Data
+
+A fundamental component of any research project is visualizing your data. Most published research will have at least one or two data visualizations that show readers the distribution of some outcome or visualize the results of a statistical model. 
+
+Data visualization is also very helpful when you are beginning a research project and want to know what your data "look like." 
+
+For example, if you are planning to run a linear regression model, it is important to know if the bivariate relationships in your data are approximately linear. If not, bivariate plots can point you toward the necessary variable transformations to alleviate the problem. 
+
+We generally refer to data visualizations like these as exploratory graphics. There's no hypothesis we are testing at this point - we are just trying to get a grasp of how our data behave using visuals instead of just statistics. 
+
+### Why Are Exploratory Graphics Important?
+
+Numbers won't tell you the full story, that's why. Anscombe's Quartet is an excellent example for demonstrating this. 
+
+Let's load the Anscombe data to see why (it comes with the "car" package, so you need to install that first if you have not already):
+
+```{r}
+data(anscombe)
+```
+
+Let's look at a summary of this data frame to see how the statistics across the columns compare. 
+
+```{r}
+summary(anscombe)
+```
+
+Values within the X (1 to 4) and Y (1 to 4) columns look pretty similar, right? If I were to regress each Y column on its respective X column (e.g., predict y1 using x1) I should see similar plots if I base my expectation on these statistics alone. 
+
+Let's do that now to confirm this expectation:
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+anscombe1<-ggplot(anscombe, aes(x=x1, y=y1)) +
+  geom_point() +
+  geom_smooth(method="lm", linetype="dashed", color="red", se=FALSE) 
+anscombe2<-ggplot(anscombe, aes(x=x2, y=y2)) + 
+  geom_point() +
+  geom_smooth(method="lm", linetype="dashed", color="red", se=FALSE)
+anscombe3<-ggplot(anscombe, aes(x=x3, y=y3)) + 
+  geom_point() +
+  geom_smooth(method="lm", linetype="dashed", color="red", se=FALSE)
+anscombe4<-ggplot(anscombe, aes(x=x4, y=y4)) + 
+  geom_point() +
+  geom_smooth(method="lm", linetype="dashed", color="red", se=FALSE)
+
+anscombe_plot<- ggarrange(anscombe1, anscombe2, anscombe3, anscombe4,
+                     labels=c("X1 and Y1", "X2 and Y2", "X3 and Y3",
+                              "X4 and Y4"),
+                     font.label=list(color="black", size=9), 
+                     hjust=-3,
+                     ncol=2, nrow=2)
+anscombe_plot
+```
+
+First, take a look at each best fit line - that line reflects the conditional expectations for the values of Y from a bivariate regression model. Each line has the **same** slope!
+
+Even though they have the same slope, however, the plots can differ quite a lot. For example, compare the plot for X4 and Y4 to the others. It shares almost no similarities and yet, a regression model would tell us the relationship between X4 and Y4 is the same as between X3 and Y3, X2 and Y2, and X1 and Y1. 
+
+Hopefully, this example illustrates why visually inspecting your data is important. Numeric statistics can tell us a lot about the relationship between variables but those numbers can hide differences like we just saw. 
+
+### Qualities of a "Good" Exploratory Visualization
+
+What makes a visualization "good" or "bad?" Here are a few general things I look for when I evaluate a research manuscript's visualizations:
+
+- Does the visualization fit the data types included?
+  - That is, is the type of visualization proper for the way the variable or variables are measured?
+- Is the visualization properly labeled?
+  - Does the graph have a title? The axes? How about numeric labels along the axes?
+  - E.g., if it's a bar plot, do the bars have labels for their %, count, or mean?
+- Are the axes properly scaled?
+  - People can get tricksy with these - always inspect the scale of the axes. Are there jumps in the numbers? Are the axes magnified to a very small range?
+- Are all lines, dots, or markers explained properly?
+  - Is there a legend? Does it provide enough detail to interpret the figure?
+
+These are just a few considerations that spring to mind. The general goal for a figure in any research project should be to convey its message in a way that nearly any reader could understand *just by looking at it*. If your figure requires lots of explanation for how it was put together, chances are you've done it wrong. 
+
+*Note: Some figures are complex and require some additional explanation, but these are rare and you are very unlikely to run into this situation for your research projects.*
+
+### Exploratory Graphics - Where to Start?
+
+It's best to start with knowing what types of graphs work for the types of variables you have. This mostly has to do with whether movement along the X-axis is meaningful or not. 
+
+As an example, if I want to know the frequencies of different nominal categories in my data, I would use a bar graph. This is because the X-axis in a bar graph is not used to communicate fixed intervals between values. 
+
+By contrast, a bar graph is not useful for interval/ratio level variables because:
+
+* Increases/decreases in X are meaningful and are fixed intervals
+* There can be far too many values to include a bar for each and too few values for each bar
+
+Here's a short table of the types of graphs that work for variables at different levels of measurement:
+
+| Plot type     | **Nominal** | **Ordinal** | **Interval/Ratio** |
+|---------------|:-----------:|:-----------:|:------------------:|
+| Bar graph     | X           | X           |                    |
+| Pie chart     | X           | X           |                    |
+| Box plot      |             |             | X                  |
+| Scatter plot  |             |             | X                  |
+| Histogram     |             |             | X                  |
+| Line graph    |             |             | X                  |
+| Area graph    |             |             | X                  |
+| Dot plot      |             |             | X                  |
+
+You can clearly see that nominal/ordinal level variables have few plot types available. Also note that this is **not** an exhaustive list of all types of plots out there, just the more common ones. 
+
+Quick note - a boxplot requires an X and Y variable and while the X variable can be nominal/ordinal, the Y variable must be Interval/Ratio, which is why I indicate it can only be used with Interval/Ratio level data. 
+
+### How to Make Different Plot Types
+
+There are a few different ways to make plots in R but we will focus specifically on a popular package called ggplot2. The "gg" stands for *Grammar of Graphics*.
+
+Within this package are multiple different options for **geoms** or geometric objects. Along with setting your X and Y variables, these geom options will tell R which type of plot to create. 
+
+Some common geoms include:
+
+* **geom_bar()**: Your old-fashioned bar plot
+* **geom_point()**: This is your scatter plot
+* **geom_histogram()**: I think this one is self-explanatory
+* **geom_boxplot()**: The ever-useful boxplot
+* **geom_line()**: This makes a line graph with connected points (just have to make sure R knows the order to connect the points!)
+
+Within the parentheses for each of these you have access to multiple options that can control the look of the plot. For example, the linetype option for the geom_line() function allows you to change how the line is drawn (e.g., linetype="dashed" will draw a dashed line). We will talk more about these options later. 
+
+### Quick Note - Can Plots Be Objects?
+
+**Yes!** Plots can be stored as objects in R. What's really cool is that you can store a plot and then add features to it later.  I show some of this in action below. 
+
+## Creating Exploratory Plots in R
+
+### Bar Plots
+
+We'll start with the most simple plot type - bar plots. For this, we need nominal or ordinal level data (and remember that we can make nominal/ordinal level variables from interval/ratio level variables). 
+
+For the purposes of the examples in this lecture I will use a data set that's featured in just about every single statistics program I have ever used. The data set is called "mtcars" and it's a compilation of design features and performance for 32 cars included in a Motor Trend magazine from 1974. 
+
+```{r}
+data(mtcars)
+```
+
+If you'd like to see a description of these data you can type ?mtcars into the console pane and a help page will appear with said description.
+
+Okay, with that out of the way, let's make a simple bar plot that shows the distribution of transmission types for these vehicles. 
+
+```{r}
+mtcars$am[mtcars$am==0] <- "Automatic"
+mtcars$am[mtcars$am==1] <- "Manual"
+mtcars$am <- as.factor(mtcars$am)
+```
+
+```{r}
+bar_plot <- ggplot(mtcars, aes(x=am))
+bar_plot <- bar_plot + geom_bar(stat="count")
+bar_plot
+```
+
+That's a good start, but there are some messy parts to this. 
+
+- There's no title for the plot
+- The axis titles are just the variable names
+- It's hard to tell exactly what value the height of each bar represents
+
+We're going to fix all of these issues by adding some additional options to this plot object.
+
+First, we need a snappy title. 
+
+```{r}
+bar_plot <- bar_plot + 
+  ggtitle("Distribution of Transmission Types") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif"))
+bar_plot
+```
+
+Okay, we have a plot title. Now we need titles for each axis. 
+
+```{r}
+bar_plot <- bar_plot + 
+  xlab("Transmission Type of Vehicle") +
+  ylab("Count of Cars in Sample")
+bar_plot
+```
+
+Perfect. Now we need a clearer indication of what exact value is represented by the height of the bar. 
+
+```{r}
+bar_plot <- bar_plot + 
+  scale_y_continuous(minor_breaks = seq(0, 20, by=1))
+bar_plot
+```
+
+This gets us partway there, but what if we could create labels that appear within the bars that provide the specific count?
+
+```{r}
+bar_plot <- bar_plot + geom_text(stat="count", 
+                                 aes(label=after_stat(count)),
+                                 vjust=1.5, color="white")
+bar_plot
+```
+
+Okay, I'm happy with this now because I have covered all of the basic elements of making a good plot and the visualization should make clear to just about anyone what this means. 
+
+One quick note before we move on, though. In the code chunks above I incrementally add features to the plot but this is to show you how it changes. 
+
+In practice, I would combine all of this code into one function instead of several. Here's what that would look like:
+
+```{r}
+bar_plot2 <- ggplot(mtcars, aes(x=am)) + 
+  geom_bar(stat="count") +
+  ggtitle("Distribution of Transmission Types") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Transmission Type of Vehicle") +
+  ylab("Count of Cars in Sample") + 
+  scale_y_continuous(minor_breaks = seq(0, 20, by=1)) + 
+  geom_text(stat="count", aes(label=after_stat(count)),
+                              vjust=1.5, color="white")
+bar_plot2
+```
+
+#### Adding a Second Variable
+  
+I could add a second variable to this simple bar plot to visualize a joint distribution between transmission type and the number of cylinders the car's engine has. I can accomplish this using the fill= option in the first ggplot() function, like so:
+
+```{r}
+mtcars$cyl <- as.factor(mtcars$cyl)
+```
+
+```{r}
+bar_plot3 <- ggplot(mtcars, aes(x=am, fill=cyl)) + 
+  geom_bar(position="dodge", stat="count") +
+  ggtitle("Distribution of Transmission Types by Engine Cylinders") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Transmission Type of Vehicle") +
+  ylab("Count of Cars in Sample") + 
+  scale_y_continuous(breaks = seq(0, 12, by=2), minor_breaks = seq(0, 13, by=1)) + 
+  geom_text(stat="count", aes(label=after_stat(count)),
+                              vjust=1.5, color="white",
+            position=position_dodge(0.9))
+bar_plot3
+```
+
+Nifty. 
+
+### Scatter Plots
+
+*Note*: I am skipping pie charts entirely and so should you. 
+
+To create a scatter plot you need two interval/ratio level variables. You will probably see researchers using ordinal variables but this is technically incorrect (and the plots look weird). 
+
+For the current example, I want to examine the relationship between the weight of the vehicle (in units of 1000 lbs) and miles per gallon. Both are already numeric, so there's no need to change how the values are stored.
+
+```{r}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + geom_point()
+scatter_plot
+```
+
+It's pretty easy to tell that there's a negative relationship between weight and miles per gallon (that also makes sense from a simple understanding of physics - the more mass an object has, the more force is required to keep it moving). 
+
+Let's add some elements to this plot to clean it up (titles, axis breaks) and more clearly demonstrate that negative relationship. 
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point() + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_smooth(method="lm", color="red", linetype="dashed")
+
+scatter_plot
+```
+
+The geom_smooth() function allows me to add a linear trend to the figure (this is the slope produced from a bivariate regression predicting miles per gallon using weight). 
+
+One thing that may be slightly annoying is that the points could appear to overlap if the picture is rendered on a smaller display. There are three ways to deal with that problem. 
+
+First, you could change the size of the points:
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point(size=0.75) + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_smooth(method="lm", color="red", linetype="dashed")
+
+scatter_plot
+```
+
+A bit less overlap! For context, the default size is 1.5 and you can set positive values from 0 to the largest positive value you can fit into R. Anything above 4 or 5 gets a little ridiculous, though. 
+
+For the second option, we can add a jitter to each point so that it moves its location very slightly in a random direction. This is especially helpful when you have **many** observations (e.g., in the thousands and ten-thousands). 
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point(position="jitter") + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_smooth(method="lm", color="red", linetype="dashed")
+
+scatter_plot
+```
+
+As you can see, it's a very slight change. You can use this in conjunction with size to make overlapping points easier to see. 
+
+Third, you can change the transparency of the points using alpha= option, like so:
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point(alpha=0.25, position="jitter") + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_smooth(method="lm", color="red", linetype="dashed")
+
+scatter_plot
+```
+
+Values for alpha range from 0 to 1, with 0 making the points invisible and 1 making them appear as they do normally. 
+
+#### More Fun with Scatterplots
+
+There are a few other neat things you can do with a scatterplot, including:
+
+* Adding additional lines to represent the means of the x-axis and y-axis variables
+* Incorporating a third variable by changing the **color** of the points by values on another variable
+* Incorporating another variable that corresponds to the **size** of the points.
+* Changing the shape of the points (and you can make this vary by another variable, too)
+
+Let's see these options in action. 
+
+First, adding lines for the averages:
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point() + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_smooth(method="lm", color="red", linetype="dashed") + 
+  geom_hline(aes(yintercept=mean(mtcars$mpg)), 
+             linetype="dashed", alpha=0.75) + 
+  geom_vline(aes(xintercept=mean(mtcars$wt)), 
+             linetype="dashed", alpha=0.75)
+
+scatter_plot
+```
+
+Now, I want to adjust the color of the points to correspond to another variable. I think the number of cylinders probably also affects miles per gallon, above and beyond the weight of the vehicle. 
+
+Let's see what that looks like:
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg, color=cyl)) + 
+  geom_point() + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_smooth(method="lm", color="red", linetype="dashed")
+
+scatter_plot
+```
+
+Somewhat interesting - looks like the relationship is somewhat flat for 6 and 8-cylinder engines and clearly negative for 4-cylinder engines. 
+
+Now, let's account for another variable using the **size** of the points. I think the displacement of the pistons in the engine can also affect miles per gallon, net of the effect of weight. Let's see how that looks:
+
+```{r, message=FALSE, warning=TRUE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg, color=cyl, size=disp)) + 
+  geom_point() + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5))
+scatter_plot
+```
+
+Side note - I took out the regression line because the multiple repeated options began to interfere with another.
+
+Higher values of piston displacement = more power generated by the engine and, as a consequence, using more fuel. Looks like more displacement = lower mpg, all else equal. 
+
+Finally, let's change the shape of the points by a variable we have used already:
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg, color=cyl, shape=am)) + 
+  geom_point(size=2) + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5))
+
+scatter_plot
+```
+
+Interesting, but still looks like a negative relationship within transmission type. Not too much going on there. 
+
+**One final note** - you can add text labels to the points! Let's see that in action:
+
+```{r, message=FALSE}
+scatter_plot <- ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point() + 
+  ggtitle("Bivariate Relationship Between Weight and MPG") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Vehicle Weight (units=1000 lbs)") +
+  ylab("Miles Per Gallon") + 
+  scale_y_continuous(breaks = seq(5, 35, by=5), 
+                     minor_breaks = seq(5, 35, by=2.5)) +
+  geom_text(aes(label=rownames(mtcars)), 
+            size=2.5, vjust=1.25, alpha=.8)
+scatter_plot
+```
+
+You can use the size, vjust, and alpha options to adjust how the labels appear, but even so they will probably end up overlapping a bit. It would be easier to avoid overlap if you subset the data first by some variable, then make plots with text labels using the smaller subsamples. 
+
+### Histograms
+
+Histograms are the interval/ratio equivalent to bar plots but this time, movement along the x-axis **is** meaningful. 
+
+Histograms are helpful when you want to visualize the distribution of an interval/ratio level variable and are generally used for one variable at a time, though I'll show you how to add another variable to the plot. 
+
+As a diagnostic tool, a histogram can tell you if there is skew in your data and what a proper fix for the skew might be. It can also tell you if there are any outlier values in your data that aren't so easily revealed just by looking at numeric summaries. 
+
+Let's start with a basic histogram of miles per gallon:
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram()
+```
+
+R will automatically choose a "bin" size for you - this is the range of each bar. You can change the bin size using the binwidth() option within the geom_histogram() function like so:
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=(.5))
+```
+
+I've made the bars a little thinner so they capture fewer cases. As a result, there are now more bars but the bars are also shorter. The y-axis now ranges from 0 to 3 instead of 0 to 5. I think R did a decent job with the old barwidth, so I'm gonna leave that option alone. 
+
+Now, let's change some labels for the plot to make it more professional and easier to read: 
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg)) + geom_histogram() +
+   ggtitle("Distribution of Miles Per Gallon") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Miles Per Gallon") +
+  ylab("Count of Cars")
+```
+
+We already know that the number of cylinders a car's engine has shares a relationship with the miles per gallon above and beyond its contribution to the weight of the vehicle. Let's adjust this plot so that we see three distributions - one for each unique number of cylinders a car engine has in these data (4, 6, or 8). 
+
+We can do that using the fill= option in the aes() function:
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg, fill=cyl)) + geom_histogram() +
+  ggtitle("Distribution of Miles Per Gallon") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Miles Per Gallon") +
+  ylab("Count of Cars")
+```
+
+Well, that's a bit messy. It's hard to tell when a bar overlaps another bar entirely or only partially. It looks like R tries to do it's best to communicate that, but it remains unclear. 
+
+We can fix that by adjusting the opacity of the bars themselves so they are slightly see-through. That way, we can see the overlap more clearly. 
+
+To accomplish this, we need to use both the position= and alpha= options within the geom_histogram() function. 
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg, fill=cyl)) +
+  geom_histogram(position="identity", alpha=0.4) +
+  ggtitle("Distribution of Miles Per Gallon by Engine Cylinders") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) + 
+  xlab("Miles Per Gallon") +
+  ylab("Count of Cars")
+```
+
+The position="identity" option suppresses R behavior that prioritizes the most recent bar plotted in a position while the alpha=0.4 option makes the bars less opaque. 
+
+The value provided to the alpha option can range from 0 (completely transparent) to 1 (completely opaque). You can enter values outside this range, but they won't have any additional effect, to my knowledge.
+
+#### A Close Relative of the Histogram, the Density Curve
+
+Before we move on to boxplots, I want to show you a close cousin of the histogram - a density curve. Density curves can be a bit cleaner than a histogram while conveying similar information. 
+
+One issue is that the y-axis is not in density units, which can loosely be interpreted as probabilities (i.e., based upon the observed data, the probability of observing any given value in the data). 
+
+The height of the curve is a density, meaning that values at that place in the distribution are more likely to occur than other values. Much like a normal distribution, you can estimate probabilities by adding the densities across ranges of values (but we are not going to do that today). 
+
+Let's take a look at the same histogram as above, but this time as a density curve: 
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg)) + geom_density()
+```
+
+Looks pretty boring. Let's add some features to round it out.
+
+The first thing I am going to do is to reduce how much smoothing is going on here. Basically, a density plot will smooth the distribution so it's less box-like. When it's too smooth, it makes the distribution seem much more continuous than it really is. 
+
+We can use the bw= option within the geom_density() function:
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg)) + geom_density(bw=0.5)
+```
+
+That looks a little more representative of what we saw in the histogram. Briefly, the bw= option changes the standard deviation of the smoothing process - all else equal, smaller values will result in less-smoothed densities (which is usually what I go for). 
+
+Now, let's add another variable to this:
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg, fill=cyl)) + geom_density(bw=0.5)
+```
+
+That's starting to look pretty neat, but like the histogram, the overlap obscures some of the parts of each distribution. Let's fix that with the alpha= option like we did before. 
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg, fill=cyl)) + geom_density(bw=0.5, alpha=0.4)
+```
+
+Much better. Now, let's add proper titles to finish this one up. 
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg, fill=cyl)) + geom_density(bw=0.5, alpha=0.4) +
+  ggtitle("Distribution of Miles Per Gallon by Engine Cylinders") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) +
+  xlab("Miles Per Gallon") +
+  ylab("Probability Density Estimate")
+```
+
+#### But Wait, Can We Combine Those Graphs?!?
+
+Yes, you can!
+
+```{r, message=FALSE}
+ggplot(mtcars, aes(x=mpg, y=after_stat(density), fill=cyl)) + 
+  geom_histogram(position="identity", alpha=0.3) +
+  geom_density(bw=0.5, alpha=0.4) +
+  ggtitle("Distribution of Miles Per Gallon by Engine Cylinders") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) +
+  xlab("Miles Per Gallon") +
+  ylab("Probability Density Estimate")
+```
+
+This can be pretty helpful when comparing distributions across multiple categories of another variable, especially when overlap in distributions is something you care about. 
+
+## Boxplots
+
+Boxplots are an excellent visualization tool that tells you a lot about a distribution in just one figure. These are also very helpful for comparing distributions across a categorical variable and will tell you quite a bit about the central tendency and dispersion of these different distributions. 
+
+Boxplots are also known as box-and-whisker plots. The top and bottom of each box represents the 75th and 25th percentiles, respectively while the horizontal line within the box represents the median. 
+
+The whiskers extending above and below the box can represent different things. One method of drawing the whiskers is just to have them extend to the minimum and maximum value of the distribution. 
+
+The other, more common, method is to draw the lines up and down by 1.5 times the interquartile range value. All values below or above that upper/lower limit are defined as outliers. 
+
+Most statistical packages use the 1.5*IQR method. 
+
+Let's return to miles per gallon again and see what the distribution looks like in a boxplot:
+
+```{r}
+ggplot(mtcars, aes(y=mpg)) + geom_boxplot()
+```
+
+While we can understand a few things about the distribution from this picture (the median, IQR, minimum, presence of outliers), boxplots are a bit more helpful when **comparing** different distributions. 
+
+Let's add cylinders to the plot again to see how it changes:
+
+```{r}
+ggplot(mtcars, aes(x=cyl, y=mpg)) + geom_boxplot()
+```
+
+Now we're getting somewhere! We can now see something similar to what we saw in the histogram and density curve, though now we have a bit more information about how the distributions overlap with respect to the percentiles of these distributions. 
+
+Let's make a few changes to the plots to emphasize these differences. First, I'll make reduce the width of the boxes. 
+
+```{r}
+ggplot(mtcars, aes(x=cyl, y=mpg)) + 
+  geom_boxplot(width=0.5)
+```
+
+The width of the boxes is better now as they seem less stretched out, but there's definitely more we can do. 
+
+Let's add the actual observations as dots using the geom_jitter() function:
+
+```{r}
+ggplot(mtcars, aes(x=cyl, y=mpg)) + 
+  geom_boxplot(width=0.5) +
+  geom_jitter(position=position_jitter(0.2), alpha=0.4)
+```
+
+Okay, now we can see where the actual values are in the distribution represented by the boxplot. The geom_jitter() function is used so that they aren't all in a straight line through the middle of the boxplot and I use the alpha= option so the dots do not block out the boxplot itself. 
+
+Finally, let's use the fill option to get different colors for the different values of cylinders:
+
+```{r}
+ggplot(mtcars, aes(x=cyl, y=mpg, fill=cyl)) + 
+  geom_boxplot(width=0.5) +
+  geom_jitter(position=position_jitter(0.2), alpha=0.4)
+```
+
+Notice that the positions change for the points! The geom_jitter() function adds a small randomly selected value to each point so they don't appear all on top of one another or just in one vertical line. 
+
+We can use the set.seed() function to control this behavior so that we get the same result every time:
+
+```{r}
+set.seed(03151813)
+ggplot(mtcars, aes(x=cyl, y=mpg, fill=cyl)) + 
+  geom_boxplot(width=0.5) +
+  geom_jitter(position=position_jitter(0.2), alpha=0.4)
+```
+
+Now, no matter how many times I run that code, I get the same result!
+
+Now, as always, let's add some formal titles to make the graph more professional:
+
+```{r}
+set.seed(03151813)
+ggplot(mtcars, aes(x=cyl, y=mpg, fill=cyl)) + 
+  geom_boxplot(width=0.5) +
+  geom_jitter(position=position_jitter(0.2), alpha=0.4) +
+  ggtitle("Distribution of Miles Per Gallon by Engine Cylinders") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif")) +
+  xlab("Cylinders in Engine") +
+  ylab("Miles Per Gallon")
+```
+
+## Line Graphs
+
+Not to be confused with lines added **to** a graph, a line graph is simply a series of connected points ordered in some way, generally by time. In fact, one of the most common ways to show the trend of something that varies over time is to use a line graph. 
+
+Let's use some new data on the US homicide rate per year, from 1950 to 2020:
+
+```{r}
+year<-c(1950:2020)
+hom_rate<-c(4.6, 4.4, 4.6, 4.5, 4.2, 4.1, 4.1, 4.0, 4.8, 4.9, 5.1, 4.8, 4.6, 
+            4.6, 4.9, 5.1, 5.6, 6.2, 6.9, 7.3, 7.9, 8.6, 9.0, 9.4, 9.8, 9.6,
+            8.7, 8.8, 9.0, 9.8, 10.2, 9.8, 9.1, 8.3, 7.9, 8.0, 8.5, 8.3, 8.4,
+            8.7, 9.4, 9.8, 9.3, 9.5, 9.0, 8.2, 7.4, 6.8, 6.3, 5.7, 5.5, 5.6,
+            5.6, 5.7, 5.5, 5.6, 5.8, 5.7, 5.4, 5 ,4.8, 4.7, 4.7, 4.5, 4.4, 4.9,
+            5.4, 5.3, 5,5, 7.8)
+homicides <- data.frame(year, hom_rate)
+```
+
+Now that the data are entered, let's make a line plot:
+
+```{r}
+ggplot(homicides, aes(x=year, y=hom_rate)) + geom_line()
+```
+
+Let's make some adjustments to the x-axis labels to make it easier to pick out individual years. We can do this using the scale_x_continuous() function:
+
+```{r}
+ggplot(homicides, aes(x=year, y=hom_rate)) + geom_line() +
+  scale_x_continuous(name="Years", breaks=seq(1950,2020, by=4))
+```
+
+That's better, but this could look pretty jumbled if the graph was made smaller. Let's adjust the orientation of the x-axis labels so that they're on a slight diagonal. We can do this using the theme() function with a few options within it:
+
+```{r}
+ggplot(homicides, aes(x=year, y=hom_rate)) + geom_line() +
+  scale_x_continuous(name="Years", breaks=seq(1950,2020, by=4)) +
+  theme(axis.text.x = element_text(angle=35, hjust=1, vjust=1))
+```
+
+Much better. Now let's do something similar for the y-axis:
+
+```{r}
+ggplot(homicides, aes(x=year, y=hom_rate)) + geom_line() +
+  scale_x_continuous(name="Years", breaks=seq(1950,2022, by=4)) +
+  theme(axis.text.x = element_text(angle=35, hjust=1, vjust=1)) +
+  scale_y_continuous(name="Homicide Rate", breaks=seq(4, 10, by=1))
+```
+
+Even better. 
+
+As always, let's finish the graph by adding a title:
+
+```{r}
+ggplot(homicides, aes(x=year, y=hom_rate)) + geom_line() +
+  scale_x_continuous(name="Years", breaks=seq(1950,2022, by=4)) +
+  theme(axis.text.x = element_text(angle=35, hjust=1, vjust=1)) +
+  scale_y_continuous(name="Homicide Rate", breaks=seq(4, 10, by=1)) +
+  ggtitle("US Homicide Rates (per 100k), 1950 to 2020") +
+  theme(plot.title=element_text(hjust=0.5,
+                                face="bold", family="serif"))
+```
+
+## Time for your two questions!
+
+![That's All Folks](bugsbunny.jfif)

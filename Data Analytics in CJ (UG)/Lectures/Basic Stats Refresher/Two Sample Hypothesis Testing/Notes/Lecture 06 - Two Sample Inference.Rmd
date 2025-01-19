@@ -1,0 +1,368 @@
+---
+title: "Lecture 06 - Two Sample Inference"
+author: "Data Analysis in CJ (CJUS 6103)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Outline
+
+I.  Logic of two-sample inference
+II.  Sampling distribution of mean differences
+III. Independent-samples hypothesis testing
+IV.  Non-independent samples hypothesis testing
+
+# Logic of Two-Sample Inference
+
+In hypothesis testing with two sample means, we want to know how two groups differ with respect to some outcome of interest. Our research question with two-population hypothesis testing is this: Are these two samples drawn from a single population with mean $\mu$, or are they subsets of two different populations with means $\mu_{1}$ and $\mu_{2}$, respectively? Recall from our discussion of single-sample inference that there are two possible answers to this question.
+
+1)  Yes, our samples are drawn from a single population (with respect to the outcome we are interested in). Thus, the observed difference between the two sample means reflects a chance difference, a result of random sampling error. 
+
+2)  No, our samples are drawn from two different populations. Thus, the observed difference between the two sample means reflects a systematic difference, a result of the fact that they actually comprise two different populations with respect to the outcome. 
+
+# Sampling Distribution of Mean Differences
+
+Using probability theory, we can ask how likely it is that we would observe the difference between the two sample means if the population means are actually equal. We want to know if the difference is random or systematic. With this type of question, we resort to a new sampling or probability distribution, known as the **sampling distribution of mean differences**. 
+
+In order to understand what a sampling distribution of mean differences is, let’s conduct a thought experiment. Let’s say that we draw a sample of males and a sample of females, ask them how many offenses they committed in the last year, calculate the mean number of offenses for each sample, and compute the difference between these two sample means ($\overline{x}_{1}-\overline{x}_{2}$). Now, imagine that we continue to do this for an infinite number of samples, calculating a mean for each sample and taking the difference between the two means. This process results in a theoretical sampling distribution of differences between sample means. This distribution is defined by two parameters.
+
+1)  The mean of this sampling distribution is  $\mu_{\overline{x}_{1}}-\mu_{\overline{x}_{2}}$, and is equal to the true difference between the population means, $\mu_{1}-\mu_{2}$. 
+
+2)  The standard deviation of this sampling distribution is: $$\sigma_{\overline{x}_{1}-\overline{x}_{2}}=\sqrt{\frac{\sigma^{2}_{1}}{n_{1}}+\frac{\sigma^{2}_{2}}{n_{2}}}$$ and is called the standard error of the difference between means, or the \textbf{standard error of the difference} for short. 
+
+When we are considering the sampling distribution of mean differences, we may resort to an important theorem with which we are already familiar: the central limit theorem. That is, no matter the shape of the two population distributions, when the sample sizes become large the sampling distribution of mean differences approximates a normal distribution. Keep in mind from the prior lecture that "approximates" is a relative term - it depends upon the level of precision we want (e.g., similarity to the third or fourth decimal place can require a large number of observations). This theorem implies that we may conduct hypothesis tests for two population means. 
+
+Note that the general form for a standard score is the following. 
+
+$$z = \frac{\text{estimate }-\text{ parameter}}{\text{standard deviation}}$$
+
+We can use this general notation to construct the standard score for mean differences.
+
+$$z= \frac{(\overline{x}_{1}-\overline{x}_{2})-(\mu_{1}-\mu_{2})}{\sigma_{\overline{x}_{1}-\overline{x}_{2}}} = \frac{(\overline{x}_{1}-\overline{x}_{2})-(\mu_{1}-\mu_{2})}{\sqrt{\frac{\sigma^{2}_{1}}{n_{1}}+\frac{\sigma^{2}_{2}}{n_{2}}}}$$
+
+Since, under the null hypothesis, the population means are equivalent, we can remove the second term from the numerator. Thus, when both $\sigma_{1}$ and $\sigma_{2}$ are known, this leaves us with having to estimate:
+
+$$z= \frac{(\overline{x}_{1}-\overline{x}_{2})}{\sqrt{\frac{\sigma^{2}_{1}}{n_{1}}+\frac{\sigma^{2}_{2}}{n_{2}}}}$$
+
+Unfortunately, the population standard deviations will not always be known. This requires us to make an adjustment to the formula by substituting the sample standard deviations for the population standard deviations, and by adjusting for the **degrees of freedom** from each sample. In this case, the test statistic becomes:
+
+$$t= \frac{(\overline{x}_{1}-\overline{x}_{2})}{\sqrt{\frac{s^{2}_{1}}{n_{1}-1}+\frac{s^{2}_{2}}{n_{2}-1}}}$$
+
+\newpage
+
+# Independent Samples Hypothesis Testing
+
+Let’s pose a couple of research questions to practice hypothesis testing. 
+
+## Example - Social Disorganization and Violent Victimization
+
+Suppose we want to test the association between social disorganization and violent victimization. We gather data on 41 low-SES neighborhoods and find that the mean number of victimizations in the last year is 12.4 ($\sigma^{2}_{1}$ = 18.49). We also gather data on 21 high-SES neighborhoods and find that the mean number of victimizations is 5.2 ($\sigma^{2}_{2}$ = 2.25). Our research question is: Do people that live in low-SES neighborhoods have a different risk of victimization than people that live in high-SES neighborhoods? We will use $\alpha$ = .01.
+
+### Step 1. Formally State Hypotheses
+
+The alternative and research hypotheses are slightly different now that we have two samples. We are now saying something more complicated about the expected difference between two values, not just that one is higher than the other (even though the research question may look the same). We are now saying that the expected difference between two sample means is positive (expecting a difference >0), negative (expecting a difference <0) or simply that there is a difference (difference $\ne$ 0)
+
+Therefore, our hypothesis for this test is as follows:
+
+$$H_{1}: \mu_{L} \ne \mu_{H} \therefore \mu_{L} - \mu_{H} \ne 0$$
+
+$$H_{0}: \mu_{L} = \mu_{H} \therefore \mu_{L} - \mu_{H} = 0$$
+
+### Step 2. Obtain a Probability Distribution
+
+Because we know the population standard deviations, we wll use the $z$-distribution.
+
+### Step 3. Make Decision Rules
+
+$\alpha=.01$; $z_{crit} = `r round(qnorm(.01/2, mean=0, sd=1, lower.tail=FALSE),3)`$; reject $H_{0}$ if |TS| > `r round(qnorm(.01/2, mean=0, sd=1, lower.tail=FALSE),3)`
+
+### Step 4. Calculate the Test Statistic
+
+$$z= \frac{(\overline{x}_{1}-\overline{x}_{2})}{\sqrt{\frac{\sigma^{2}_{1}}{n_{1}}+\frac{\sigma^{2}_{2}}{n_{2}}}} = \frac{(12.4-5.2)}{\sqrt{\frac{18.49}{41}+\frac{2.25}{21}}} = \frac{7.2}{\sqrt{.4510+.1071}} = `r round(7.2/(sqrt(.4510+.1071)),3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Reject $H_{0}$, conclude that low-SES and high-SE neighborhoods have significantly different rates of victimization. 
+
+\newpage
+
+## Example - Youth Employment and Problem Behaviors
+
+Prior research indicates that working youths are more heavily involved in delinquency, substance use, and other problem behaviors than non-working youths. We have a sample of 2243 working youths and find that the mean number of self-report problem behaviors is $\overline{x}_{W}=3.73$ ($s^{2}_{W} = 12.95$). We also have a sample of 6679 non-working youths and find that the mean number of problem behaviors is $\overline{x}_{N} = 2.22$ ($s^{2}_{N} = 8.19$). Our research question is: Do working youths do engage in more problem behavior than non-working youths? Use $\alpha$ = .05. 
+
+### Step 1. Formally State Hypotheses
+
+$H_{1}: \mu_{W} > \mu_{N} \therefore \mu_{W} - \mu_{N} > 0$; $H_{0}: \mu_{W} \le \mu_{N} \therefore \mu_{W} - \mu_{N} \le 0$
+
+### Step 2. Obtain a Probability Distribution
+
+Because we do not know the population standard deviations we will use the $t$-distribution. 
+
+### Step 3. Make Decision Rules
+  
+$\alpha$ = .05; $t_{crit} = `r round(qt(.05, df=2243+6679-2, lower.tail=FALSE),3)`$; reject $H_{0}$ if TS > `r round(qt(.05, df=2243+6679-2, lower.tail=FALSE),3)`
+
+Note that we compute the degrees of freedom slightly differently now. Because we have two samples, our total sample size is the sum of the sample sizes for each group subtracting two degrees of freedom. We subtract two degrees of freedom because we are using two sample statistics to estimate two population parameters. 
+
+### Step 4. Calculate the Test Statistic
+
+$$t= \frac{(\overline{x}_{1}-\overline{x}_{2})}{\sqrt{\frac{s^{2}_{1}}{n_{1}-1}+\frac{s^{2}_{2}}{n_{2}-1}}} = \frac{(3.73-2.22)}{\sqrt{\frac{12.95}{2243-1}+\frac{8.19}{6679-1}}} = \frac{1.51}{\sqrt{.0058+.0012}} = `r round(1.51/(sqrt(.0058+.0012)), 3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Reject $H_{0}$, working youths do commit significantly more crimes than do non-working youths. 
+
+\newpage 
+
+## Example - Relationship Between Offending and Victimization
+
+There is some suggestion that individuals who engage in more criminal behavior are, for a variety of reasons, also more likely to be victims of crime. You compare a sample of 10 self-report high-rate offenders with 10 self-report non-offenders on the number of times in the last five years they have been the victim of a personal crime. Use $\alpha$ = .10 to test the hypothesis that a “criminal lifestyle” increases the likelihood of victimization. 
+
+Criminally-active sample: $n_{C} = 10$, $\overline{x}_{C} = 5.9$, $s^{2}_{C} = 5.29$
+    
+Non-criminally-active sample: $n_{N} = 10$, $\overline{x}_{N} = 2.8$, $s^{2}_{N} = 5.36$
+
+### Step 1. Formally State Hypotheses
+
+$H_{1}: \mu_{C}>\mu_{N} \therefore \mu_{C}-\mu_{N} >0$; $H_{0}: \mu_{C} \le \mu_{N} \therefore \mu_{C} - \mu_{N} \le 0$
+
+### Step 2. Obtain a Probability Distribution
+
+Because we do not know the population standard deviations we will use the $t$-distribution. 
+
+### Step 3. Make Decision Rules
+
+$\alpha$=.10 (one-tailed), $t_{crit}=`r round((qt(.10, df=10+10-2, lower.tail=FALSE)),3)`0$, reject $\text{H}_{0}$ if TS>`r round((qt(.10, df=10+10-2, lower.tail=FALSE)), 3)`0.
+
+### Step 4. Calculate the Test Statistic
+
+$$t= \frac{(\overline{x}_{1}-\overline{x}_{2})}{\sqrt{\frac{s^{2}_{1}}{n_{1}-1}+\frac{s^{2}_{2}}{n_{2}-1}}} = \frac{(5.9-2.8)}{\sqrt{\frac{5.29}{10-1}+\frac{5.36}{10-1}}} = \frac{3.10}{\sqrt{.5878+.5956}} = `r round(3.10/(sqrt(.5878+.5956)), 3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Reject $H_{0}$, people who engage in crime at a high rate are significantly more likely to be victimized more often. 
+
+\newpage
+
+## Example - Youth Dating and Problem Behaviors
+
+You collect data from a sample of 8 youths that report having gone out on a date in the last year, and a sample of 6 youths that report not having gone out on a date. Each youth provides information on their self-report engagement in a variety of problem behaviors. Using $\alpha$ = .01, test the hypothesis that there is an association between dating and delinquency. 
+
+Daters: $n_{D} = 8$, $\overline{x}_{D} = 2.38$, $s^{2}_{D} = 2.46$
+    
+Non-daters: $n_{N} = 6$, $\overline{x}_{N} = 1.67$, $s^{2}_{N} = 1.21$
+
+### Step 1. Formally State Hypotheses
+
+$\text{H}_{1}:\mu_{N} \ne \mu_{D} \therefore \mu_{N}-\mu_{D} \ne 0$; $\text{H}_{0}:\mu_{N} = \mu_{D} \therefore \mu_{N}-\mu_{D} = 0$
+
+### Step 2. Obtain a Probability Distribution
+
+Because we do not know the population standard deviations we will use the $t$-distribution. 
+
+### Step 3. Make Decision Rules
+
+$\alpha$=.01 (two-tailed), $t_{crit}=`r round(qt(.01/2, df=8+6-2, lower.tail=FALSE), 3)`$, reject $\text{H}_{0}$ if |TS|>`r round(qt(.01/2, df=8+6-2, lower.tail=FALSE), 3)`. 
+
+### Step 4. Calculate the Test Statistic
+
+$$ t=\frac{(\overline{\text{x}}_{1}-\overline{\text{x}}_{2})}{\sqrt{\frac{s^{2}_{1}}{\text{n}_{1}-1}+\frac{s^{2}_{2}}{\text{n}_{2}-1}}} =           \frac{2.38-1.67}{\sqrt{\frac{2.46}{8-1}+\frac{1.21}{6-1}}} = `r format((2.38-1.67)/((sqrt((2.46/(8-1))+(1.21/(6-1))))),nsmall=3,digits=3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Accept $\text{H}_{0}$, youth who date do not engage in a different amount of problem behaviors than youth who do not date. 
+
+\newpage
+
+# Non-Independent Samples Hypothesis Testing
+
+There is one very important assumption that must be met in order to carry out the hypothesis tests that we just completed. Our two samples must be independent of one another. In other words, both samples are randomly selected, and the fact that one case is selected into one sample does not affect the selection of a different case into the other sample. From our youth employment example, we know that selecting a worker into one sample had no effect on the probability of selecting a non-worker into the other sample. Thus, our samples of workers and non-workers were each independent of the other.
+
+There are times when this condition is deliberately violated. The most common is when we have a **before-and-after** design, in which we measure the dependent variable for each case at two points in time. In between these two measurement periods we typically introduce some sort of treatment, which we think of as the independent variable. What we are interested in finding out is whether the treatment had any effect on the outcome. 
+
+Another instance in which we have non-independent samples is when we match individuals from two samples on important characteristics, such as when we match treatment and control groups on the basis of age, gender, and race. 
+
+With this type of design, we must reformulate our statistical test to be based on the difference between the scores for each pair of observations. Thus, unlike the independent-samples hypothesis test, in which we test the difference between two sample means (i.e., $\overline{x}_{1}-\overline{x}_{2}$), with a non-independent-samples hypothesis test, we test the difference between the pair of raw scores for each individual (i.e., $x_{2}-x_{1}$). The sample size is not the total number of observations in each group, but rather the number of **pairs of observations**. 
+
+The question we ask with a non-independent-samples hypothesis test is: Did the treatment have an effect on the outcome, or do the matched groups differ with respect to the outcome? We want to use a formula that takes into account that we are computing differences between raw scores. When we do this, we obtain: $$TS = \frac{\overline{x}_{D}-\mu_{D}}{\sqrt{\frac{s^{2}_{D}}{n-1}}} = \frac{\overline{x}_{D}-\mu_{D}}{\frac{s_{D}}{\sqrt{n-1}}}$$
+
+However, under the null hypothesis, we assume that the treatment had no effect, which means that $\mu_{D}=0$. This means that we can remove this term from the formula, which leaves us with: $$TS = \frac{\overline{x}_{D}}{\sqrt{\frac{s^{2}_{D}}{n-1}}}$$
+
+Where we calculate the mean like so: $$\overline{x}_{D} = \frac{\sum (x_{2}-x_{1})}{n}$$ 
+
+and we calculate the variance using the following equation: $$s_{D}=\sqrt{\frac{\sum (x_{D}-\overline{x}_{D})^{2}}{n}} = \sqrt{\frac{\sum x^{2}_{D}}{n}-\overline{x}^{2}_{D}}$$
+
+\newpage
+
+## Example - Parent and Child Criminality
+
+There is evidence that children with criminal parents are more likely to be criminal themselves that children with non-criminal parents. You collect data on a sample of 121 youths who have at least one parent with an official record of conviction, and match them on the basis of age, sex, race, and school performance with 121 youths whose parents do not have a record of conviction. You find that the mean difference ($x_{D} = x_{2}-x_{1} = x_{C} - x_{N}$) between these matched groups is 5.75 ($s_{D} = 4.25$). Your research question is as follows: Are youths with criminal parents more likely to be arrested than youths without criminal parents? Use $\alpha$ = .01.
+
+### Step 1. Formally State Hypotheses
+
+$H_{1}: \mu_{D} >0$; $H_{0} \mu_{D} \le 0$
+
+### Step 2. Obtain a Probability Distribution
+
+Because we do not know the population standard deviation, we will use the $t$-distribution. 
+
+Our degrees of freedom are equivalent to 121 - 1 = 120. Our degrees of freedom are different (again) because we now want the degrees of freedom for the **difference** between matched pairs. The number of matched pairs is now our sample size and we only subtract one degree of freedom because we are not estimated individual standard deviations for each group, just one standard deviation for the difference in matched pair scores. 
+
+### Step 3. Make Decision Rules
+
+$\alpha = .01 (one-tailed)$; $t_{crit} = `r round(qt(.01, df=121-1, lower.tail=FALSE),3)`$; reject $H_{0}$ if TS > `r round(qt(.01, df=121-1, lower.tail=FALSE),3)` 
+
+### Step 4. Calculate the Test Statistic
+
+$$TS = \frac{\overline{x}_{D}}{\frac{s_{D}}{\sqrt{n-1}}} = \frac{5.75}{\frac{4.25}{\sqrt{121-1}}} = `r round(5.75/(4.25/sqrt(121-1)),3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Reject $H_{0}$, having parents with criminal records significantly increases a youth's likelihood of arrest. 
+
+\newpage
+
+## Example - Do Formal Sanctions Deter Crime?
+
+We want to know if formal sanctions deter crime. We draw a sample of n = 10 offenders and ask them the number of arrests they had prior to appearing in court. We then ask them the number of arrests they had after they appeared in court. Use $\alpha$ = .05 test the hypothesis that formal sanctions deter crime.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccc}
+\hline
+$\text{x}_{1}$  & $\text{x}_{2}$  & $\text{x}_{D}=\text{x}_{2}-\text{x}_{1}$  & $\text{x}^{2}_{D}$  \\ \hline
+3               & 1               & -2                                        & 4                   \\
+2               & 2               & 0                                         & 0                   \\
+1               & 0               & -1                                        & 1                   \\
+1               & 1               & 0                                         & 0                   \\
+2               & 1               & -1                                        & 1                   \\
+4               & 4               & 0                                         & 0                   \\
+6               & 6               & 0                                         & 0                   \\
+1               & 0               & -1                                        & 1                   \\
+1               & 1               & 0                                         & 0                   \\
+2               & 3               & 1                                        & 1                   \\ \hline
+$\overline{x}_{1}=`r (3+2+1+1+2+4+6+1+2)/10`$ & $\overline{x}_{1}=`r (1+2+0+1+1+4+6+0+3)/10`$ & $\sum{\text{x}_{D}}=`r -2+0+-1+0+-1+0+0+-1+0+1`$  & $\sum{x}^{2}_{D}=`r 4+0+1+0+1+0+0+1+0+1`$ \\
+                                              &                                               & $\overline{x}_{D}=`r (-2+0+-1+0+-1+0+0+-1+0+1)/10`$  & $\text{s}_{D}=\sqrt{\frac{8}{10}-.40^{2}}=`r format((sqrt((8/10)-(.40^2))),nsmall=2,digits=2)`$ \\ \hline
+\end{tabular}
+\end{table}
+
+### Step 1. Formally State Hypotheses
+
+$\text{H}_{1}:\mu_{D} < 0$; $\text{H}_{0}:\mu_{D} \ge 0$
+
+### Step 2. Obtain a Probability Distribution
+
+Because we do not know the population standard deviation, we will use the $t$-distribution. We have 9 (10 - 1) degrees of freedom. 
+
+### Step 3. Make Decision Rules
+
+$\alpha = .05$ (one-tailed); $t_{crit} = `r round(qt(.05, df=10-1, lower.tail=TRUE),3)`$; reject $H_{0}$ if TS < `r round(qt(.05, df=10-1, lower.tail=TRUE),3)`
+
+### Step 4. Calculate the Test Statistic
+
+$$ t=\frac{\overline{\text{x}}_{D}-\mu_{D}}{\text{s}_{D}/\sqrt{\text{n}-1}}=\frac{-0.40}{.80/\sqrt{10-1}} = `r round(-0.40/(.80/sqrt(10-1)), 3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Accept $H_{0}$, formal sanctions do not deter crime. 
+
+\newpage
+
+## Example - After-School Tutoring
+
+Suppose that we have a sample of five high-risk middle-school students with a history of poor academic performance. In order to help them improve, the school implements an after-school tutoring program. Their test scores before and after participation in the program are listed below. Use $\alpha$ = .05 to test the hypothesis that the program is effective in raising test scores.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccc}
+\hline
+$\text{x}_{1}$  & $\text{x}_{2}$  & $\text{x}_{D}=\text{x}_{2}-\text{x}_{1}$  & $\text{x}^{2}_{D}$  \\ \hline
+60              & 62              & 2                                         & 4                   \\
+66              & 66              & 0                                         & 0                   \\
+65              & 67              & 2                                         & 4                   \\
+60              & 64              & 4                                         & 16                  \\
+59              & 65              & 6                                         & 36                  \\ \hline
+$\overline{x}_{1}=`r (60+66+65+60+59)/5`$ & $\overline{x}_{1}=`r (62+66+67+64+65)/5`$ & $\sum{\text{x}_{D}}=`r 2+0+2+4+6`$  & $\sum{x}^{2}_{D}=`r 4+0+4+16+36`$ \\
+                                              &                                               & $\overline{x}_{D}=`r (2+0+2+4+6)/5`$  & $\text{s}_{D}=\sqrt{\frac{60}{5}-2.8^{2}}=`r format((sqrt((60/5)-2.8^2)),nsmall=2,digits=2)`$ \\ \hline
+\end{tabular}
+\end{table}
+
+### Step 1. Formally State Hypotheses
+
+$\text{H}_{1}:\mu_{D} > 0$; $\text{H}_{0}:\mu_{D} \le 0$ 
+
+### Step 2. Obtain a Probability Distribution
+
+$t$-distribution; df=$5-1=`r 5-1`$
+
+We will use the $t$-distribution because we do not know the population standard deviation and must use the sample standard deviation instead. Our degrees of freedom are calculated as 5-1=4 because there are only 5 pre/post differences we observe. 
+
+### Step 3. Make Decision Rules
+
+$\alpha$=.05 (one-tailed), $t_{crit}=`r round(qt(.05, df=5-1, lower.tail=FALSE), 3)`$, reject $\text{H}_{0}$ if TS>`r round(qt(.05, df=5-1, lower.tail=FALSE), 3)`. 
+
+### Step 4. Calculate the Test Statistic
+
+$$t=\frac{\overline{\text{x}}_{D}-\mu_{D}}{\text{s}_{D}/\sqrt{\text{n}-1}}=\frac{2.8}{2.04/\sqrt{5-1}} = `r round(2.8/(2.04/sqrt(5-1)), 3)`$$
+
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Reject $H_{0}$, conclude that the tutoring program significantly raised test scores. 
+
+\newpage
+
+## Example - Youth Employment and Delinquency
+
+We saw earlier that youths who are employed are more likely to be delinquent than youths that are not employed. How about if we consider the same group of youths at two points in time, both before and after the transition to employment (the *treatment*)? If youth employment is criminogenic, we would expect that youths who begin working should also increase their involvement in problem behavior. We collect data on a sample of 15 high-school students who at time one were non-workers, and who by time 2 were working part time. Use $\alpha$ = .05 to test the hypothesis that the transition to work is criminogenic.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccc}
+\hline
+$\text{x}_{1}$  & $\text{x}_{2}$  & $\text{x}_{D}=\text{x}_{2}-\text{x}_{1}$  & $\text{x}^{2}_{D}$  \\ \hline
+4               & 5               & 1                                         & 1                   \\
+0               & 0               & 0                                         & 0                   \\
+1               & 2               & 1                                         & 1                   \\
+1               & 1               & 0                                         & 0                   \\
+3               & 1               & -2                                        & 4                   \\
+5               & 4               & -1                                        & 1                   \\
+2               & 3               & 1                                         & 1                   \\
+0               & 2               & 2                                         & 4                   \\
+1               & 3               & 2                                         & 4                   \\
+3               & 2               & -1                                        & 1                   \\ 
+2               & 1               & -1                                        & 1                   \\
+3               & 5               & 2                                         & 4                   \\
+5               & 5               & 0                                         & 0                   \\
+3               & 4               & 1                                         & 1                   \\
+2               & 5               & 3                                         & 9                   \\ \hline
+$\overline{x}_{1}=`r format((4+0+1+1+3+5+2+0+1+3+2+3+5+3+2)/15,nsmall=2,digits=2)`$ & $\overline{x}_{1}=`r format((5+0+2+1+1+4+3+2+3+2+1+5+5+4+5)/15,nsmall=2,digits=2)`$ & $\sum{\text{x}_{D}}=`r 1+0+1+0+-2+-1+
+1+2+2+-1+-1+2+0+1+3`$  & $\sum{x}^{2}_{D}=`r 1+0+1+0+4+1+1+4+4+1+1+4+0+1+9`$ \\
+                                              &                                               & $\overline{x}_{D}=`r format((1+0+1+0+-2+-1+1+2+2+-1+-1+2+0+1+3)/15,nsmall=2,digits=2)`$  & $\text{s}_{D}=\sqrt{\frac{32}{15}-.53^{2}}=`r format((sqrt((32/15)-.53^2)),nsmall=2,digits=2)`$ \\ \hline
+\end{tabular}
+\end{table}
+
+### Step 1. Formally State Hypotheses
+
+$\text{H}_{1}:\mu_{D} > 0$; $\text{H}_{0}:\mu_{D} \le 0$ 
+
+### Step 2. Obtain a Probability Distribution
+
+t-distribution; df=$15-1=`r 15-1`$
+
+We will use the $t$-distribution because we do not know the population standard deviation and must use the sample standard deviation instead. Our degrees of freedom are calculated as 15-1=14 because there are only 15 pre/post differences we observe. 
+
+### Step 3. Make Decision Rules
+
+$\alpha$=.05 (one-tailed), $t_{crit}=`r round(qt(.05,df=15-1,lower.tail=FALSE), 3)`$, reject $\text{H}_{0}$ if TS>`r round(qt(.05,df=15-1,lower.tail=FALSE), 3)`.
+
+### Step 4. Calculate the Test Statistic
+
+$$t=\frac{\overline{\text{x}}_{D}-\mu_{D}}{\text{s}_{D}/\sqrt{\text{n}-1}}=\frac{.53}{1.36/\sqrt{15-1}} = `r round(.53/(1.361/sqrt(15-1)), 3)`$$
+
+### Step 5. Make a Decision about the Null Hypothesis
+
+Accept $H_{0}$, conclude that youth employment is not criminogenic. 

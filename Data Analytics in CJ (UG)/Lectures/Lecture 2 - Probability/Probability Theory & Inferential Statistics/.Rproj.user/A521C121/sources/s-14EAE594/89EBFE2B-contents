@@ -1,0 +1,902 @@
+---
+title: "Lecture 2 - Probability Theory & Inferential Statistics"
+author: "Samuel DeWitt, Ph.D."
+output: 
+  beamer_presentation:
+    includes:
+      in_header: C:/Users/sd662/Google Drive/Fall 2019 Classes/Causes and Consequences of Crime/Lectures/Common Files/beamer-header.txt
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Review of Probability Theory & Inferential Statistics
+
+Warning - the following content *will* seem abstract at first, but I promise it is essential to understanding statistical inference. 
+
+\vspace{8pt} 
+
+Probability theory has to do with assigning expectations for events in the 'long run' that you can generally only observe in a more limited way (e.g., limited by time or the number of 'trials').
+
+\vspace{8pt}
+
+A prominent example is a coin toss - we expect a 50/50 chance to obtain heads/tails on any given toss. How about if we tossed a coin 1000 times - how many times do you think we will see heads appear?
+
+## First Things First - Some Definitions
+
+\begin{itemize}
+  \item \textbf{Trial}: Any operation that results in the collection of observations, whose outcomes cannot be predicted in advance with certainty (aka, an experiment). 
+  \pause
+  \item \textbf{Outcome}: Each distinct result of a trial
+  \pause
+  \item \textbf{Sample Space}: The set of all possible outcomes, denoted \textit{S}
+\end{itemize}
+  
+## Some Classic Examples
+
+Coins, Cards, and Dice
+
+\begin{itemize}
+  \item \textbf{Trial}: flip of a coin, roll a die, draw a card
+  \pause
+  \item \textbf{Outcome}: heads, '2', ace of spades
+  \pause
+  \item \textbf{Sample space}: [H,T], [1,2,3,4,5,6], [all 52 cards]
+\end{itemize}
+
+
+## Some Additional Definitions
+
+\textbf{Event}: Any collection of outcomes, or any subset of \textit{S}
+
+\vspace{12pt}
+
+\pause
+
+\begin{center}
+'Success' is defined as some event occurring:
+\end{center}
+
+\pause
+
+$$p(A)=\frac{\text{\# of observations favoring Event 'A'}}{\text{total \# of observations in sample space}}$$
+
+## Some Additional Definitions (Continued)
+
+\textbf{Complement of an event}: The set of all possibilities of an event not occurring
+
+\vspace{12pt}
+
+\begin{center}
+'Failure' is defined as the event not occurring
+\end{center}
+
+$$p(\text{not A})=p(~A)=p(A')=1-p(A)$$
+\begin{center}
+By definition, $p(A)+p(~A)=1$
+\end{center}
+
+## Here's Some Examples to Reinforce The Concept of 'Events'
+
+**Flipping a coin**: *S*=[H,T]
+
+\pause
+
+\vspace{6pt}
+
+$$p(H) = \frac{p(H)}{p(H)+p(T)}$$
+\vspace{6pt}
+
+$$p(H) = \frac{.50}{.50+.50}$$
+  
+## Here Are Some Examples to Reinforce The Concept of 'Events'
+
+**Rolling a die**: *S*=[1,2,3,4,5,6]
+
+\pause
+
+$$p(1)=\frac{p(1)}{p(1)+p(2)+p(3)+p(4)+p(5)+p(6)}$$
+
+\vspace{12pt}
+
+$$p(1)=\frac{(1/6)}{(1/6)+(1/6)+(1/6)+(1/6)+(1/6)+(1/6)}$$
+
+## Here Are Some Examples to Reinforce the Concept of 'Events'
+
+**Rolling a die**: *S*=[1,2,3,4,5,6]
+
+\pause
+
+$$p(even)=\frac{p(2)+p(4)+p(6)}{p(1)+p(2)+p(3)+p(4)+p(5)+p(6)}$$
+
+\pause
+
+\vspace{12pt}
+
+$$p(even)=\frac{(1/6)+(1/6)+(1/6)}{(1/6)+(1/6)+(1/6)+(1/6)+(1/6)+(1/6)}$$
+
+## Here Are Some Examples to Reinforce the Concept of 'Events'
+
+**Drawing a card**: *S*=[all 52 cards]
+
+\pause
+
+\vspace{6pt}
+
+$$p(\text{jack of diamonds})=\frac{p(\text{jack of diamonds})}{p(\text{all 52 cards})}$$
+\vspace{6pt}
+
+$$p(\text{jack of diamonds})=\frac{1/52}{52/52}$$
+
+## Here Are Some Examples to Reinforce the Concept of 'Events'
+
+**Drawing a card**: *S*=[all 52 cards]
+
+\pause
+
+\vspace{6pt}
+
+$$p(\text{ace})=\frac{p(\text{ace})}{p(\text{all 52 cards})}$$
+
+\vspace{6pt}
+
+$$p(\text{ace})=\frac{(1/52)+(1/52)+(1/52)+(1/52)}{52/52}$$
+
+## More on Events
+
+When we talk about the **probability** of an event occurring we are referring to them over the *long run*, or over an *infinite* number of trials. 
+
+\pause
+
+\vspace{6pt}
+
+Will we always get one heads and one tails on two successive coin flips? Of course not!
+
+\pause
+\vspace{6pt}
+
+Probability also called a 'limiting relative frequency' - contrast to a *proportion* (or relative frequency). 
+
+## Building on the Basics - Counting Rules
+
+From this foundation, we can conceive of a range of possible outcomes that *may* occur over a series of trials with a set sample space *S*. 
+
+To count these outcomes, there are a few basic rules. 
+
+## Counting Rule \#1 - Basic Counting RUle
+
+Basic counting rule: the number of total possible outcomes from 'n' *independent* trials
+
+$$k_{1} \text{ x } k_{2} \text{ x } k_{3} \text{ x } \dotsm \text{ x } k_{n}$$ 
+
+$k_{i}$ = \# total outcomes from trial 'i'
+
+## Counting Rule \#2 - Permutation Rule
+
+Permutation rule: the \# of possible \textit{ordered} arrangements of 'r' objects from a group of 'n' objects. 
+
+Order matters!
+
+$$\text{with replacement: }P^{n}_{r}=n^{r}$$
+
+$$\text{without replacement: }P^{n}_{r}=\frac{n!}{(n-r)!}$$
+
+Factorial notation: 3!=(3\*2\*1) = 6 and 0! = 1
+
+## Counting Rule \#3 - Combination RUle
+
+**Combination rule**: the number of possible *unordered* arrangements of *r* objects from a collection of 'n' objects. 
+
+Order does **not** matter!
+
+$$C_{r}^{n}=\binom{n}{r}=\frac{n!}{r!(n-r)!}$$
+
+## Applying the Permutation and Combination Rules - An Example
+
+Let's apply these rules using the same criteria - we have n=10 trials and r=5 successes. 
+
+\vspace{6pt}
+
+Permutations = $P^{10}_{5}$
+
+\begin{equation}
+\begin{split}
+P^{10}_{5} &= \frac{10!}{(10-5)!} \\[4pt]
+&= \frac{10 \text{ x } 9 \text{ x } 8 \text{ x } 7 \text{ x } 6 \text{ x } 5 \text{ x } 4 \text{ x }3 \text{ x } 2 \text{ x } 1}{5 \text{ x } 4 \text{ x } 3 \text{ x } 2 \text{ x } 1} \\[4pt]
+&= 10 \text{ x } 9 \text{ x } 8 \text{ x } 7 \text{ x } 6 \\[4pt]
+&= 30240
+\end{split}
+\end{equation}
+
+## Applying the Permutation and Combination Rules - An Example
+
+Combinations = $C^{10}_{5}$
+
+\begin{equation}
+\begin{split}
+C^{10}_{5} &= \frac{10!}{5!(10-5)!} \\[4pt]
+&= \frac{10 \text{ x } 9 \text{ x } 8 \text{ x } 7 \text{ x } 6 \text{ x } 5 \text{ x } 4 \text{ x }3 \text{ x } 2 \text{ x } 1}{(5 \text{ x } 4 \text{ x } 3 \text{ x } 2 \text{ x } 1)(5 \text{ x } 4 \text{ x } 3 \text{ x } 2 \text{ x } 1)} \\[4pt]
+&= \frac{10 \text{ x } 9 \text{ x } 8 \text{ x } 7 \text{ x } 6}{5 \text{ x } 4 \text{ x } 3 \text{ x } 2 \text{ x } 1} \\[4pt]
+&= \frac{30240}{120} \\[4pt]
+&= 252
+\end{split}
+\end{equation}
+
+## Some Applied Examples
+
+License plates in NC: 3 letters, 4 numbers - How many different sequences?
+
+\pause
+\vspace{6pt}
+
+Which counting rule do we use?
+
+\pause
+\vspace{6pt}
+
+$$\text{\# of sequences}=26 * 26 * 26 * 10 * 10 * 10 * 10 = `r format(26*26*26*10*10*10*10, scientific=FALSE)`$$
+
+## Some Applied Examples
+
+Combination lock: 36 numbers, 3 in the combo - How many different sequences?
+
+\pause
+\vspace{6pt}
+
+Same counting rule?
+
+\pause
+\vspace{6pt}
+
+$$\text{\# of sequences}=36 * 36 * 36 = `r format(36*36*36, scientific=FALSE)`$$
+
+## Some Applied Examples
+
+Poker: 5 card hands - How many different sequences?
+
+\pause
+\vspace{6pt}
+
+Same counting rule?
+
+\pause
+\vspace{6pt}
+
+$$\text{\# of sequences}=\frac{52!}{(52-5)!}= `r format(factorial(52)/(factorial(52-5)), scientific=FALSE)`$$
+
+
+## Another Applied Example - Counting Marbles
+
+Let's suppose we have a bag of four colored marbles (Red, Orange, Green, & Blue). 
+
+\pause
+\vspace{6pt}
+
+How many *ordered* arrangement of all 4 exist?
+
+\pause
+\vspace{6pt}
+
+$$P^{4}_{4}=\frac{4!}{(4-4)!}=`r format(factorial(4),scientific=FALSE)`$$
+
+## Another Applied Example - Counting Marbles
+
+Here are the 'receipts' for the above calculation. Below is a table for *each* of the 24 possible outcomes:
+
+\pause
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+ROGB  & ORGB  & GROB  & BGRO  \\
+ROBG  & ORBG  & GRBO  & BGOR  \\
+RBOG  & OBRG  & GBOR  & BRGO  \\
+RBGO  & OBGR  & GBRO  & BROG  \\
+RGBO  & OGBR  & GORB  & BORG  \\
+RGOB  & OGRB  & GOBR  & BOGR
+\end{tabular}
+\end{table}
+
+## Another Applied Example - Counting Marbles
+
+What about the \# of *ordered* arrangments of just two marbles at a time?
+
+\pause
+\vspace{6pt}
+
+$$P^{4}_{2}=\frac{4!}{(4-2)!}=`r format(factorial(4)/factorial(2),scientific=FALSE)`$$
+
+## Another Applied Example - Counting Marbles
+
+And again, the 'receipts':
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+RO  & OR & BO & GO  \\
+RB  & OB & BR & GR  \\
+RG  & OG & BG & GB
+\end{tabular}
+\end{table}
+
+## Another Applied Example - Counting Marbles
+
+What about the \# of *unordered* arrangements of all four?
+
+\pause
+\vspace{6pt}
+
+What rule do we use here?
+
+\pause
+\vspace{6pt}
+
+$$\displaystyle C^{4}_{4}=\frac{4!}{4!(4-4)!} = \frac{4!}{4!}=1$$
+
+\pause
+\vspace{6pt}
+
+That's right - if order doesn't matter, there's only one combination of all 4 marbles being selected. 
+
+## Another Applied Example - Counting Marbles
+
+Last one, I promise. What about the \# of *unordered* arrangements of two out of the four marbles?
+
+\pause
+\vspace{6pt}
+
+$$\displaystyle C^{4}_{2}=\frac{4!}{2!(4-2)!} = `r format(factorial(4)/(factorial(2)*factorial(2)),scientific=FALSE)`$$
+
+
+## Another Applied Example - Counting Marbles
+
+Although the above result might seem strange at first, consider the following table of results:
+
+\pause
+\vspace{6pt}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cc}
+RO/OR & BG/GB \\
+RG/GR & BO/OB \\
+RB/BR & GO/OG
+\end{tabular}
+\end{table}
+
+\pause
+\vspace{6pt}
+
+Make more sense now?
+
+## Rules of Probability
+
+Before we begin to talk about *distributions* of probability, it is helpful to review some basic rules. 
+
+## Probability Rule \#1 - The Bounding Rule
+
+All probabilities are bounded by 0 and 1
+
+\pause
+\vspace{6pt}
+
+This means that a probability value may not be negative or exceed a value of 1
+
+\vspace{6pt}
+
+$$0 \le p(A) \le 1$$
+
+## Probability RUle \#2 - The Addition Rule
+
+**Addition rule**: the probability of observing either of two events, or the union of two or more events. 
+
+\vspace{6pt}
+
+$$p(A \cup B)=p(A)+p(B)-p(A \cap B)$$
+
+\pause
+\vspace{6pt} 
+
+**Addition rule for mutually exclusive events**: if two events cannot simultaneously occur, there's no joint probability. 
+
+\vspace{6pt}
+
+$$p(A \cup B)=p(A)+p(B)$$
+
+## Probability Rule \#3 - The Multiplication Rule
+
+**Multiplication rule**: the probability of observing two or more events simultaneously, or the *intersection* of two or more events (aka, joint probability). 
+
+\vspace{6pt}
+
+$$p(A \cap B)=p(A)\text{ X }p(B \mid A)$$
+
+\pause
+\vspace{6pt}
+
+**Multiplication rule for independent events**: Where the probability of event B is unaffected by the occurrence of event A (e.g., sampling with replacement).
+
+\vspace{6pt}
+
+$$p(A \cap B)=p(A) \text{ X } p(B)$$
+
+## A Word on Conditional Probabilities
+
+A conditional probability is defined as the probability of one event occurring *given* that another event has occurred. 
+
+\pause
+\vspace{6pt}
+
+These are generally important to the social sciences, as they are central to causal reasoning in the absence of experimental data. 
+
+## Examples of Conditional Probabilities
+
+Some examples of conditional probability questions include:
+\begin{itemize}
+  \pause
+  \item What is the likelihood someone will be incarcerated if they commit a violent offense?
+  \pause
+  \item What is the probability that a person will receive an offer for an interview if they have a felony conviction?
+  \pause
+  \item What is the probability a person will be convicted as an adult if they were convicted as a juvenile?
+  \pause
+  \item What is the probability that someone will relapse into drug use after they had participated in a drug abuse program?
+\end{itemize}
+
+## Practice - Coins, Dice, and Cards
+
+Let's work through some examples!
+
+\pause
+\vspace{6pt}
+
+\begin{itemize}[<+->]
+  \item \alt<.>{$\displaystyle p(H \cup T)=p(H \cup H') = \frac{1}{2} + \frac{1}{2}=???$}{$\displaystyle p(H \cup T)=p(H \cup H') = \frac{1}{2} + \frac{1}{2}=1.0$}
+  \pause
+  \item  \alt<.>{$\displaystyle p(HH \cup TT)=\frac{1}{4}+\frac{1}{4}=\frac{2}{4}=???$}{$\displaystyle p(HH \cup TT)=\frac{1}{4}+\frac{1}{4}=\frac{2}{4}=0.50$}
+  \pause
+  \item \alt<.>{$\displaystyle p(H \cap T)=\frac{1}{2}\text{ x }\frac{1}{2}=\frac{1}{4}=???$}{$\displaystyle p(H \cap T)=\frac{1}{2}\text{ x }\frac{1}{2}=\frac{1}{4}=0.25$}
+  \pause
+  \item \alt<.>{$\displaystyle p(HH \cap TT)=\frac{1}{4}\text{ x }\frac{1}{4}=\frac{1}{16}=???$}{$\displaystyle p(HH \cap TT)=\frac{1}{4}\text{ x }\frac{1}{4}=\frac{1}{16}=0.06$}
+  \pause
+  \item \alt<.>{$\displaystyle p(H\cap H \cap H \cap H \cap H)=\frac{1}{2}\text{ x }\frac{1}{2}\text{ x }\frac{1}{2}\text{ x }\frac{1}{2}\text{ x }\frac{1}{2}=\frac{1}{32}=???$}{$\displaystyle p(H\cap H \cap H \cap H \cap H)=\frac{1}{2}\text{ x }\frac{1}{2}\text{ x }\frac{1}{2}\text{ x }\frac{1}{2}\text{ x }\frac{1}{2}=\frac{1}{32}=0.031$}
+  \onslide<+->
+\end{itemize}
+
+
+## Practice - Coins, Dice, and Cards
+
+Let's work through some (more) examples!
+
+\begin{itemize}[<+->]
+  \item \alt<.>{$\displaystyle p(1 \cup 6)=\frac{1}{6}\text{ x }\frac{1}{6}=\frac{2}{6}=???$}{$\displaystyle p(1 \cup 6)=\frac{1}{6}\text{ x }\frac{1}{6}=\frac{2}{6}=0.33$}
+  \pause
+  \item \alt<.>{$\displaystyle p(1 \cup 2 \cup 3)=\frac{1}{6}+\frac{1}{6}+\frac{1}{6}=\frac{3}{6}=???$}{$\displaystyle p(1 \cup 2 \cup 3)=\frac{1}{6}+\frac{1}{6}+\frac{1}{6}=\frac{3}{6}=0.50$}
+  \pause
+  \item \alt<.>{$\displaystyle p(1 \cap 6)=\frac{1}{6}\text{ x }\frac{1}{6}=\frac{1}{36}=???$}{$\displaystyle p(1 \cap 6)=\frac{1}{6}\text{ x }\frac{1}{6}=\frac{1}{36}=0.028$}
+  \pause
+  \item \alt<.>{$\displaystyle p(1 \cap 2 \cap 3)=\frac{1}{6}\text{ x }\frac{1}{6}\text{ x }\frac{1}{6}=\frac{1}{216}=???$}{$\displaystyle p(1 \cap 2 \cap 3)=\frac{1}{6}\text{ x }\frac{1}{6}\text{ x }\frac{1}{6}=\frac{1}{216}=0.004$}
+  \onslide<+->
+\end{itemize}
+
+## Practice - Coins, Dice, and Cards
+
+\begin{itemize}[<+->]
+  \item \alt<.>{$\displaystyle p(\text{ace }\cup \text{ king}) = \frac{4}{52} + \frac{4}{52} = \frac{8}{52}=???$}{$\displaystyle p(\text{ace }\cup \text{ king}) = \frac{4}{52} + \frac{4}{52} = \frac{8}{52}=0.16$}
+  \pause
+  \item \alt<.>{$\displaystyle p(\text{ace } \cup \text{ diamond} )=\frac{4}{52} + \frac{13}{52} - \frac{1}{52} = \frac{16}{52} = ???$}{$\displaystyle p(\text{ace } \cup \text{ diamond} )=\frac{4}{52} + \frac{13}{52} - \frac{1}{52} = \frac{16}{52} = 0.31$} 
+  \pause
+  \item \alt<.>{$\displaystyle \text{with replacement: }p(\text{ace } \cap \text{ ace}) = \frac{4}{52} \text{ x } \frac{4}{52} = \frac{16}{2704} = ???$}{$\displaystyle \text{with replacement: }p(\text{ace } \cap \text{ ace}) = \frac{4}{52} \text{ x } \frac{4}{52} = \frac{16}{2704} = 0.006$}
+  \pause
+  \item \alt<.>{$\displaystyle \text{without replacement: } p(\text{ace } \cap \text{ ace}) = \frac{4}{52} \text{ x } \frac{3}{51} = \frac{12}{2652} = ???$}{$\displaystyle \text{without replacement: } p(\text{ace } \cap \text{ ace}) = \frac{4}{52} \text{ x } \frac{3}{51} = \frac{12}{2652} = 0.005$}
+  \onslide<+->
+\end{itemize}
+
+## This Leads Us to...Contingency Tables
+
+A contingency table displays the joint distribution of two variables and is also referred to as a *cross-tab*. 
+
+\pause
+
+Here's an example using data from the NLSY97 - a data set we will become very familiar with this semester. 
+
+\pause
+\vspace{6pt}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+             & \multicolumn{2}{c}{{Employed?}}  & \\
+Delinquent?  & No    & Yes   & Total \\ \hline
+No           & 3642  & 3046  & 6688  \\
+Yes          & 955   & 1291  & 2246  \\ \hline
+Total        & 4597  & 4337  & 8934
+\end{tabular}
+\end{table}
+
+## And here's another Contingency Table!
+
+Here I have tabulated school performance against delinquency:
+
+\pause
+\vspace{6pt}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccccc}
+\hline
+            & \multicolumn{4}{c}{School Performance}                & \multicolumn{1}{l}{} \\
+Delinquent  & A's \& B's  & B's \& C's  & C's \& D's  & D's \& F's  & Total \\ \hline
+No          & 1878        & 1537        & 708         & 78          & 4201  \\
+Yes         & 1290        & 1679        & 1127        & 252         & 4348  \\ \hline
+Total       & 3169        & 1679        & 1127        & 330         & 8549  
+
+\end{tabular}
+\end{table}
+
+
+## This Brings Us to...Probability Distributions!
+
+We need to distinguish a frequency distribution (with proportions) from a probability distribution (with probabilities). 
+
+\pause
+\vspace{6pt}
+
+The former is observable - the latter is not. Understanding the latter, though, is **very** important for understanding statistical inference generally. 
+
+## So, What is A Probability Distribution?
+
+Again, helpful to contrast to a frequency distribution. 
+
+\pause
+\vspace{6pt}
+
+**Frequency distribution**: Empirical, contains proportions which are *relative frequencies* we observe with real data. 
+
+\pause
+\vspace{6pt}
+
+**Probability distribution**: Theoretical, contains probabilities which are *limiting relative frequencies* we do not observe with real data, but expect over the long run. 
+
+\pause
+\vspace{6pt}
+
+What do you think it means to expect something over the *long run*?
+
+## A Practical Example - Flipping a Coin
+
+Flipping a single coin: *S*=[H,T]; $p(H)=.50$; $p(T)=.50$
+
+\vspace{6pt}
+
+```{r,echo=FALSE}
+Outcome<-length(3)
+Outcome[1]<-"Heads"
+Outcome[2]<-"Tails"
+Outcome[3]<-"Number of Flips"
+f1<-c(0,1,1)
+f2<-c(4,6,10)
+f3<-c(45,55,100)
+f4<-c(490,510,1000)
+f5<-c(4990,5010,10000)
+coinflip<-data.frame(Outcome,f1,f2,f3,f4,f5)
+library(knitr)
+kable(coinflip)
+```
+
+## Probability Distributions - How Are They Helpful?
+
+I obviously didn't flip a coin 10,000 times, I just simulated the data as if I had. 
+
+\pause
+\vspace{6pt}
+
+This brings me to a broader point - even though we cannot **observe** a probability distribution, this does not make it less useful. 
+
+\pause
+\vspace{6pt}
+
+In fact, we can know its properties (mean/variance) without empirically observing it. 
+
+\pause
+\vspace{6pt}
+
+*This* is what forms the link between empirical observations and statistical inference (and, by proxy, causal inference). 
+
+## An Example - Building a Probability Distribution
+
+Families with three children - how many boy-girl sequences are possible?
+
+\pause
+\vspace{6pt}
+
+Each birth is an independent 'trial' with two possible outcomes (*S*=[B,G]).
+
+\pause
+\vspace{6pt}
+
+Sex is independent across children: $p(\text{boy})=0.52$; $p(\text{girl})=0.48$
+
+## Building the Probability Distribution
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cc}
+\hline
+Sequence  & Probability \\ \hline
+BBB       & \onslide<2-> $(.52)(.52)(.52)=.141$ \\
+BBG       & \onslide<3-> $(.52)(.52)(.48)=.130$  \\
+BGB       & \onslide<4-> $(.52)(.48)(.52)=.130$  \\
+GBB       & \onslide<5-> $(.48)(.52)(.52)=.130$  \\
+BGG       & \onslide<6-> $(.52)(.48)(.48)=.120$  \\
+GBG       & \onslide<7-> $(.48)(.52)(.48)=.120$  \\
+GGB       & \onslide<8-> $(.48)(.48)(.52)=.120$  \\
+GGG       & \onslide<9-> $(.48)(.48)(.48)=.111$ \\ \hline
+\end{tabular}
+\end{table}
+
+## Probabilities for Sex Composition
+
+What is the probability of observing...
+
+\pause
+\vspace{6pt}
+
+\begin{itemize}
+\item Just 1 girl among three children ($p(\text{1 girl})$)? 
+  \begin{itemize}
+  \pause
+  \item $p(\text{1 girl}) = p(BBG) + p(BGB) + p(GBB) = 0.130 + 0.130 + 0.130 = 0.390$
+  \end{itemize}
+  \pause
+\item Just 1 boy among three children ($p(\text{1 boy})$)? 
+  \begin{itemize}
+  \pause
+  \item $p(\text{1 boy}) = p(BGG) + p(GBG) + p(GGB) = 0.120 + 0.120 + 0.120 = 0.360$
+  \end{itemize}
+  \pause
+\item 2 or more girls among three children ($p(\text{2+ girls})$)? 
+  \begin{itemize}
+  \pause
+  \item $p(\text{2+ girls})=p(BGG) + p(GBG) + p(GGB) + p(GGG) = 0.111 + 0.120 + 0.120 + 0.120= 0.471$
+  \end{itemize}
+  \pause
+\item 2 or more boys among three children ($p(\text{2+ boys})$)? 
+  \begin{itemize}
+  \pause
+  \item $p(\text{2+ boys})=p(BBB) + p(BBG) + p(BGB) + p(GBB) = 0.141 + 0.130 + 0.130 + 0.130 = 0.531$
+  \end{itemize}
+\end{itemize}
+
+## The Binomial Distribution
+
+This brings us to the **Binomial Distribution** - a probability distribution for dichotomous outcomes. 
+
+\pause
+\vspace{6pt}
+
+Events are labeled as successes or failures: $p(\text{success})=p$; $p(\text{failure})=q=1-p$; $n$ = \# of independent trials
+
+\pause
+\vspace{6pt}
+
+We are interested in the probability of observing $r$ successes in $n$ trials - order does not matter. 
+
+## The Binomial Distribution (cont)
+
+Combines the multiplication rule with the combination rule. 
+
+Mutliplication rule tells us the probability a *one* specific sequence. The Combination Rule tells us how many times we would observe that sequence. 
+
+For example, having 1 girl out of three kids:
+
+1) $p(GBB)=(0.48)(0.52)(0.52) = 0.48^1 \text{ x } 0.52^2 = 0.130$
+
+2) $\displaystyle C^{3}_{1} =  \frac{3!}{1!(3-1)!}=\frac{3!}{2!}=3$
+
+3) $p(\text{1 girl})=3 \text{ x } 0.130 = 0.390$
+    
+## The Binomial Distribution (cont)
+
+Formally, the combined mathematics:
+
+$$\displaystyle p(r) = C_r^np^rq^{n-r}=\binom{n}{r}p^rq^{n-r}$$
+
+We can then construct the full probability distribution using the above equation, where:
+
+1) Success = the birth of a girl
+2) N = the \# of trials = 3
+3) p = p(success) = 0.48
+4) q = p(failure) = 1-0.48 = 0.52
+
+## Sex Composition Probability Distribution
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\hline
+\#of Girls ($r$)  & $C^{n}_{r}$  & $p^{r}q^{n-r}$ & $p(r)$ \\ \hline
+0 & 1 & \onslide<2-> $.48^{0}\text{ x }.52^{3}=.141$ & \onslide<3-> $1\text{ x }.141=.141$  \\
+1 & 3 & \onslide<4-> $.48^{1}\text{ x }.52^{2}=.130$ & \onslide<5-> $3\text{ x }.130=.390$  \\
+2 & 3 & \onslide<6-> $.48^{2}\text{ x }.52^{1}=.120$ & \onslide<7-> $3\text{ x }.120=.360$  \\
+3 & 1 & \onslide<8-> $.48^{3}\text{ x }.52^{0}=.111$ & \onslide<9-> $1\text{ x }.111=.111$  \onslide<1-> \\  \hline
+Total & \onslide<7-> 8 & & \onslide<9-> 1.002 
+\end{tabular}
+\end{table}
+
+
+## Sex Composition Histogram
+
+```{r, fig.width=6, fig.height=3.50, echo=FALSE}
+p<-length(4) ## Generates empty "successes" variable
+r<-length(4) ## Generates empty "probability" variable
+for(i in 0:3) { ## This is called a loop, and runs the following code from a value of 0 through a value of 3
+  p[i+1]<-dbinom(i,size=3,prob=0.48) ## This fills in the probability variable by returning the probability of r successes in n trials
+  r[i+1]<-i ## This fills in the successes variable from 0 through 3
+}
+par(bg="lightblue") ## This sets the background color of the plot
+barplot(p,space=0,names.arg=r, ## This creates a barplot of probabilities by the number of successes
+        ylim=c(0,0.40), ## This formats the range of the y axis
+        ylab='Probability', ## This labels the y axis
+        xlab='Number of girls born', ## This labels the x axis
+        cex.axis=1.25, cex.lab=1.25) ## This adjusts the size of the axis labels 
+title(main='Number of Girls in Three Births', ## This provides a title for the figure
+      cex.main=1.25) ## This adjusts the size of the title text 
+```
+
+
+## Further Examples - Running Red Lights
+
+Let's explore another example - running a red light. 
+
+\vspace{6pt}
+
+Observations at a dangereous intersection in Charlotte indicate that cars passing through the intersection run the red light with a 0.60 probability. 
+
+\vspace{6pt}
+
+That is, 6 out of 10 cars passing through the intersection will run a red light. 
+
+## Probability Distribution for Running a Red Light
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cccc}
+\hline
+$r$     & $C^{n}_{r}$ & $p^{r}q^{n-r}$                & $p(r)$                  \\ \hline
+0       & 1           & \onslide<2-> $.6^{0}\text{ x }.4^{5}=.010$ & \onslide<3-> $1\text{ x }.010=.010$  \\
+1       & 5           & \onslide<4-> $.6^{1}\text{ x }.4^{4}=.015$ & \onslide<5-> $5\text{ x }.015=.075$  \\
+2       & 10          & \onslide<6-> $.6^{2}\text{ x }.4^{3}=.023$ & \onslide<7-> $10\text{ x }.023=.230$ \\
+3       & 10          & \onslide<8-> $.6^{3}\text{ x }.4^{2}=.035$ & \onslide<9-> $10\text{ x }.035=.350$ \\
+4       & 5           & \onslide<10-> $.6^{4}\text{ x }.4^{1}=.052$ & \onslide<11-> $5\text{ x }.052=.260$  \\
+5       & 1           & \onslide<12-> $.6^{5}\text{ x }.4^{0}=.078$ & \onslide<13-> $1\text{ x }.078=.078$  \onslide<1-> \\ \hline
+Total   & \onslide<11-> 32          &                               & \onslide<13-> 1.003 
+\end{tabular}
+\end{table}
+
+
+## Red Light Histogram
+
+```{r,fig.height=3.66,fig.width=6.5,echo=FALSE}
+r<-length(6)
+p<-length(6)
+for(i in 0:5) {
+  p[i+1]<-dbinom(i,size=5,prob=0.60)
+  r[i+1]<-i
+}
+par(bg="lightblue")
+barplot(p,space=0,names.arg=r,
+        ylim=c(0,0.35),
+        ylab='Probability',
+        xlab='Number of Cars that run red light',
+        cex.axis=1.25, cex.lab=1.25)
+title(main='Drivers are Bad All Over the Place',
+      cex.main=1.25)
+```
+
+
+## Running Red Lights - Extending the Example
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccc}
+\hline
+$r$ & $p(r)=C^{n}_{r}p^{r}q^{n-r}$ & $cp$  \\ \hline
+0 & \onslide<2-> $(1)(.6^{0})(.4^{10})=.000$ & \onslide<3-> .000 \\
+1 & \onslide<4-> $(10)(.6^{1})(.4^{9})=.002$ & \onslide<5-> .002  \\
+2 & \onslide<6-> $(45)(.6^{2})(.4^{8})=.011$ & \onslide<7-> .013  \\
+3 & \onslide<8-> $(120)(.6^{3})(.4^{7})=.042$  & \onslide<9-> .055  \\
+4 & \onslide<10-> $(210)(.6^{4})(.4^{6})=.111$  & \onslide<11-> .166  \\
+5 & \onslide<12-> $(252)(.6^{5})(.4^{5})=.202$  & \onslide<13-> .368  \\
+6 & \onslide<14-> $(210)(.6^{6})(.4^{4})=.250$  & \onslide<15-> .618  \\
+7 & \onslide<16-> $(120)(.6^{7})(.4^{3})=.215$  & \onslide<17-> .833  \\
+8 & \onslide<18-> $(45)(.6^{8})(.4^{2})=.121$ & \onslide<19-> .954  \\
+9 & \onslide<20-> $(10)(.6^{9})(.4^{1})=.040$ & \onslide<21-> .994  \\
+10  & \onslide<22-> $(1)(.6^{10})(.4^{0})=.006$ & \onslide<23-> 1.000 \onslide<1-> \\ \hline
+\end{tabular}
+\end{table}
+
+## Running Red Lights - Extended Histogram
+
+```{r,fig.width=6.75,fig.height=3.66,echo=FALSE}
+r<-length(11)
+p<-length(11)
+for(i in 0:10) {
+  p[i+1]<-dbinom(i,size=10,prob=0.60)
+  r[i+1]<-i
+}
+par(bg="lightblue")
+barplot(p, space=0, names.arg=r,
+        ylim=c(0,0.30),
+        ylab='Probability',
+        xlab='Number of Cars that run red light',
+        cex.lab=1.25,cex.axis=1.25)
+title(main="Red Light Cameras and Bad Drivers",
+      cex.main=1.25)
+```
+
+## Cal Ripken
+
+Here's one for the baseball fans.
+
+Let's suppose a baseball player has only 1/100 a chance to miss any given game due to injury. 
+
+Cal Ripken played an astonishing 2632 *straight* games without missing due to injury. 
+
+Just how **unlikely** are we to observe such a feat? 
+
+Stated differently, what is the probability a player will miss at least one game ($p(r \ge 1)$) due to illness/injury?
+
+## Cal Ripken Histogram
+
+```{r, fig.width=6.75, fig.height=3.66, echo=FALSE}
+r<-length(2633)
+p<-length(2633)
+for(i in 0:2632) {
+  p[i+1]<-dbinom(i,size=2632,prob=0.01)
+  r[i+1]<-i
+}
+par(bg="lightblue")
+barplot(p,space=0,names.arg=r,
+        ylim=c(0,0.10),
+        xlim=c(0,50),
+        ylab='Probability',
+        xlab='Number of Games',
+        cex.lab=1.25, cex.axis=1.25)
+        title(main='Why They Called Cal Ripken the "Iron Man"',
+              cex.main=1.25)
+```
+
+
+## A Final Example - Your Roommate is A Liar
+
+Set the stage - a 10-question multiple choice test with 4 answers per question. 
+
+Your roommate scored an 8 and said that she randomly guessed for each question. 
+
+What is the probability that she would actually guess correctly on 8 or more ($p(r \ge 8)$) questions?
+
+## Your Lying Roommate - A Histogram
+
+```{r, fig.width=6.75, fig.height=3.66, echo=FALSE}
+r<-length(11) 
+p<-length(11) 
+for(i in 0:10) { 
+  p[i+1]<-dbinom(i,size=10,prob=0.25) 
+  r[i+1]<-i 
+}
+par(bg="lightblue")
+barplot(p,space=0, names.arg=r, 
+        ylim=c(0,0.30), 
+        xlab="# of Questions Correct", 
+        ylab="Probability",
+        cex.lab=1.25, cex.axis=1.25) 
+        title(main="My Lying Friend",
+              cex.main=1.25) 
+```
+
+## Two Questions
+
+\center \Huge Time for your two questions before the end of class!

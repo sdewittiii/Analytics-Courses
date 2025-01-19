@@ -1,0 +1,40 @@
+Name,Rank,Score,Army,Faction,human.aliens,Game1Pts,Game1WL,Game2Pts,Game2WL,Game3Pts,Game3WL,Game4Pts,Game4WL,Game5Pts,Game5WL
+Timothy Travers,1,129.35,Blood Angels,Space Marines,Humans,19,Win,19,Win,13,Win,13,Win,19,Win
+Jeremy Veysseire,2,111.92,Harlequins,Eldar,Aliens,19,Win,19,Win,19,Win,19,Win,1,Loss
+Thomas Oakey,2,105.17,Adeptus Astartes,Space Marines,Humans,19,Win,19,Win,7,Loss,13,Win,19,Win
+Jack Gerlicher,4,89.98,Eldar,Eldar,Aliens,7,Loss,13,Win,19,Win,19,Win,13,Win
+David Johansen,5,82.11,Space Wolves,Space Marines,Humans,13,Win,1,Loss,13,Win,19,Win,19,Win
+Josh Strole,5,85.45,Maynarkh,Necrons,Aliens,13,Win,19,Win,7,Loss,13,Win,13,Win
+Shaun Sharp,5,85.48,Ultramarines,Space Marines,Humans,19,Win,19,Win,1,Loss,13,Win,13,Win
+Michael Snider,8,69.18,Tyranids,Tyranids,Aliens,13,Win,10,Draw,7,Loss,19,Win,13,Win
+Logan Rourk,8,69.18,Chaos Space Marines,Chaos,Aliens,13,Win,10,Draw,7,Loss,13,Win,19,Win
+Christopher Talley,10,61.86,Genestealer Cult,Chaos,Aliens,7,Loss,19,Win,13,Win,19,Win,7,Loss
+Caden Humpherys,11,66.36,Necrons,Necrons,Aliens,19,Win,19,Win,19,Win,1,Loss,1,Loss
+Geoff Thistle,11,56.24,Orks,Orks,Aliens,1,Loss,1,Loss,19,Win,19,Win,19,Win
+Dustin Chesmer,11,66.36,Adeptus Astartes,Space Marines,Humans,13,Win,19,Win,13,Win,7,Loss,7,Loss
+Matthew Pashby,14,44.99,Astra Militarum,Space Marines,Humans,1,Loss,19,Win,19,Win,1,Loss,13,Loss
+Adam Solis,15,48.37,Chaos Space Marines,Chaos,Aliens,13,Win,1,Loss,19,Win,1,Loss,13,Win
+Jessica Edgren,15,44.99,Imperial Knights,Space Marines,Humans,1,Loss,13,Win,13,Win,19,Win,1,Loss
+Timo Swaner,15,55.12,Astra Militarum,Space Marines,Humans,13,Win,13,Win,13,Win,7,Loss,1,Loss
+Evan Malone,18,44.99,Cult Mechanicus,Space Marines,Humans,7,Loss,10,Draw,7,Loss,19,Win,13,Win
+Ben Schimmoller,19,44.99,Adeptus Astartes,Space Marines,Humans,7,Loss,10,Draw,19,Win,1,Loss,13,Win
+Charlie Kerber,20,48.37,Tyranids,Tyranids,Aliens,13,Win,7,Loss,19,Win,7,Loss,7,Loss
+Christopher Morgan,21,41.24,Blood Angels,Space Marines,Humans,1,Loss,7,Loss,19,Win,7,Loss,13,Win
+Jase Resen,21,44.62,Asuryani,Eldar,Aliens,19,Win,1,Loss,19,Win,7,Loss,1,Loss
+Benjamin Gabbert,21,41.24,Dark Angels,Space Marines,Humans,7,Loss,7,Loss,13,Win,13,Win,7,Loss
+Aaron Bang,24,40.49,Blood Angels,Space Marines,Humans,13,Win,19,Win,1,Loss,1,Loss,7,Loss
+Robert Winkler,24,33.74,World Eaters,Chaos,Aliens,7,Loss,1,Loss,1,Loss,13,Win,19,Win
+Seth Rourk,24,37.12,Chaos Space Marines,Chaos,Aliens,19,Win,1,Loss,1,Loss,19,Win,1,Loss
+Bronson James,24,33.74,Cult Mechanicus,Space Marines,Humans,1,Loss,1,Loss,1,Loss,19,Win,19,Win
+Bryan Humpherys,24,37.12,Tau,Tau,Aliens,19,Win,1,Loss,1,Loss,7,Loss,13,Win
+Edward Salas,24,37.12,Blood Angels,Space Marines,Humans,13,Win,1,Loss,7,Loss,13,Win,7,Loss
+Alexander Yuen,30,33.74,Aeldari,Eldar,Aliens,7,Loss,10,Draw,13,Win,7,Loss,7,Loss
+Isabella Burnell,31,33.74,Harlequins,Eldar,Aliens,7,Loss,1,Loss,7,Loss,7,Loss,13,Win
+Conner Wesselman,31,33.74,Necrons,Necrons,Aliens,7,Loss,1,Loss,7,Loss,13,Win,7,Loss
+Sean Johnson,31,33.74,Blood Angels,Space Marines,Humans,1,Loss,19,Win,7,Loss,1,Loss,7,Loss
+Aaron Fyffe,34,33.74,Tau,Tau,Aliens,1,Loss,7,Loss,13,Win,1,Loss,1,Loss
+William Friend,35,37.12,Orks,Orks,Aliens,19,Win,1,Loss,1,Loss,1,Loss,,
+Ryan Boudreau,36,33.74,Chaos Demons,Chaos,Aliens,1,Loss,19,Win,1,Loss,,,,
+James Kater,37,33.74,Adeptus Astartes,Space Marines,Humans,1,Loss,13,Win,1,Loss,1,Loss,1,Loss
+Mime Genoni,38,33.74,Orks,Orks,Aliens,7,Loss,10,Draw,1,Loss,7,Loss,7,Loss
+C.J. Sower,39,33.74,Space Wolves,Space Marines,Humans,0,Loss,0,Loss,0,Loss,1,Loss,,

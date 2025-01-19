@@ -1,0 +1,781 @@
+---
+title: "Lecture 08 - Inference with Two Continuous Variables"
+author: "Samuel DeWitt"
+output:
+ beamer_presentation:
+    includes:
+      in_header: G:/My Drive/Prepped Courses/Statistics (G)/Lectures/Beamer Slides/Common Files/beamer-header.txt
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE)
+library(ggplot2)
+```
+
+## Inference with Two Continuous Variables
+
+I.  Scatterplots
+II.  Correlation Coefficient
+III.  Coefficient of determination
+IV.  Regression equation
+V.  Comparison of correlation and regression
+VI.  R Tutorial - Coefficients & Slopes
+
+## Scatterplots
+
+- Simple way to visualize the relationship between two continuous variables
+    - X-axis is the independent variable (the *cause*)
+    - Y-axis us the dependent variable (the *effect*)
+    
+\vspace{12pt}
+    
+- Two characteristics to note in scatterplots
+    - Direction of the relationship
+        - Is an imaginary trend line positive or negative?
+    Strength of relationship
+        - How tightly do the dots cluster around the trend line?
+        
+## Example - Prior Record and Sentence Length
+
+Well known that the strongest predictor of sentence length is a defendant's prior record. 
+
+Sample of 10 inmates convicted of burglary - sentence length and how many prior arrests?
+
+\begin{tiny}
+\begin{table}[h]
+\centering
+\begin{tabular}{cc}
+\hline
+Prior Arrests & Sentence Length (Months) \\ \hline
+0   & 3   \\
+1   & 6   \\
+1   & 9   \\
+1   & 9   \\
+2   & 12  \\
+2   & 15  \\
+3   & 18  \\
+5   & 24  \\
+7   & 24  \\
+10  & 36  \\ \hline
+\end{tabular}
+\end{table}
+\end{tiny}
+
+## Scatterplot - Prior Record and Sentence Length
+
+A simple way to examine this relationship is by using a scatterplot. 
+
+As a means of review, a scatterplot places dots at each intersecting value of the independent (prior arrests) and dependent (sentence length) variables. 
+
+## Scatterplot - Prior Record and Sentence Length
+
+```{r scatter1, echo=FALSE, fig.align="center", fig.height=2.65, fig.width=4.5, message=FALSE}
+reclength<-data.frame(prior_arrests<-c(0,1,1,1,2,2,3,5,7,10), 
+                      sent_length<-c(3,6,9,9,12,15,18,24,24,36))
+ggplot(data=reclength, aes(x=prior_arrests, y=sent_length)) +
+  geom_point() + geom_smooth(method="lm", se=FALSE, color="red")
+```
+
+## Another Example - Test Scores and Juvenile Arrest
+
+We take another random sample of ten youth and examine the relationship between average school performance and the number of juvenile arrests. 
+
+\begin{small}
+\begin{table}[h]
+\centering
+\begin{tabular}{cc}
+\hline
+Test Scores & Number of Arrests \\ \hline
+50  & 10  \\
+55  & 8 \\
+60  & 8 \\
+65  & 6 \\
+70  & 5 \\
+75  & 6 \\
+80  & 4 \\
+85  & 2 \\
+90  & 3 \\
+95  & 1 \\
+\hline
+\end{tabular}
+\end{table}
+\end{small}
+
+## Scatterplot - Test Scores and Juvenile Arrest
+
+```{r scatter2, echo=FALSE, fig.align="center", fig.height=2.65, fig.width=4.5, message=FALSE}
+school<-data.frame(arrests<-c(10,8,8,6,5,6,4,2,3,1),
+                   grades<-c(50,55,60,65,70,75,80,85,90,95))
+ggplot(school, aes(x=arrests,y=grades))+
+  geom_point()+stat_smooth(method=lm,se=FALSE,color="red")
+```
+
+## More on Scatterplots
+
+- Advantages of scatterplots
+    - Informative (*a picture tells a thousand words*)
+        - Can usually tell the direction of the trend without too much trouble
+        - Can also tell if the relationship is non-linear
+  
+\vspace{12pt}
+
+- Disadvantages of scatterplots
+    - Cannot consolidate information into a single numerical index; *doesn't give us a number*
+    
+## Pearson Correlation Coefficient
+
+- Quantifies nature of the linear relationship between two continuous variables
+    - Pearson product-moment correlation coefficient
+        - a.k.a., *Pearson's r*
+        
+\vspace{12pt}
+
+- Pearon's r is the sample counterpart to the population correlation coefficient, $\rho$ (rho)
+    - Ranges from -1.0 to +1.0
+    - 0.0 = no relationship and -1.0/+1.0 = perfect relationship
+    - Same interpretive rules as $\phi$ (phi from $\chi^{2}$) and $\eta$ (eta, from ANOVA).
+    
+## Computing Pearson's r
+
+- Definitional formula
+$$r=\frac{\sum ((x-\overline{x})*(y-\overline{y}))}{\sqrt{\sum(x-\overline{x})^{2}*\sum(y-\overline{y})^{2}}}$$
+
+- Computational formula
+$$r=\frac{\sum(x*y)-(n*\overline{x}*\overline{y})}{\sqrt{[\sum(x^{2})-n*\overline{x}^{2}]*[\sum(y^{2})-n*\overline{y}^{2}]}}$$
+
+## Components of Pearson's r
+
+- Numerator - $\sum((x-\overline{x})*(y-\overline{y}))$
+    - This is the **cross-product** of X and Y
+    - If you divide the cross-product by degrees of freedom (n-2) you get an estimate of the population **covariance** between X and Y ($\sigma_{XY}$)
+    
+\vspace{12pt}
+
+- Denominator - $\sum(x-\overline{x})^{2}$ and $\sum(y-\overline{y})^{2}$
+    - Sum of squares for each individual variable
+    - As before, if you divide each individual sum of squares by degrees of freedom (n-1) to obtain an estimate for the population **variance** of X or Y ($\sigma_{x}^{2}$, $\sigma_{Y}^{2}$)
+    
+## Computing Pearson's r - Prior Record and Sentence Length
+
+- Definitional formula for r
+
+\begin{small}
+\begin{table}[h]
+\centering
+\begin{tabular}{ccccccc}
+$X$ & $Y$ & $(X-\overline{X})$ & $(X-\overline{X})^{2}$ & $(Y-\overline{Y})$ & $(Y-\overline{Y})^{2}$ & $(X-\overline{X})*(Y-\overline{Y})$ \\ \hline
+0   & 3   & `r 0-3.2`  & `r (0-3.2)^2`  & `r 3-15.6`  & `r (3-15.6)^2`  & `r (0-3.2)*(3-15.6)` \\
+1   & 6   & `r 1-3.2`  & `r (1-3.2)^2`  & `r 6-15.6`  & `r (6-15.6)^2`  & `r (1-3.2)*(6-15.6)` \\
+1   & 9   & `r 1-3.2`  & `r (1-3.2)^2`  & `r 9-15.6`  & `r (9-15.6)^2`  & `r (1-3.2)*(9-15.6)` \\
+1   & 9   & `r 1-3.2`  & `r (1-3.2)^2`  & `r 9-15.6`  & `r (9-15.6)^2`  & `r (1-3.2)*(9-15.6)` \\
+2   & 12  & `r 2-3.2`  & `r (2-3.2)^2`  & `r 12-15.6` & `r (12-15.6)^2` & `r (2-3.2)*(12-15.6)` \\
+2   & 15  & `r 2-3.2`  & `r (2-3.2)^2`  & `r 15-15.6` & `r (15-15.6)^2` & `r (2-3.2)*(15-15.6)` \\
+3   & 18  & `r 3-3.2`  & `r (3-3.2)^2`  & `r 18-15.6` & `r (18-15.6)^2` & `r (3-3.2)*(18-15.6)` \\
+5   & 24  & `r 5-3.2`  & `r (5-3.2)^2`  & `r 24-15.6` & `r (24-15.6)^2` & `r (5-3.2)*(24-15.6)` \\
+7   & 24  & `r 7-3.2`  & `r (7-3.2)^2`  & `r 24-15.6` & `r (24-15.6)^2` & `r (7-3.2)*(24-15.6)` \\
+10  & 36  & `r 10-3.2` & `r (10-3.2)^2` & `r 36-15.6` & `r (36-15.6)^2` & `r (10-3.2)*(36-15.6)`\\ \hline
+32  & 156 &            & 91.6           &             & 914.14          & 280.80 \\ \hline
+$\overline{x}=3.2$ & $\overline{y}=15.6$ & \\ 
+\hline
+\end{tabular}
+\end{table}
+\end{small}
+
+## Computing Pearson's r - Prior Record and Sentence Length
+
+- Definitional formula for Pearson's r:
+\begin{small}
+$$r=\frac{\sum ((x-\overline{x})*(y-\overline{y}))}{\sqrt{\sum(x-\overline{x})^{2}*\sum(y-\overline{y})^{2}}} = \frac{280.80}{\sqrt{91.60*914.40}} = \frac{280.80}{289.41} = 0.97$$
+\end{small}
+
+- Interpretation of Pearson's r
+    - Magnitude = Strong relationship (>0.5)
+    - Direction = Positive relationship
+        - Longer prior record correlated with longer sentence length
+        - More accurately, people who are above the mean on prior record tend to be above the mean on sentence length
+   
+## Computing Pearson's r - Prior Record and Sentence Length
+       
+- Computational formula for Pearon's r
+
+\begin{small}
+\begin{table}[h]
+\centering
+\begin{tabular}{ccccc}
+\hline
+Prior Record & $X^{2}$ & Sentence Length & $Y^{2}$ & $XY$ \\ \hline \hline
+0 & 0 & 3 & 9 & 0 \\
+1 & 1 & 6 & 36 & 6 \\
+1 & 1 & 9 & 91 & 9 \\
+1 & 1 & 9 & 81 & 9 \\
+2 & 4 & 12 & 144 & 24 \\
+2 & 4 & 15 & 225 & 30 \\
+3 & 9 & 18 & 324 & 54 \\
+5 & 25 & 24 & 576 & 120 \\
+7 & 49 & 24 & 576 & 168 \\
+10 & 100 & 36 & 1296 & 360 \\ \hline
+32 & 194 & 156 & 3348 & 780 \\ \hline
+\end{tabular}
+\end{table}
+\end{small}
+
+## Computing Pearson's r - Prior Record and Sentence Length
+
+- Computational formula for Pearon's r
+\begin{small}
+\begin{align}
+r & =\frac{\sum(x*y)-(n*\overline{x}*\overline{y})}{\sqrt{[\sum(x^{2})-n*\overline{x}^{2}]*[\sum(y^{2})-n*\overline{y}^{2}]}} \\
+  & = \frac{780-(10)(3.2)(15.6)}{\sqrt{[194-(10)(3.2^{2})][3348-(10)(15.6^{2})]}} \\
+  & = \frac{280.8}{\sqrt{[91.6][914.4]}} \\
+  & = 0.97
+\end{align}
+\end{small}
+
+- Same conclusions as before, I just wanted to show you where the numbers go. 
+
+## Auxiliary Statistic for Pearson's r
+
+- Coefficient of determination ($r^{2}$)
+    - **Explained variance** interpretation
+    - Same interpretation as eta-square ($\eta^{2}$)
+    - Prorportion of the variation in $y$ that is explained by variation in $x$
+    
+\vspace{12pt}
+
+- Prior record and sentence length example
+    - $r^{2} = 0.97^{2} = 0.941$
+    - Prior record explains 94.1\% of the variance in sentence length
+    
+## Hypothesis Test for Prior Record and Sentence Length
+
+- **Step 1: Formally state hypotheses**
+  - $H_{1}: \rho >0$
+  - $H_{0}: \rho \le 0$
+  
+\vspace{10pt}
+
+- **Step 2: Choose a probability distribution**
+  - t-distribution
+  - $df = n-2 = 10-2 = 8$
+  
+- **Step 3: Make decision rules**
+  - $\alpha = .05 (\text{one-tailed})$
+  - $t_{crit} = 1.860$
+  - Reject $H_{0}$ if TS > 1.860
+  
+## Hypothesis Test for Prior Record and Sentence Length
+
+- **Step 4: Compute the test statistic**
+$$TS = r\sqrt{\frac{n-2}{1-r^{2}}} = 0.97\sqrt{\frac{10-2}{1-0.97^{2}}} = 11.286$$
+
+\vspace{10pt}
+
+- **Step 5: Make a decision about the null hypothesis**
+  - Reject $H_{0}$, conclude that having a longer prior record is correlated with a significantly longer sentence length. 
+  
+## Hypothesis Test - Test Scores and Juvenile Arrest
+
+- **Step 1: Formally state hypotheses**
+  - $H_{1}: \rho \ne 0$
+  - $H_{0}: \rho = 0$
+  
+- **Step 2: Choose a probability distribution**
+  - $t$-distribution
+  - $df=n-2=10-2=8$
+  
+- **Step 3: Make decision rules**
+  - $\alpha = .05 (\text{two-tailed})$
+  - $t_{crit} = 2.306$
+  - Reject $H_{0}$ if |TS| > 2.306
+  
+## Hypothesis Test - Test Scores and Juvenile Arrest
+
+- **Step 4: Calculate the test statistic**
+$$TS=r \sqrt{\frac{n-2}{1-r^{2}}}=-0.966 \sqrt{\frac{10-2}{1-(-0.966^{2})}}=-0.966 \sqrt{119.68}=-10.568$$
+
+- **Step 5: Make a decision about the null hypothesis**
+  - Reject $H_{0}$, school performance is significantly associated with juvenile arrest. 
+  
+\vspace{10pt}
+
+- Coefficient of determination
+  - $r^{2} = 0.966^{2} = `r round(.966^2,3)`$
+  
+## Regression Equation
+
+- Another way to describe the relationship between two continuous variables
+  - Advantage: can predict the value of the DV for given values of the IV
+  
+\vspace{10pt}
+
+- Population (bivariate) regression equation
+  - $y_{i} = \alpha + \beta x_{i} + \epsilon_{i}$
+    - $\alpha$ and $\beta$ are unknown parameters to be estimated from the sample data
+    - $i$ indexes individual cases, $i = 1,2,...,n$
+    
+\vspace{10pt}
+
+- Sample (bivariate) regression equation
+  - $y_{i} = a + bx_{i} + e_{i}$
+  
+## Regression Equation (cont)
+
+- Regression estimates describe a regression (trend) line
+  - $\alpha$ is a **constant** or **y-intercept**
+    - Identifies the location where the regression line crosses the y-axis (x=0)
+  - $\beta$ is a **slope**
+    - Impact on $y$ when $x$ increases by one unit
+  - $e$ is an **error**, **residual**, or **disturbance**
+    - Not all observations lie directly on the regression line, so there is error in predicting $y$ from $x$
+    
+## Formula for Regression Coefficients
+
+- Definitional formula for a slope
+$$b=\frac{\sum{(X-\overline{X})(Y-\overline{Y})}}{\sum{(X-\overline{X})^{2}}}$$  
+
+- Computational formula for a slope
+$$\frac{\sum{XY}-n\overline{X}\overline{Y}}{\sum{X^{2}}-n\overline{X}^{2}}$$
+
+- Formula for the constant
+$$a=\overline{Y}-b\overline{X}$$
+
+## Bivariate Regression Equation - Prior Record and Sentence Length
+
+\scriptsize
+
+Let’s estimate the regression equation for our prior record and sentence length example.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccccccc}
+$X$ & $Y$ & $(X-\overline{X})$ & $(X-\overline{X})^{2}$ & $(Y-\overline{Y})$ & $(Y-\overline{Y})^{2}$ & $(X-\overline{X})*(Y-\overline{Y})$ \\ \hline
+0   & 3   & `r 0-3.2`  & `r (0-3.2)^2`  & `r 3-15.6`  & `r (3-15.6)^2`  & `r (0-3.2)*(3-15.6)` \\
+1   & 6   & `r 1-3.2`  & `r (1-3.2)^2`  & `r 6-15.6`  & `r (6-15.6)^2`  & `r (1-3.2)*(6-15.6)` \\
+1   & 9   & `r 1-3.2`  & `r (1-3.2)^2`  & `r 9-15.6`  & `r (9-15.6)^2`  & `r (1-3.2)*(9-15.6)` \\
+1   & 9   & `r 1-3.2`  & `r (1-3.2)^2`  & `r 9-15.6`  & `r (9-15.6)^2`  & `r (1-3.2)*(9-15.6)` \\
+2   & 12  & `r 2-3.2`  & `r (2-3.2)^2`  & `r 12-15.6` & `r (12-15.6)^2` & `r (2-3.2)*(12-15.6)` \\
+2   & 15  & `r 2-3.2`  & `r (2-3.2)^2`  & `r 15-15.6` & `r (15-15.6)^2` & `r (2-3.2)*(15-15.6)` \\
+3   & 18  & `r 3-3.2`  & `r (3-3.2)^2`  & `r 18-15.6` & `r (18-15.6)^2` & `r (3-3.2)*(18-15.6)` \\
+5   & 24  & `r 5-3.2`  & `r (5-3.2)^2`  & `r 24-15.6` & `r (24-15.6)^2` & `r (5-3.2)*(24-15.6)` \\
+7   & 24  & `r 7-3.2`  & `r (7-3.2)^2`  & `r 24-15.6` & `r (24-15.6)^2` & `r (7-3.2)*(24-15.6)` \\
+10  & 36  & `r 10-3.2` & `r (10-3.2)^2` & `r 36-15.6` & `r (36-15.6)^2` & `r (10-3.2)*(36-15.6)`\\ \hline
+32  & 156 &            & 91.6           &             & 914.14          & 280.80 \\ \hline
+\end{tabular}
+\end{table}
+
+Definitional formula:$$b = \frac{\sum{(X-\overline{X})(Y-\overline{Y})}}{\sum{(X-\overline{X})^{2}}} = \frac{280.80}{91.60} = `r round(280.80/91.60,3)`$$
+
+## Bivariate Regression Equation - Prior Record and Sentence Length
+
+\scriptsize
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccccc}
+\hline
+$X$ & $X^{2}$ & $Y$ & $Y^{2}$ & $XY$ \\ \hline \hline
+0 & 0 & 3 & 9 & 0 \\
+1 & 1 & 6 & 36 & 6 \\
+1 & 1 & 9 & 91 & 9 \\
+1 & 1 & 9 & 81 & 9 \\
+2 & 4 & 12 & 144 & 24 \\
+2 & 4 & 15 & 225 & 30 \\
+3 & 9 & 18 & 324 & 54 \\
+5 & 25 & 24 & 576 & 120 \\
+7 & 49 & 24 & 576 & 168 \\
+10 & 100 & 36 & 1296 & 360 \\ \hline
+32 & 194 & 156 & 3348 & 780 \\ \hline
+\end{tabular}
+\end{table}
+
+Computational formula:$$b=\frac{\sum{XY}-n\overline{X}\overline{Y}}{\sum{X^{2}}-n\overline{X}^{2}}=\frac{780-(10*3.2*15.6)}{194-(10*3.2^2)} = `r round((780-(10*3.2*15.6))/(194-(10*3.2^2)),3)`$$
+
+## Bivariate Regression Equation - Prior Record and Sentence Length
+
+We would interpret this value to mean that every additional arrest is associated with 3.066 additional months sentenced to prison, on average.
+
+Now we can compute the intercept so we can finish the bivariate regression equation: $$a=\overline{Y} - b\overline{X} = 15.6-(3.07)*(3.2) = `r round(15.6-(3.07*3.2),2)`$$
+
+The intercept value means that the expected value of Y (months sentenced) is equal to 5.78 when the value of X is 0 (i.e., no prior arrests). 
+
+Our regression equations is, then: $$Y=5.78+3.066X$$
+
+## Bivariate Regression Equation - Prior Record and Sentence Length
+
+This regression equation comes in handy when we want to calculate predicted values of Y for given values of X. Let’s pick a few values of X to illustrate.
+
+\scriptsize
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccc}
+\multicolumn{3}{c}{$Y=5.78+3.07X$}  \\
+\hline
+$X$ & Equation & $Y$ \\
+\hline
+0 & $Y=5.78+(3.066*0)$ & `r round(5.78+(3.066*0),2)` \\
+2 & $Y=5.78+(3.066*2)$ & `r round(5.78+(3.066*2),2)`  \\
+4 & $Y=5.78+(3.066*4)$ & `r round(5.78+(3.066*4),2)`  \\
+6 & $Y=5.78+(3.066*6)$ & `r round(5.78+(3.066*6),2)`  \\
+8 & $Y=5.78+(3.066*8)$ & `r round(5.78+(3.066*8),2)`  \\
+10 & $Y=5.78+(3.066*10)$ & `r round(5.78+(3.066*10),2)`  \\
+\hline
+\end{tabular}
+\end{table}
+
+## Bivariate Regression Equation - School Performance & Juvenle Arrest
+
+\scriptsize
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccccc}
+$X$ & $Y$ & $XY$ & $X^{2}$ & $Y^{2}$ \\ \hline \hline
+50 & 10 & 500 & 2500 & 100 \\
+55 & 8 & 440 & 3025 & 64 \\
+60 & 8 & 480 & 3600 & 64 \\
+65 & 6 & 390 & 4225 & 36 \\
+70 & 5 & 350 & 4900 & 25 \\
+75 & 6 & 450 & 5625 & 36 \\
+80 & 4 & 320 & 6400 & 16 \\
+85 & 2 & 170 & 7225 & 4 \\
+90 & 3 & 270 & 8100 & 9 \\
+95 & 1 & 95 & 9025 & 1 \\ \hline
+725 & 53 & 3465 & 54625 & 355 \\ \hline
+$\overline{x}=72.5$ & $\overline{y}=5.3$ \\ \hline
+\end{tabular}
+\end{table}
+
+Computational formula for the slope: 
+
+$$b=\frac{\sum{XY}-n\overline{X}\overline{Y}}{\sum{X^{2}}-n\overline{X}^{2}}=\frac{3465-(10*72.5*5.3)}{54625-(10*72.5^2)} = `r round((3465-(10*72.5*5.3))/(54625-(10*72.5^2)),3)`$$
+
+## Bivariate Regression Equation - School Performance & Juvenle Arrest
+
+The slope value of -0.183 means that, for every one point increase in test score, we expect the number of arrests to decrease by 0.183, on average. 
+
+Now, for the intercept: $$a=\overline{Y} - b\overline{X} = 5.3-(-0.183)*(72.5) = `r round(5.3-(-0.183*72.5),2)`$$
+
+The intercept value means that the expected number of juvenile arrests fr a youth who has a score of 0 is 18.57. 
+
+The bivariate regression equation is, then: $$Y = 18.57+-0.183X$$
+
+## Example - Wages and Parole Violation
+
+Is there a negative relationship between a persons' wages and the number of technical violations while they are on parole?
+
+## First, a Scatterplot
+
+```{r scatter3, echo=FALSE, fig.align="center", fig.height=2.65, fig.width=4.5, message=FALSE}
+wage_parole<-data.frame(wagert<-c(5.25,5.50,5.75,6.00,6.25,6.50,6.75,7.00,7.25,7.75), tech<-c(5,3,5,4,2,4,2,4,3,1))
+ggplot(wage_parole,aes(x=wagert,y=tech))+
+  geom_point()+stat_smooth(method=lm,se=FALSE,color="red")
+```
+
+## Calculating the Slope - Wages and Parole Violation
+
+Definitional formula for $b$
+
+\begin{columns}
+\begin{column}{0.6\textwidth}
+\begin{tiny}
+\begin{table}[h]
+\begin{tabular}{ccccccc}
+\hline
+Hourly & & & Parole & & & $(x-\overline{x})$ \\
+Wages & $x-\overline{x}$ & $(x-\overline{x})^{2}$ & Violations & $y-\overline{y}$ & $(y-\overline{y})^{2}$ & $(y-\overline{y})$ \\ \hline \hline
+5.25 & -1.15 & 1.3225 & 5 & 1.7 & 2.89 & -1.955 \\
+5.50 & -0.90 & 0.8100 & 3 & -0.30 & 0.09 & 0.270 \\
+5.75 & -0.65 & 0.4225 & 5 & 1.70 & 2.89 & -1.105 \\
+6.00 & -0.40 & 0.1600 & 4 & 0.70 & 0.49 & -0.280 \\
+6.25 & -0.15 & 0.0225 & 2 & -1.3 & 1.69 & -0.455 \\
+6.50 & 0.10 & 0.0100 & 4 & 0.70 & 0.49 & 0.070 \\
+6.75 & 0.35 & 0.1225 & 2 & -1.30 & 1.69 & -0.455 \\
+7.00 & 0.60 & 0.3600 & 4 & 0.70 & 0.49 & 0.420 \\
+7.25 & 0.85 & 0.7225 & 3 & -0.30 & 0.09 & -0.255 \\
+7.75 & 1.35 & 1.8225 & 1 & -2.30 & 5.29 & -3.105 \\ \hline
+64.0 & 0 & 5.775 & 33 & 0 & 16.1 & -6.20 \\ \hline
+\end{tabular}
+\end{table}
+\end{tiny}
+\end{column}
+
+\begin{column}{0.4\textwidth}
+\begin{align}
+b & = \frac{\sum{(X-\overline{X})(Y-\overline{Y})}}{\sum{(X-\overline{X})^{2}}} \\
+& = \frac{-6.20}{5.775} \\
+& = -1.07
+\end{align}
+\end{column}
+\end{columns}
+
+## Calculating the Slope - Wages and Parole Violation
+
+Computational formula for $b$
+
+\scriptsize
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{table}
+\begin{tabular}{ccccc}
+\hline
+Hourly & & Parole & & \\
+Wages & $X^{2}$ & Violations & $Y^{2}$ & $XY$ \\ \hline \hline
+5.25 & 27.5625 & 5 & 25 & 26.25 \\
+5.50 & 30.2500 & 3 & 9 & 16.50 \\
+5.75 & 33.0625 & 5 & 25 & 28.75 \\
+6.00 & 36.0000 & 4 & 16 & 24.00 \\
+6.25 & 39.0625 & 2 & 4 & 12.50 \\
+6.50 & 42.2500 & 4 & 16 & 26.00 \\
+6.75 & 45.5625 & 2 & 4 & 13.50 \\
+7.00 & 49.0000 & 4 & 16 & 28.00 \\
+7.25 & 52.5625 & 3 & 9 & 21.75 \\
+7.75 & 60.0625 & 1 & 1 & 7.75 \\ \hline
+64.0 & 415.375 & 33 & 125 & 205.00 \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{align}
+b & = \frac{\sum{XY}-n\overline{X}\overline{Y}}{\sum{X^{2}}-n\overline{X}^{2}} \\
+& = \frac{205.0 - (10)(6.4)(3.3)}{415.375 - (10)(6.4^{2})} \\
+& = \frac{205.0 - 211.2}{415.375 - 409.6} \\
+& = \frac{-6.2}{5.775} \\
+& = -1.07
+\end{align}
+\end{column}
+\end{columns}
+
+## Calculating the Intercept - Wages and Parole Violation
+
+- Formula for the constant:
+$$a=\overline{y}-b\overline{x}=3.3-(-1.07)(6.4) = 3.3+6.848=10.15$$
+
+- Write the regression equation
+  - $y=a+bx+e$
+  - $y=10.15-1.07x+e$
+  
+\vspace{10pt}
+
+- Interpreting the slope ($b=-1.07$)
+  - A one unit increase in $x$ produces a $b$ unit increase (or decrease) in $y$
+  - Or...individuals with \$1 more in wages have 1.07 fewer parole violations, on average. 
+  
+## Drawing a Regression Line
+
+\begin{center}
+$y=a+bx+e = 10.15-1.07x+e$
+\end{center}
+
+\begin{center}
+\includegraphics[scale=.50]{regline.png}
+\end{center}
+
+## Drawing a Regression Line (cont)
+
+\begin{center}
+\includegraphics[scale=.50]{regline2.png}
+\end{center}
+
+## Regression Line as An Adjusted or Conditional Mean
+
+- Regression line is $\overline{y}$ | $x$ compared to $\overline{y}$
+    - Does knowledge about $x$ improve our ability to predict $y$? I.e., is the error smaller?
+    
+\begin{center}
+\includegraphics[scale=.50]{regline3.png}
+\end{center}
+
+## Evaluating the Fit of a Regression Line
+
+- Minimum squared error
+  - Regression error ($e$) forms the basis for choosing values for $a$ and $b$
+  - Coefficients are those that minimize the sum of the squared errors around the regression line
+    - Positive deviations cancel out negative deviations, so squared deviations are taken
+    
+\vspace{4pt}
+    
+- Regression has the property of least squares
+  - *Ordinary least squares* (OLS) regression
+  - Same property as the mean, only difference is that a regression line represents a **conditional mean**
+  $$\sum e^{2}=\sum (y-\hat{y})^{2} = \sum (y-a-bx)^{2} = \text{minimum}$$
+  
+## Hypothesis Test for Wages and Parole Violation
+
+- **Step 1**: Formally state hypotheses
+  - $H_{1}: \beta<0$
+  - $H_{0}: \beta \ge 0$
+  
+\vspace{4pt}
+
+- **Step 2**: Choose a probability distribution
+  - t-distribution
+  - df = n-2 = 10-2 = 8
+  
+\vspace{4pt}
+
+- **Step 3**: Make decision rules
+  - $\alpha=.05$ (one-tailed)
+  - $t_{crit} = 1.860$
+  - Reject $H_{0}$ is T.S. < -1.860
+  
+## Hypothesis Test for Wages and Parole Violation (cont)
+
+- **Step 4**: Compute the test statistic
+  $$TS = \frac{b-\beta}{s_{b}} \Rightarrow TS = \frac{b}{s_{b}} \text{ recall under } H_{0}, \beta=0$$
+  - Formula for the standard error of the slope ($s_{b}$)
+  $$s_{b} = \sqrt{\frac{s^{2}_{e}}{SS_{X}}} = \sqrt{\frac{\sum e^{2} / (n-2)}{\sum(x-\overline{x})^{2}}} = \sqrt{\frac{[\sum(y-\hat{y})^{2}]/(n-2)}{\sum(x-\overline{x})^{2}}}$$
+  - We have everything we need except $s^{2}_{e}$, the mean squared error (i.e., error variance)
+  
+## Hypothesis Test for Wages and Parole Violation (cont)
+
+\begin{columns}
+\begin{column}{0.55\textwidth}
+\begin{small}
+\begin{table}
+\begin{tabular}{ccccc}
+\hline
+Hourly & Parole & & & \\
+Wages & Violations & $\hat{y}$ & $y-\hat{y}$ & $(y-\hat{y})^{2}$ \\ \hline \hline
+5.25 & 5 & 4.5305 & 0.4695 & 0.2204 \\
+5.50 & 3 & 4.2630 & -1.2630 & 1.5952 \\
+5.75 & 5 & 3.9955 & 1.0045 & 1.0090 \\
+6.00 & 4 & 3.7280 & 0.2720 & 0.0740 \\
+6.25 & 2 & 3.4605 & -1.4605 & 2.1331 \\
+6.50 & 4 & 3.1930 & 0.8070 & 0.6512 \\
+6.75 & 2 & 2.9255 & -0.9255 & 0.8566 \\
+7.00 & 4 & 2.6580 & 1.3420 & 1.8010 \\
+7.25 & 3 & 2.3905 & 0.6095 & 0.3715 \\
+7.75 & 1 & 1.8555 & -0.8555 & 0.7319 \\ \hline
+64.0 & 33 & 33.0 & 0 & 9.4439 \\ \hline
+\end{tabular}
+\end{table}
+\end{small}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+\begin{align}
+s_{b} & = \sqrt{\frac{[\sum(y-\hat{y})^{2}]/(n-2)}{\sum(x-\overline{x})^{2}}} \\
+      & = \sqrt{\frac{9.4439/(10-2)}{5.775}} \\
+      & = \sqrt{\frac{1.1805}{5.775}} \\
+      & = 0.4521 
+\end{align}
+\end{column}
+\end{columns}
+
+## Hypothesis Test for Wages and Parole Violation (cont)
+
+- **Step 4**: Compute the test statistic (finally...)
+  - $TS = \frac{-1.07}{0.4521} = -2.367$
+
+\vspace{6pt}
+
+- **Step 5**: Make a decision about the null hypothesis
+  - Reject $H_{0}$, conclude that higher wages are associated with significantly fewer parole violations. 
+  
+## Comparing Correlation and Regression Coefficients
+
+- $b$ and $r$ are very closely related
+$$b=\frac{\sum((x-\overline{x})*(y-\overline{y}))}{\sum(x-\overline{x})^{2}}; \hspace{2pt} r=\frac{\sum ((x-\overline{x})*(y-\overline{y}))}{\sqrt{\sum(x-\overline{x})^{2}*\sum(y-\overline{y})^{2}}}$$
+  - Numerator is the same, only difference is the denominator. 
+  
+$$b=r \frac{s_{y}}{s_{x}}=r\left(\frac{\sqrt{\sum{(y-\overline{y})^{2}}/n}}{\sqrt{\sum{(x-\overline{x})^{2}}/n}}\right)=r\frac{\sqrt{\sum{(y-\overline{y})^{2}}}}{\sqrt{\sum{(x-\overline{x})^{2}}}}$$
+$$r=b \frac{s_{x}}{s_{y}}=b\left(\frac{\sqrt{\sum{(x-\overline{x})^{2}}/n}}{\sqrt{\sum{(y-\overline{y})^{2}}/n}}\right)=b\frac{\sqrt{\sum{(x-\overline{x})^{2}}}}{\sqrt{\sum{(y-\overline{y})^{2}}}}$$
+
+## Comparability of Correlation and Regression Coefficients
+
+Let's test these out with the prior record and sentence length example. Recall that the correlation for that relationship was 0.970, the slope was 3.066, the sum of squares for X was 91.6, and the sum of squares for Y was 914.14. 
+
+$$r=b\frac{\sqrt{\sum{(x-\overline{x})^{2}}}}{\sqrt{\sum{(y-\overline{y})^{2}}}}=3.066 \frac{\sqrt{91.60}}{\sqrt{914.40}} = `r round(3.066*(sqrt(91.60)/sqrt(914.40)),3)`0$$
+
+
+## R Tutorial - Coefficients & Slopes
+
+In this section, I will show you how to compute correlation and slope coefficients in R and then check that your calculations are correct using automatic R functions. 
+
+## Manual Method - Entering the Data
+
+Entering the data is exactly as we have done before when entering variable values. Nothing to see here, really. 
+
+```{r enter_data, echo=TRUE}
+wagert<-c(5.25,5.50,5.75,6.00,6.25,6.50,6.75,7.00,7.25,7.75)
+tech<-c(5,3,5,4,2,4,2,4,3,1)
+```
+
+## Manual Method - Intermediate Calculations
+
+Next, we need to calculate averages and squared deviations for X and Y as well as their cross-product:
+
+```{r avg_sqr_cross, echo=TRUE}
+X_avg<-sum(wagert)/length(wagert)
+Y_avg<-sum(tech)/length(tech)
+
+X_sqrdev<-(wagert-X_avg)^2
+Y_sqrdev<-(tech-Y_avg)^2
+
+XY_cross<-(wagert-X_avg)*(tech-Y_avg)
+```
+
+## Manual Method - Calculating the Coefficients
+
+With that information in hand, we can compute both the correlation and slope coefficients:
+
+```{r corr_slope, echo=TRUE}
+XY_corr<-(sum(XY_cross)/sqrt(sum(X_sqrdev)*sum(Y_sqrdev)))
+XY_slope<-sum(XY_cross)/sum(X_sqrdev)
+
+XY_corr
+XY_slope
+```
+
+## Manual Method - Calculating MSE for the Regression Line
+
+\scriptsize
+
+And now, we need to compute the mean squared error about the regression line:
+
+```{r reg_line, echo=TRUE}
+Y_int<-Y_avg-(XY_slope*X_avg)
+
+Y_hat<-Y_int+(XY_slope*wagert)
+Yhat_sqrdev<-(tech-Y_hat)^2
+reg_MSE<-sum(Yhat_sqrdev)/(length(tech)-2)
+slope_std_err<-sqrt(reg_MSE/sum(X_sqrdev))
+slope_std_err
+``` 
+
+At this point, we have everything we need to conduct both hypothesis tests we reviewed in this lecture! The values are slightly different than those we calculated by hand but only slightly - the intercept is off by only 2 hundredths of a point. 
+
+\newpage
+
+## Automatic Method - Correlation Coefficient
+
+Computing correlation coefficients and slopes in R is very straightforward and only requires using two commands the cor.test() function and the lm() function. 
+
+\scriptsize
+
+```{r auto_cor, echo=TRUE}
+cor.test(wagert,tech)
+```
+
+## Automatic Method - Intercept and Slope
+
+```{r auto_lm, echo=TRUE}
+lm(tech~wagert)
+```
+
+There's a lot more to both functions than I will cover right now, especially the lm() command. We will review the lm() function much more when we discuss multivariate regression. 
+  
+## Two Questions
+
+\begin{center}
+\begin{huge}
+What are your two questions today?
+\end{huge}
+\end{center}
+
+\begin{center}
+\includegraphics[scale=.40]{rickmorty_last15.png}
+\end{center}

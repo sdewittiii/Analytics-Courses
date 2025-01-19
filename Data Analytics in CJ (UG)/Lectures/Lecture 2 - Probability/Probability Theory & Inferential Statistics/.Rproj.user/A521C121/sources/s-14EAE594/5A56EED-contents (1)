@@ -1,0 +1,96 @@
+
+setwd("S:/CLIENTS 2018/F. Dufour, Isabelle/Creation des trajectoires")
+library(openxlsx)
+library(ggplot2)
+library(RColorBrewer)
+
+
+# Lecture des donn?es
+
+crime_param_data = read.xlsx("Trajectoires4.xlsx", sheet = 1)
+crime_moy_data = read.xlsx("Trajectoires4.xlsx", sheet = 3)
+
+crime_moy = reshape(crime_moy_data[,1:6], direction="long", varying = list(2:6))
+crime_moy$groupeC = with(crime_moy, ifelse(time==1, 1,
+                                           ifelse(time==2, 2,
+                                                  ifelse(time==3, 4,
+                                                         ifelse(time==4, 5, 3)))))
+
+crime_param = crime_param_data[1,5:18]
+
+# ---------------------------------
+# Creation de la fonction cubic
+# ---------------------------------
+
+
+cubeFunCrime <- function(x, groupe) {
+  
+  groupeC = ifelse(groupe==1, 1,
+                   ifelse(groupe==2, 2,
+                          ifelse(groupe==3, 4,
+                                 ifelse(groupe==4, 5, 3))))
+  
+  if(groupeC==1){
+    b0 = as.numeric(crime_param[1])
+    b1 = as.numeric(crime_param[2])
+    b2 = as.numeric(crime_param[3])
+    b3 = as.numeric(crime_param[4])}
+  
+  if(groupeC==2){
+    b0 = as.numeric(crime_param[5])
+    b1 = as.numeric(crime_param[6])
+    b2 = as.numeric(crime_param[7])
+    b3 = as.numeric(crime_param[8])}
+  
+  if(groupeC==3){
+    b0 = as.numeric(crime_param[13])
+    b1 = as.numeric(crime_param[14])
+    b2 = 0
+    b3 = 0}
+  
+  if(groupeC==4){
+    b0 = as.numeric(crime_param[9])
+    b1 = as.numeric(crime_param[10])
+    b2 = as.numeric(crime_param[11])
+    b3 = 0}
+    
+  if(groupeC==5){
+    b0 = as.numeric(crime_param[12])
+    b1 = 0
+    b2 = 0
+    b3 = 0}
+  
+   
+  return(exp(b0 + b1*x + b2*x^2 + b3*x^3))
+  
+}
+
+
+# -------------
+# Graphique
+# -------------
+palette.plot = brewer.pal(n=9, "Set1")
+image(1:9,1,as.matrix(1:9),col=palette.plot,xaxt="n",yaxt="n",bty="n")
+
+png("Graph4 bleau.png", width = 640, height = 400)
+ggplot(crime_moy, aes(x=T))  +
+  stat_function(fun = cubeFunCrime, args=list(groupe=1), col = palette.plot[1], linetype = "dashed") +
+  stat_function(fun = cubeFunCrime, args=list(groupe=2), col = palette.plot[2], linetype = "dashed") + 
+  stat_function(fun = cubeFunCrime, args=list(groupe=3), col = palette.plot[4], linetype = "dashed") + 
+  stat_function(fun = cubeFunCrime, args=list(groupe=4), col = palette.plot[5], linetype = "dashed") +
+  stat_function(fun = cubeFunCrime, args=list(groupe=5), col = palette.plot[3], linetype = "dashed") +
+  geom_line(aes(x=T, y=AVG1, color=factor(groupeC)), size=1) +
+  scale_colour_manual(values=palette.plot[c(1,2,3,4,5)], 
+                      labels=c("D?sisteurs tardifs\n18,5 %","D?sisteurs\n21,5 %","Chroniques basse\nintensit? 41,3 %",
+                               "Chroniques haute\nintensit? 17,4 %","R?habilit?s\n1,4 %")) +
+  theme(legend.position = "bottom", legend.key = element_blank(), legend.text=element_text(size=10),
+        panel.background = element_rect(fill = "white" , colour = "grey"), axis.text=element_text(size=13), 
+        axis.title=element_text(size=13)) +
+  scale_x_continuous(breaks=seq(0,10,2)) +
+  labs(y= "Nombre moyen de crimes punis", x = "P?riode", color = expression("Probabilit?s\nestim?es ("*pi*" )"))
+
+dev.off()
+
+
+
+

@@ -1,0 +1,28 @@
+---
+title: "Test"
+author: "Samuel DeWitt"
+date: "3/30/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Calculation for mean
+
+$$\begin{array}{c}
+\sum{(x-\overline{x})} \over N
+\end{array}$$
+
+
+## Calculation for standard deviation
+
+$ \sqrt{\sum{(\text{X}- \overline{\text{X}} )^2} \over \text{N-1}}$
+
+$$ \sqrt{\sum{(\text{X}- \overline{\text{X}} )^2} \over \text{N-1}}$$
+
+$$\begin{array}{ccc}
+x_{11} & x_{12} & x_{13}\\
+x_{21} & x_{22} & x_{23}
+\end{array}$$

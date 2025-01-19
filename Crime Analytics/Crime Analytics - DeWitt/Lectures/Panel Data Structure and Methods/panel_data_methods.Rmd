@@ -1,0 +1,334 @@
+---
+title: "Panel Data Structure and Methods"
+author: "Crime Analytics (CJUS 6106)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven); library(tidyr); library(plm); library(ggplot2)
+options(scipen=10)
+```
+
+# Outline
+
+I.  Panel Data vs. Just Data (What's the Difference?)
+II. Panel Data in R
+III. Reshaping Data (Wide to Long/Long to Wide)
+IV. Random Effect Models
+V.  Fixed Effect Models
+
+
+# Panel Data vs. Just Data
+
+The difference between panel data and regular data is that panel data come from repeated measurements of the same unit **over** time. Data like this are fairly common in the social sciences - it includes longitudinal data sets on samples of youth like Pathways to Desistance, Add Health, and the NLSY97 but can also include any other kind of data that has a time component to it, like the Global Terrorism Database. 
+
+In the latter, terrorist incidents are **clustered** within a country over time or across countries within a time period (the choice of cluster is up to the researcher). 
+
+Just because you have panel data does not require you to analyze it using panel data methods - you can use it as regular data and run simple regressions. This, however, sets aside a very powerful benefit to having data over time on the same units. The benefit is that you are able to look at variation **between** units in the data as well as **within** them. 
+
+Nick Huntington-Klein provides an intuitive example to explain the difference between these types of variation. If I compare a person's height now to their height at other time points in the past, I am looking at **within** variation. If, however, I am comparing said person's height to the height of other people entirely, I am instead looking at **between** variation. 
+
+The **fixed effect** model, which we will discuss later in this lecture, is chiefly concerned with **within** variation. **Random effect** models, by contrast, allow for both types of variation to be examined in a single statistical model. 
+
+We'll explore both types of models later in this lecture. For now, we need to first understand what panel data look like in R and how to reshape our data to be (or not to be, pun intended) in panel data format. 
+
+# Panel Data in R
+
+So, what might panel data look like in R? 
+
+Panel data can come in two different general forms. The first is **long** form, and the second is **wide** form. These terms describe the appearance of the data itself, and refer to whether time is represented in the data by rows (**long**) or by columns (**wide**). 
+
+Let's look at some examples of both versions of panel data. 
+
+For an example of **long** data, I am going to use the **state_data** data set on state economic health, crime rates, and tax expenditures I have used in prior examples. 
+
+This file is a little different than the one you have seen before - it includes every row and column. Prior versions limit both the time frame and number of variables. 
+
+```{r}
+state_data <- read_dta("state_data.dta")
+head(state_data[,1:7], 15)
+```
+
+What you see above are the first 15 rows of the data set. Notice that every row is for Alabama but the year per row changes from 1960 to 1974.
+
+The reason why we call these data **long** is that there is an observation for every unit for every year. The most recent year in these data is 2015. So, each state has a row for every year from 1960 to 2015. That's 2800 rows in total. 
+
+Now, let's take a look at those same data but in **wide** format:
+
+```{r}
+state_data_wide <- read_dta("state_data_wide.dta")
+head(state_data_wide[,c(1,2,5,6,7,8,9)], 15)
+```
+
+The **year** variable is now gone as is has been subsumed into suffixes at the end of each time-varying variable name (e.g., rmurd1960, rmurd1961, and so forth).
+
+The dimensions of the data frame have also changed dramatically. Instead of 2800 observations (rows) we now have just 50, one for each state. In turn, we now have over 600 variables! That's because there are now individual columns per year for each variable. 
+
+There are benefits and drawbacks to having data in either of these formats, but panel data methods will require your data to be in **long** format because that format properly lists the actual number of observations (rows) you have. 
+
+By contrast, **wide** format data could be used for simple regression models that do not need to account for time - e.g., you simply want to use a cross section of the data to explain some outcome measured in a short span of time or at a particular time. 
+
+So, you might ask, what if I want to estimate a model using data in the **long** format but my data is currently in **wide** format? That's a fairly simple, but easy to mess up, process that I will discuss in the next section. 
+
+# Reshaping Data (Wide to Long and Vice Versa)
+
+Let's say that your data are in wide format. That is, you have columns with suffixes that indicate the year a variable was collected and one row per unique unit in your data. 
+
+This is a very common format in some longitudinal data sets. Pathways to Desistance, the NLSY97, and Add Health all have this format. 
+
+If you want to be able to run panel models like **fixed effects** or **random effects**, then your data need to be structured so that time is represented in your rows and not your columns. 
+
+I am going to show you how to do that using the **gather**, **extract**, and **spread** functions from the **tidyr** package, like so:
+
+```{r}
+state_data_long = state_data_wide %>% 
+  gather("variables", "values", c(rmurd1960:avwage2015))
+head(state_data_long, 15)
+```
+
+We're not done yet, as the data are now very long - each row represents the value for each variable for each year. This is obviously not what we want. We want one row per year, per state. That requires us use the **extract** and **spread** functions, like so:
+
+```{r}
+state_data_long <- state_data_long %>% 
+  extract("variables", c("colname", "year"),
+          regex="([a-z]+)(\\d+)") %>% 
+  spread("colname", "values")
+```
+
+What is occurring with that code is that we pass the state_data_long data set to the next line using the pipes operator (%>%) and then we extract the column names and years from the **variables** column we just made. 
+
+The regex code provides instructions for how to do that. It stands for **regular expression** and it's a way to represent character strings in statistical code. 
+
+The parentheses in the string "([a-z]+)(\\\\d+)" separate the variable names into two parts. 
+
+The first part ([a-z+]) tells R that the first part of the variable name is lowercase alphabetic characters ([a-z]) and the + sign tells R that these names are of different lengths, so it extracts all the alphabetic characters in the variable name until it encounters a non-lowercase alphabetic character). 
+
+The second part (\\\\d+) tells R to then extract the suffix from each variable that indicates the year of the observation. The lowercase "d" stands for **digits** and the + sign again tells R to extract all of the digits until it encounters a non-number. 
+
+That code is relatively versatile, but it depends on the variables having a distinct naming structure. If any of your variables do not have that structure, the function will encounter an error. Because of this, it's important to rename your variables as necessary BEFORE using that code. 
+
+And now let's compare the original **state_data** data set (which was in long format already) with the data we just made **state_data_long**:
+
+```{r}
+head(state_data)
+length(state_data$state)
+head(state_data_long)
+length(state_data_long$state)
+```
+
+The variables changed order as they were alphabetized in the process, but the number of variables and length od the data are the same!
+
+## Now, Back to Wide
+
+Now that we can make a wide data set a long data set, let's now reverse the process. For that, we will use the **pivot_wider** function from the **tidyr** package:
+
+```{r}
+state_data_wide_copy <- pivot_wider(state_data_long, names_from=year,
+                               values_from=c(avwage, gdp, poverty, raggr, rauto, 
+                                       rburg, rlarc, rmurd, rprop, rrape, rrobb,
+                                       urate),
+                               names_sep="")
+```
+
+Okay, now let's compare the wide data files to make sure they are comparable:
+
+```{r}
+head(state_data_wide)
+length(state_data_wide$state)
+head(state_data_wide_copy)
+length(state_data_wide_copy$state)
+```
+
+The variables are alphabetized (again) but we can see that the length is now 50 (one observation per state) and we now have 677 variables again, one for each variable and each year. 
+
+Note that this did not require any regex code as before, because we simply took the values from the **year** variable and made them suffixes for each variable-year combination. 
+
+# Random Effects Models
+
+In a **random effects** model there are two levels to the analysis, the first using the **level-1** units and the second using the **level-2** units. **Level-1** units are the individual cases (or rows) that belong to the sample - in many circumstances, these are individuals. The **level-2** units are some type of cluster that the **level-1** units belong to.
+
+A helpful example to understand this comes from education research. In a typical study of youth academic performance we might collect test scores from all students in a school, and repeat that process for multiple schools in a school district. 
+
+In that example, the students are the **level-1** units because they represent the individual rows in the data. **Level-2** units could then be a variety of a higher-level clusters that the students belong to. For example, you may cluster students by classroom within a school, making classroom the **level-2** unit or you could cluster students by schools, making the school the **level-2** unit. 
+
+The simple motivation behind such structure is that, while students have individual characteristics that predict academic success, they are all within some other type of *level-2** unit that may have an independent effect on their performance, net of those individual characteristics. 
+
+For example, some schools may simply be better resourced and can prepare their students better for standardized tests, thereby increasing test scores above and beyond the impact of the academic ability of their individual students. 
+
+## Structure of The Random Effects Model
+
+The structure of a random effects model looks a bit different than the typical multivariate regression equation you are familiar with. As a reminder, the general multivariate regression equation looks like this:
+
+$$Y_{i} + \beta_{0} + \beta_{1}X_{i1} + ...+\beta_{j}X_{ij}+\epsilon_{i}$$
+
+Where the subscripts $i$ refer to a specific unit in the sample and subscripts $j$ refer to the jth regressor in the model. 
+
+By contrast, the random effects equation for a multivariate regression equation looks like:
+
+$$Y_{ij} = (\alpha + \gamma W_{j} + \mu_{j}) +  \beta_{j} X_{ij} + \epsilon_{ij}$$
+
+*Note*: This is the equation for what is known as a **random-intercept** model that allows the intercept term to vary according to **level-2** clusters and by any variable we include in the model that is measured at **level-2** (e.g., a school-level measure like number of total students or average years of education for their teachers). 
+
+There are two components in this model, the **linear predictor** ($\beta X_{ij}$); and the **equation for the intercept** ($\alpha + \gamma W_{j} + \mu_{j}$). 
+
+The former you have seen before, while the latter is partially new. The intercept value of $\alpha$ should be familiar, and still represents the expected value of $Y$ when all regressors are equal to zero. 
+
+The new term $\gamma W_{j}$ represents the coefficient ($\gamma$) and value ($W$) for one or more **level-2** variables, and the $\mu_{j}$ term represents the average random effect per **level-2** cluster. 
+
+In this context, the random effect is simply the typical shift from the expected intercept across each of the **level-2** clusters. It's helpful to think of this as an average of the unique effect of each cluster, net of the variables in the model, that pushes or pulls its expected intercept value in some direction (e.g., some schools are better at preparing students for some reason than others and vice versa). 
+
+## Estimating a Random-Intercept Model in R
+
+To estimate a random-intercept model, I will be using the long version of the **state_data** data frame I imported above. Because we are using panel data, I will also use the **plm** package to estimate this and the fixed effects model later. 
+
+First I need to make some adjustments to the data:
+
+```{r}
+state_data$total_crime <- with(state_data, rmurd + rrape + rrobb + raggr + 
+                                 rburg + rlarc + rauto)
+state_data$region <- as.factor(state_data$region)
+state_data_panel <- pdata.frame(state_data, index=c("state", "year"))
+state_data_panel$lead_ttl_crime <- lead(state_data_panel$total_crime, 1)
+```
+
+The **pdata.frame()** function turns the regular data frame into a panel data frame, which is required to use the **lead()** and **lag()** functions in the **plm** package. These are important, as I want to keep the timing of my comparisons in order here. 
+
+Specifically, I anticipate that changes to a state's economic conditions will not have an immediate effect on the crime rate. Instead, I assume that the effect will be lagged, such that last year's economic conditions predict next year's crime. 
+
+Technically, you could accomplish this by lagging all the independent variables (giving them last year's values) or by leading the outcome (giving it next year's values). The difference can be important, as using either transformation will cause you to lose a year of data. 
+
+This is because lagging the independent variables must cut off the first year of observations per state as there are no prior values to draw from. By contrast, leading the outcome means that you lose the last year of data per state because there is no next year of data to draw from. 
+
+In this example, I lead the outcome, losing the last observation per state in this analysis, but lagging the independent variables is also a reasonable solution. 
+
+Now, let's run the model: 
+
+```{r}
+rand_int <- plm(lead_ttl_crime ~ poverty + urate + avwage + gdp + region, 
+                data=state_data_panel, model="random")
+summary(rand_int)
+```
+
+From the looks of it, increases to poverty, the unemployment rate, average wages, and gdp all are associated with decreases in next year's total crime rate. All of these effects are significant at p<.001, though some are more substantively meaningful than others. 
+
+It is worth noting that the interpretation of these coefficients is similar to how we typically interpret coefficients from a linear regression model. For example, states that are 1 percentage point higher on the poverty rate are expected to have a total crime rate that is 41 crimes per 100,000 lower, on average. 
+
+The region effects have a slightly different interpretation than they had before. Because these are **level 2** regressors, they represent departures from the intercept value for the typical state in that region as compared to the reference region. 
+
+This is because each state has its own time-invariant random intercept effect, so now we need to condition on a state being "typical" or having a random intercept effect that is at, or very close to, zero. 
+
+There are some more interesting things we can explore with a random intercept model, too. For example, we can examine the distribution of random intercept effects across states, like so:
+
+```{r, fig.align='center'}
+intercepts <- ranef(rand_int)
+intercepts_df <- as.data.frame(intercepts)
+intercepts_df$group_id <- rownames(intercepts_df)
+ggplot(intercepts_df, aes(x=group_id, y=intercepts)) +
+  geom_point(size=3, color="blue") +
+  labs(x="Group ID", y="Estimated Random Intercept") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+```
+
+# Fixed Effects Models
+
+A **fixed effects** model shares many similarities with a **random intercept** model. For example, the structure of the data remains the same - we have multiple **level 1** units nested within **level 2** clusters.
+
+The primary difference with a **fixed effects** model is that, while we still allow the intercept to vary, it varies because we estimate a unique effect for each **level 1** unit in our analysis, as opposed to each **level 2** unit as in the **random intercept** model. 
+
+This is because the **fixed effects** model focuses strictly on variation **within** units. In effect, the **fixed effects** model includes a dummy variable for each **level 1** unit in the analysis - with panel data this represents their average value for the outcome over all time periods. 
+
+The coefficients from the model then represent departures from this expected value and are identified using only **within individual** change over time. 
+
+One of the primary advantages of this approach is that we do not have to make the assumption that we have accounted for all relevant **level 2** characteristics that influence our outcome. 
+
+That's a required assumption of the **random intercept** but because we only look at **within individual** variation in a **fixed effects** model using panel data, we do not have to make this same assumption. 
+
+However, there are disadvantages to using the **fixed effects** model. For starters, you cannot assess the relationship between the outcome and any independent variable that does not vary within a **level 1** unit. This means characteristics like race, birth country, biological sex, and such cannot be included in the model. 
+
+Second. we only use **within unit** variation. Although that does also relate to a strength of the model (we don't have to make a strong assumption about our controls), it also means that we use less of the data overall, making our estimates less precise. 
+
+All told, though, the **fixed effects** model is generally preferred because of the implausibility of not violating the assumption that we account for all relevant **level 2** characteristics in the model. 
+
+Instead, the individual dummy variables (i.e., individual intercepts) in the **fixed effects** model solves this problem for us, as those absorb all observed and unobserved individual unit variation for characteristics that are constant over time. 
+
+## Structure of the Fixed Effects Model
+
+The structure of the **fixed effects** model looks *very* similar to the structure of a regular OLS model, with some slight changes in subscripts. 
+
+$$Y_{it} = \beta_{i} + \beta_{1} X_{it} + \epsilon_{it}$$
+
+The key differences between the generic OLS equation and the **fixed effects** equation is that when we use panel data we now have subscripts for both $i$ (individuals) and $t$ (time). The second difference is that the intercept term is now $\beta_{i}$ instead of $\alpha$ - this is because the **fixed effects** model essentially includes a categorical variable for each individual in the model - i.e., each individual has their own intercept. 
+
+## Estimating a Fixed Effects Model in R
+
+We can estimate a **fixed effects** model in almost the same exact way as we estimated the **random intercept** model earlier, except we would specify **model="within"** instead of **model="random"**. 
+
+```{r}
+fixed_fx <- plm(lead_ttl_crime ~ poverty + urate + avwage + gdp + region, 
+                data=state_data_panel, model="within")
+summary(fixed_fx)
+```
+
+Notice what happened to the region variable? This is because the fixed effects model does not estimate coefficients for any variable that does not vary within a cluster. Because region is constant over time, it does not have any associated coefficients in the fixed effect model. This is due to the fixed effects model focusing strictly on **within effects** for covariates that vary within a **level 2** unit. 
+
+Interpreting coefficients from a fixed effects model differs from the interpretation for coefficients from a standard regression model or the **random intercept** model. Because we are looking just at **within unit** change, the coefficients are interpreted as one unit higher than *the typical value** for that unit. 
+
+For example, the coefficient for **poverty** is -40.72 - we would interpret that as the difference in the expected value for the total crime rate that is associated with a state being one percentage point higher on the poverty rate than their typical value over time. 
+
+We can also visualize certain elements of the fixed effects model, including plotting a time series of the residuals over time. What we are looking for here is if we are making different magnitudes/directional errors over the panel:
+
+```{r, message=F, fig.align='center'}
+resid <- resid(fixed_fx)
+index <- index(fixed_fx)
+resid_df <- data.frame(resid=resid, year=as.numeric(as.character(index[,2])))
+ggplot(resid_df, aes(x=year, y=resid)) +
+  geom_point(size=0.5) +
+  labs(x="Year", y="Residuals", title="Residuals vs. Time Plot") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_x_continuous(breaks=(1980:2015)) +
+  geom_smooth(method="loess") +
+  geom_hline(yintercept=mean(resid), color="red")
+```
+
+From the looks of it, although the expected residual is 0, it does vary over time. Specifically, we are more likely to have positive residuals from 1986 to 1996 and slightly more likely to have negative residuals from 1999 to 2008. That being said, the swings above and below the horizontal line at zero are not that steep, so I'm not too worried about this. 
+
+We could also add an element to that plot that tells us average group-wise residuals over time, like so:
+
+```{r, fig.align='center'}
+states <- as.factor((index[,1]))
+resid_df <- cbind(resid_df, states)
+resid_mean <- aggregate(resid ~ states, data=resid_df, mean)
+ggplot(resid_df, aes(x=year, y=resid, color=states)) +
+  geom_point(size=0.5) +
+  geom_hline(data=resid_mean, aes(yintercept=resid), linetype="dashed") +
+  labs(x="Year", y="Residuals", title="Group-wise Residual Plot") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_x_continuous(breaks=(1980:2015)) +
+  theme(legend.position="none")
+```
+
+If I were making different types of errors across states then I would expect several dashed horizontal lines, one for the average residual for each state. The fact that there is only one line means that the average residual over time for each state is 0, which indicates that my predictions for each **level 2** unit in this analysis are balanced around a value of 0. 
+
+Had this not been the case, I would have investigated the **resid_mean** object to see which state(s) had average errors different from 0. 
+
+Let's throw some **loess** lines into that plot to see what they look like:
+
+```{r, message=F, fig.align='center'}
+ggplot(resid_df, aes(x=year, y=resid, color=states)) +
+  geom_point(size=0.5) +
+  geom_hline(data=resid_mean, aes(yintercept=resid), linetype="dashed") +
+  labs(x="Year", y="Residuals", title="Group-wise Residual Plot") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_x_continuous(breaks=(1980:2015)) +
+  theme(legend.position="none") +
+  geom_smooth(method="loess", se=F, linewidth=0.1)
+```
+
+There are indeed some shifts above and below zero, but I don't see any indication that the group-wise errors are much different from the errors over time plot.
+
+# Two Questions
+
+What are your two questions today?
+
+![Fixed It](fixed_it.gif)

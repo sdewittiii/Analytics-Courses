@@ -1,0 +1,253 @@
+---
+title: "CCC Lecture 1 - Intoduction and Basic Causal Inference"
+author: "Samuel DeWitt, Ph.D."
+output: 
+  beamer_presentation:
+    includes:
+      in_header: C:/Users/sd662/Google Drive/Fall 2019 Classes/Causes and Consequences of Crime/Lectures/Common Files/beamer-header.txt
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+- Welcome to Data Analytics and Crime (CJUS 4370)
+
+- This semester, I am teaching a particular theme for this course, and I'll instead be referring to it as "Causes and Consequences of Crime"
+
+- I am your instructor - Professor DeWitt or Dr. DeWitt (whichever you prefer). 
+
+## This is a Writing Intensive Course
+
+- Causes and Consequences of Crime is an upper-level, writing-intensive course which is necessary to complete the Criminal Justice & Criminology major. 
+
+## What Does Writing-Intensive Mean?
+
+- You can expect to be writing on a near-weekly basis in this class and there will be multiple opportunities for you to revise your work.
+
+- Students interested in knowing the exact standards for writing-intensive courses should read more about them at this link: 
+
+## What Does Writing-Intensive Mean for This Course?
+
+\begin{itemize}
+\item You'll be writing frequently. 
+\item There will be bi-weekly programming assignments which will require some writing (and can be revised with some limitations)
+\item There are three larger exams that require both writing \textit{and} programming.
+  \begin{itemize}
+    \item The first two exams may be revised (with some limitations).
+    \item The final exam may not be revised (it's not practical as it is too close to the end of the semester).
+    \end{itemize}
+\end{itemize}
+
+## What is the Text for This Course?
+
+\begin{columns}[T]
+\begin{column}{.7\textwidth}
+\href{http://scunning.com/cunningham_mixtape.pdf}{Scott Cunningham's Causal Inference Mixtape $\Rightarrow$}
+
+\vspace{12pt}
+
+Why did I choose this text?
+\begin{itemize}
+  \item It's free
+  \item It covers a wide variety of topics whereas other causal texts are more specified
+  \item Did I mention it is free?
+\end{itemize}
+\end{column}%
+\begin{column}{.28\textwidth}
+    \includegraphics[width=1.2\linewidth,height=1.2\textheight,keepaspectratio]{scunning-mixtape.pdf}
+\end{column}%
+\end{columns}
+
+## What Will We Talk About From This Book?
+
+\begin{itemize}
+  \item Probability theory and statistics review
+  \item Properties of regression (focus on multivariate)
+  \item Directed acyclic graphs (DAGs)
+  \item Theories of causation and the potential outcomes framework
+  \item Matching and subclassification
+  \item Regression discontinuity
+  \item Panel data and differences in differences
+\end{itemize}
+
+Whew....there's more, but that will be our primary focus this semester. 
+
+## Will I Have to Read Anything Else?
+
+I never thought you'd ask!
+
+**Yes!**  
+
+There are periodic reading assignments which coincide with the text chapters. 
+
+These articles will relate to the content covered in the text readings for the class sessions which they are assigned. 
+
+See your syllabus for a full list. 
+
+All additional readings are posted to Canvas already. 
+
+## What Does the Course Name Mean?
+
+- "Causes and Consequences" is an provocative title and is somewhat vague (perhaps purposefully?)
+
+- The goal of this class is to acclimate each of you to how we determine what \textit{causes} anything in the social sciences. 
+
+- Calling something a \textit{cause} or saying something is \textit{caused by} something else is a loaded statement, with many assumptions potentially left unsaid. 
+
+## What is a Cause?
+
+- A \textit{cause} is something that happens to a person or multiple persons that changes them in some particular way.
+
+- This \textit{something} can take many forms, and can itself be \textit{caused} by something else. 
+
+- A \textit{cause} also need not be something that another entity does to a person or multiple persons - you can \textit{cause} an outcome for yourself by engaging in some behavior that has a consequence. 
+
+## Examples of Causes in Criminal Justice & Criminology
+
+So, what may constitute a "cause" in CJ?
+\pause
+\begin{itemize}
+  \item Committing a crime?
+  \pause
+  \item Abusing drugs?
+  \pause
+  \item Having delinquent peers?
+  \pause
+  \item Getting a job? Losing a job?
+\end{itemize}
+
+## Examples of Consequences in Criminal Justice & Criminology
+
+To complete the lesson, what about consequences in CJ? What might those look like?
+
+\pause
+\begin{itemize}
+  \item Committing a crime?
+  \item Abusing drugs?
+  \item Having delinquenct peers?
+  \item Getting a job? Losing a job?
+\end{itemize}
+
+## Examples of Consequences (or Causes?) in Criminal Justice & Criminology
+
+I didn't make a mistake on the prior slide - causes and consequences are often interchangeable in the social sciences!
+
+\vspace{12pt}
+
+As you may imagine, this makes causal inference even *more* difficult than it already is. 
+
+## Examples of Consequences (or Causes?) in Criminal Justice & Criminology
+
+I could continue (for a looooooong time) but I won't. 
+
+\vspace{6pt}
+
+Just know that the list of plausible causes and consequences of crime (or lack of crime) in CJ is quite long, and each will have its own body of scientific literature. 
+
+\vspace{6pt}
+
+The purpose of this class, however, is not to review all these causes/consequences, but to explore how we can apply causal attributions **to** them!
+
+\vspace{6pt}
+
+That is, how can we definitvely say that one event or action causes another event or action to occur?
+
+## Review of Required Elements for Causal Inference
+
+For the sake of review, there are a few things that **need** to be true for us to attribute any event or action with causality:
+\pause
+\begin{itemize}
+  \item \textbf{Association} - the cause and effect must share empirical co-variation
+  \pause
+  \item \textbf{Temporal order} - the cause must precede the effect in time
+  \pause
+  \item \textbf{Nonspuriousness} - the cause and/or effect cannot be instead caused by some unobserved source of their variation
+\end{itemize}
+
+## Review of Important Elements for Causal Inference
+
+Why the difference between **Required** and **Important**?
+
+The following are not necessary for causal inference, but make the argument considerably stronger:
+\pause
+\begin{itemize}
+  \item \textbf{Context} - we have an undersatnding of the features necessary to observe a causal relationship. 
+  \pause
+  \item \textbf{Mechanism} - there is a plausible link between the cause and effect such that we can clearly understand through what actions/events the cause impacts the effect. 
+\end{itemize}
+
+## Important and Required Elements for Causal Inference
+
+We will talk more about these concepts in the coming weeks. 
+
+\vspace{8pt}
+
+Just know that, no matter how we might want to (or feel naturally inclined to do so), anecdotal evidence is not sufficient to infer causality.
+
+\vspace{8pt}
+
+Missing just **one** of the required elements means that we *cannot* infer causality.
+
+\vspace{8pt}
+
+Side question: Which one do you think is missing most often, or causes the most problems for social scientists?
+
+## Anecdotal Evidence and Causal Inference
+
+Anecdotal evidence is the most *frequent* type of evidence we encounter.
+
+\vspace{8pt}
+
+*This* is precisely why we developed the scientific method. To put these happenstance observations to empirical scrutiny. 
+
+\vspace{8pt}
+
+There's one **particular** type of method that is explicitly designed to do this. What is it?
+
+## Experiments and Causal Inference
+
+Social scientists have a variety of different methods at their disposal, but the randomized experiment is **the** best way to assess causal relationships. 
+
+\vspace{8pt}
+
+Unfortunately, there are many questions in the social sciences that cannot be answered with an experiment. 
+
+\vspace{8pt}
+
+For example, ask yourself if it would be feasible, using an experiment, to assess the impact of joining a gang on violent crime?
+
+## Some Closing Remarks on Causal Inference in the Social Sciences
+
+These difficulties are prevalent in criminology - we often cannot, for a variety of reasons, subject certain causal claims to an experiment. 
+
+\vspace{8pt}
+
+So, what can we do instead?
+
+\vspace{8pt}
+
+We need methods that allow us to obtain causal inference without experimental data, and that is precisely the topic of this class!
+
+\vspace{8pt}
+
+We will begin with the basics, then move on to more complicated models, all of which rely on observational or quasi-experimental data to produce causal inference. 
+
+## Questions?
+
+In my classes, questions at the end of class are not optional!
+
+\vspace{8pt}
+
+I need you to ask two before I end class. 
+
+\vspace{8pt}
+
+I do this because it reverses the incentive - it's better *to* ask questions than to stay silent and let class end earlier. 
+
+\vspace{8pt}
+
+So, what are your two questions today?

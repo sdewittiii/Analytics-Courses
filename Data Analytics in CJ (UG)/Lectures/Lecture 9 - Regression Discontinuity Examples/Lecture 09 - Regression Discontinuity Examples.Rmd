@@ -1,0 +1,194 @@
+---
+title: "Lecture 9 - Regression Discontinuity Examples"
+author: "Samuel DeWitt"
+output: 
+  beamer_presentation:
+    includes:
+      in_header: F:/My Drive/Prepped Courses/Data Analytics in CJ (UG)/Lectures/Common Files/beamer-header.txt
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Regression Discontinuity Examples
+
+1) Yoruk and Yoruk (2011) - Minimum Legal Drinking Age (MLDA)
+2) Crost and Rees (2013) - New Estimates
+3) Yoruk and Yoruk (2013) - Revision
+
+## Why is 21 the legal drinking age in the US?
+
+- Most states voluntarily set age at 21 until the 1970s
+- Some states lowered the MLDA during the 1970s to as low as 18
+- Drunk driving and traffic fatalities became prominent issues in early 1980s
+- Reagan signs National Minimum Drinking Age Act in 1984
+
+## What is the Effect of MLDA?
+
+- We *think*...:
+  - Higher MLDA reduces drunk driving and traffic fatalities
+  - Higher MLDA reduces teen drinking (but does not preclude it)
+  - Higher MLDA reduces teen smoking (tobacco and marijuana)
+  
+\vspace{6pt}
+
+- We *know* that...
+  - These impacts were largely driven by early-adoption states of 21 as MLDA
+  
+## Complications for Causal Effects
+
+- How we try to estimate causal effects of laws
+  - We assume individual-level behavior is not a cause of law, but a consequence
+  - This can result in **exogeneity** in the relationship between law and behavior
+  - We can then capitalize on cross-state differences in the type and timing MLDA laws
+  
+\vspace{6pt}
+  
+- Is MLDA exogenous? 
+  - Probably not - Law is not unrelated to teen drinking behavior
+  
+## Does MLDA Have a True Causal Effect on Smoking?
+
+Yoruk and Yoruk (2011)
+
+- Use age as a running variable to estimate within-person causal effect
+  - I.e., what is the effect of being able to consume alcohol legally on smoking behaviors?
+  
+\vspace{6pt}
+  
+- Measure of age
+  - Obtained exact birth and interview dates (public data gives you month at best)
+  - Calculated the numbers of days pre/post turning 21 as of the date of the latest NLSY97 interview
+  
+## Does MLDA Have a True Causal Effect on Smoking? (cont)
+
+- Age bandwidths (multiple)
+  - 480 days
+  - 240 days
+  - 120 days
+  - 60 days
+  - 30 days
+  
+\vspace{6pt}
+  
+- Estimation
+  - Local linear regressions above/below bandwidth
+    - This just means the regressions are estimated right below and above the cutoffs according to the chosen bandwidths. 
+    
+## Yoruk and Yoruk (2011) - Covariate Balance
+
+\begin{center}
+\includegraphics[scale=.65]{yoruk_table1.png}
+\end{center}
+
+## Yoruk and Yoruk (2011) - Covariate Balance
+
+Just a slide for listing what I say about Table 1
+
+- Ignore significance of constant coefficient - this is mainly indicating a consistent estimate of where the line crosses the y-axis
+
+- Most importantly - no covariates appear to be imbalanced around the 21st birthday cutoff
+
+- This is largely expected - birthdate is not something people will try to manipulate for the purposes of a survey
+
+- However, this does not imply that youth do not try to manipulate their apparent age to get access to alcohol!
+
+## Yoruk and Yoruk (2011) - Effect of MLDA on Alcohol Consumption
+
+\includegraphics[scale=.50]{yoruk_table2.png}
+
+## Yoruk and Yoruk (2011) - Effect of MLDA on Alcohol Consumption
+
+Another slide for listing what I say about Table 2
+
+- Underlying question being tested is if the MLDA has an effect on alcohol use above/below the cutoffs with bandwidth of 240 days.
+
+- Results are about what we would expect:
+  - Use of alcohol (binary) increases
+  - Binge drinking (binary) also increases
+  - Days using alcohol increases along with days of binge drinking
+  - No effect on number of total drinks consumed, though
+  
+## Yoruk and Yoruk (2011) - Effect of MLDA on Smoking Habits
+
+\includegraphics[scale=.50]{yoruk_table3.png}
+
+## Yoruk and Yoruk (2011) - Effect of MLDA on Smoking Habits
+
+Another slide for listing what I say about Table 3
+
+- Question being tested is whether legal access to alcohol also affects smoking (tobacco/marijuana) habits
+
+- Results are a little strange
+  - No effect on probability of smoking tobacco or amount, for that matter
+  - About a 7\% increase in the probability of using marijuana
+  
+Seems to contradict anecdotal evidence re:amplification of tobacco use and the alternative interpretation of marijuana being the *gateway* drug. 
+
+## Crost and Rees (2013) - Why It Is Important to Read Data Codebooks Carefully
+
+The evidence from Yoruk and Yoruk (2011) was somewhat surprising, but Crost and Rees (2013) provide a good explanation for why the original results were somewhat counterintuitive. 
+
+- Some markers for why it looked like something was wrong:
+  - Reported marijuana use in the past 30 days in Yoruk and Yoruk was **very** high (76\%!!!)
+  - Sample drops precipitously in marijuana discontinuity model (about 20,000 observations lost)
+  
+From this, Crost and Rees (2013) surmise that Yoruk and Yoruk (2011) ignored an important lead-in question. In fact, they accidentally restricted their sample only to those that used marijuana since the last survey!
+
+## Crost and Rees (2013) - Corrected Findings
+
+\begin{center}
+\includegraphics[scale=.50]{crost_table1.png}
+\end{center}
+
+## Crost and Rees (2013) - Corrected Findings
+
+Another slide for listing what I say about Table 1 from Crost and Rees (2013)
+
+- Conditional estimates are only for youth who **have** used marijuana since the last interview
+
+- Unconditional estimates are for all youth regardless of prior marijuana use
+
+- What changes?
+  - The 6-7\% increase in marijuana use in the past 30 days disappears!
+  
+## Crost and Rees (2013) - Corrected Findings (Figure)
+
+\includegraphics[scale=.60]{crost_fig1.png}
+
+## Crost and Rees (2013) - Corrected Findings (Figure)
+
+So, are alcohol and marijuana use interdependent?
+
+- Kind of....but not in the way Yoruk and Yoruk thought of it
+  - MLDA does not have an impact on the **probability** of using marijuana at all
+  - MLDA does **look like** it may have an impact on the recency of using marijuana **if** you have used marijuana before
+
+## Yoruk and Yoruk (2013) - Revised Estimates
+
+Yoruk and Yoruk (2013) is a response to Crost and Rees (2013) and re-reports revised findings for all of the hypotheses tested in their original study.
+
+- As an aside, I chose this series of papers because:
+  - I figured you might be interested in MLDA laws given your average ages
+  - It's a good example of a collegial back and forth where incorrect scientific evidence is corrected (this is an example of science working properly!)
+  - A reminder not to take scientific evidence at face value but also not to dismiss it entirely.
+    - It's important to be skeptical of **surprising** findings - sometimes there's a good reason for this
+    
+## Yoruk and Yoruk (2013) - Revised Estimates
+    
+\includegraphics[scale=.50]{yoruk2013_table1.png}
+
+## Yoruk and Yoruk (2013) - Revised Estimates
+
+- So, a brief conclusion:
+  - MLDA has a clear impact on the probability and frequency of alcohol use (as anticipated)
+  - But, it does not have an impact on the probability and frequency of smoking or marijuana use in the unconditional samples
+    - Its effect on marijuana use may be conditional though
+    
+## The End
+
+\begin{center}
+\includegraphics[scale=.70]{angrycat_end.jpg}
+\end{center}

@@ -1,0 +1,553 @@
+---
+title: "Classification and Machine Learning"
+author: "Crime Analytics (CJUS 6106)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven); library(dplyr); library(tidyverse); library(ggpubr)
+library(lmtest); library(olsrr); library(sandwich); library(boot)
+library(reshape2); library(MASS); library(pROC); library(randomForest)
+set.seed(3151813)
+```
+
+# Outline
+
+I.  What is Classification and Machine Learning?
+II. Simple Classifiers
+III. Advanced Classifiers
+
+# What is Classification and Machine Learning?
+
+**Classification** is the process of assigning observations to discrete categories. These categories are typically qualitative in nature, such as having some condition (or not) or belonging to one of three or more groups.
+
+Technically speaking, we classify observations by estimating the probability that they belong to each of the available groups, and then use some criterion to decide which group they are most likely to belong to.
+
+These techniques are often helpful when we are tasked with predicting the likelihood of some outcome for an observation that we do not yet have outcome data for.
+
+As an example, in the context of criminology, we are often interested in predicting whether or not someone will be a risk to public safety or not (i.e., they recidivate or not). The problem is that actors in the legal system cannot know for certain in advance that said person **is** going to recidivate, only that they could share some characteristics with other people who did go on to recidivate.
+
+Is having similar characteristics enough to say with acceptable certainty that the person in front of you will recidivate (or not)? It's difficult to know without building a model using data with information about recidivism outcomes. That's the first step in a classification process.
+
+As for the term **machine learning** I tend to think it is overused quite a bit. It's often used interchangeably with terms like **logistic regression**, **random forests**, **support vector machines**, and even **artificial learning (AI)**.
+
+![Is machine learning Skynet?](ohno_machines.gif)
+
+I tend to think of the term **machine learning** as a type of approach to statistical analysis that is generally less about testing hypotheses and more about detecting patterns in your data that can be useful for prediction.
+
+So, a regression analysis in the social sciences may be very interested in the coefficients obtained from a regression model in terms of what they mean for the relationship between X and Y but the same (or similar) model from a **machine learning** approach is likely to be far more interested in the accuracy of the predictions for Y given X.
+
+In most applications, **machine learning** is about as far from **AI** as you can get. The program is provided an algorithm to solve, given some parameters for acceptable solutions, and then it spits out the results. That's pretty far from the machine learning anything and much closer to you telling it to do something with some flexible instructions.
+
+![Jarvis learns...eventually](jarvis.gif)
+
+With that said, it's time to talk about some classification techniques that fit into the **machine learning** approach, even if their origins aren't in that type of analysis.
+
+# Simple Classifiers
+
+I call these simple classifiers because they closely resemble a traditional linear regression model, but the outcome is a dichotomy or three or more nominal categories and, as such, does not fit very well into a linear framework for reasons I will discuss below.
+
+## Logistic Regression
+
+A logistic regression model is typically used when the outcome is a dichotomy (i.e., a **dummy** variable). This is the typical default in the social sciences, but does not have to be. 
+
+I say this because there is a version of traditional OLS for a dichotomous outcome known as the **linear probability model**, or LPM for short. 
+
+While it may be prudent to default to the logistic regression model when you have a dichotomous outcome, it's not always the best choice. 
+
+Some caveats to using **logistic regression** is that doing so requires you to make some strong assumptions about your data (stronger than those required by OLS), you need to use an alternative technique (**maximum likelihood estimation**) to compute coefficients, and those coefficients are more difficult to interpret. 
+
+Another issue is that the **logistic regression** model scales standard errors by the number of variables in the model. This results in an unfortunate pattern where variables that are **not** significantly related to the outcome become significantly related when enough variables are included in the model. 
+
+As such, it's helpful to begin our discussion of this technique by reviewing the OLS alternative to **logistic regression**: the **linear probability model**. 
+
+### The Linear Probability Model
+
+Consider applying the ordinary least squares (OLS) estimator to a model in which the dependent variable is binary. This kind of model has a special name - the **linear probability model** (LPM). The population model we are interested in is, as usual:
+
+$$Y_{i} = \beta_{0} + \beta_{1}X_{i1}+ \cdot \cdot \cdot + \beta_{k}X_{ik} + \epsilon_{i} = \beta_{0} + \sum^{k}_{j=1} \beta_{j} X_{ij} + \epsilon_{i}$$
+
+for $i$=1,...,$n$ respondents and $j$=1,...,$k$ regressors.
+
+Or, for economy, it is also convenient to write: $$Y_{i} = X\beta_{i} + \epsilon_{i}$$
+
+where $X\beta_{i}$ is known as the **linear predictor**, or the sum of the intercept and all of the slope X regressor products (this requires a bit of matrix notation that I will not discuss here). Note that each slope represents the change in the $E(Y_{i}$ for a unit increase in each $X_{ij}$, holding all other regressors constant.
+
+Now, if we take the conditional expectations of the LPM:
+
+$$E(Y_{i} \mid X_{i1},...,X_{ik}) = Pr(Y_{i}=1 \mid X_{i1},...,X_{ik}) = \pi \mid X_{i1},...,X_{ik} = X\beta_{i}$$
+
+$$V(Y_{i} \mid X_{i1},...,X_{ik}) = Pr(Y_{i}=1 \mid X_{i1},...,X_{ik}) * [1-Pr(Y_{i}=1 \mid X_{i1},...,X_{ik})] = \pi \mid X_{i1},...,X_{ik} * (1-\pi \mid X_{i1},...,X_{ik}) = X\beta_{i} * (1-X\beta_{i})$$
+
+Each slope still represents the change in $E(Y_{i})$ for a unit increase in $X_{ij}$, holding all other regressors constant.
+
+However, because $Y_{i}$ is binary, each slope now takes on a special meaning - $\beta_{j}$ is the mean difference in $Pr(Y_{i}=1)$ between subjects who differ by one unit in $X_{ij}$, holding all other regressors constant.
+
+The linear predictor $X\beta_{i}$ represents the predicted $Pr(Y_{i}=1)$ for a given set of values of the regressors $X_{i1},...,X_{ij}$.
+
+To provide an example of the linear probability model, we will use data from a study by Apel & Burrow (2011). The data are from the National Longitudinal Survey of Youth 1997. In this study, they examined what impact youth victimization had on the likelihood of *violent self help*.
+
+The key variables we will use for this example are:
+
+- selfhelp: =1 if youth was in a gang, carried a handgun, or assaulted someone
+- bully: =1 if youth was repeatedly bullied
+- male: =1 if youth is male
+- nonwhite: =1 if youth is African American or Latino
+- grades: middle school grades (1=mostly below Ds; 8=mostly As)
+- drugs: variety score of substance use (cigarettes, alcohol, or marijuana)
+- crime: variety score of crime (vandalism, minor theft, major theft, fencing, drug selling)
+
+The dependent variable, *selfhelp*, is measured at the 1998 interview, and references behavior which occurred since the 1997 interview. All of the regressors are measured at the 1997 interview. Let's have a look at the descriptive statistics for each variable:
+
+```{r, echo=F}
+self_help<-as.data.frame(read_dta('00_selfhelp.dta'))
+summary(self_help)
+```
+
+As a starting point, we shall estimate an intercept-only model:
+
+$$\text{SelfHelp}_{i} = \beta_{0} + \epsilon_{i}$$
+
+```{r, echo=T}
+summary(lm(selfhelp~1, data=self_help))
+```
+
+Notice that the estimate of the intercept is nothing more than the sample mean of *selfhelp*, and the residual standard error is its standard deviation.
+
+Recall that this is not a coincidence. Absent any additional information, the *best guess* for any random variable is the sample mean.
+
+Next, the model we will estimate is the following bivariate regression:
+
+$$\text{SelfHelp}_{i} = \beta_{0} + \beta_{1} \text{Bully}_{i} + \epsilon_{i}$$
+
+```{r, echo=FALSE}
+summary(lm(selfhelp~bully, data=self_help))
+```
+
+Because *bully* and *selfhelp* are both binary, the coefficient represents a contrast in the mean probability of *selfhelp* between youth who are bullied and youth who are not bullied.
+
+So, youth who are bullied have a probability of selfhelp that is 12.8 points higher, and significantly so (p\<.001).
+
+Furthermore, the intercept in this model represents the mean self-help probability for youth who are not bullied.
+
+This means that the probability of self-help among non-bullied youth is 0.147, while the probability of self-help among bullied youth us significantly higher at 0.275 (0.147 + 0.128).
+
+Let's incorporate some additional regressors as control variables. The population model to be estimated is now:
+
+$$\text{SelfHelp}_{i} = \beta_{0} + \beta_{1} \text{Bully}_{i} + \beta_{2} \text{Nonwhite}_{i} + \beta_{3} \text{Grades}_{i} + \beta_{5} \text{Drugs}_{i} + \beta_{6} \text{Crime}_{i} + \epsilon_{i}$$
+
+```{r, echo=FALSE}
+lm1<-lm(selfhelp~bully+male+nonwhite+grades+drugs+crime, data=self_help)
+summary(lm1)
+```
+
+The coefficient of interest is still the one for bully. It indicates that youth who are bullied are significantly more likely to use self-help later, controlling for other things that are likely to be correlated with both bullying and self-help.
+
+Specifically, compared to youth who are not bullied, they have a probability of self-help which is 7.4 points higher, all else equal. Note that other important correlates of self-help are *grades*, *drugs*, and *crime*.
+
+#### Getting Predictions from the Linear Probability Model
+
+Obtaining the predicted outcome categories from the **linear probability model** is very straightforward and uses the **fitted.values** column from the stored regression model, like so:
+
+```{r}
+lpm_pred<-ifelse(lm1$fitted.values>=0.50, 1, 0)
+```
+
+We can then compare these to the observed outcome categories in the original data:
+
+```{r}
+table(self_help$selfhelp, lpm_pred)
+```
+
+We could then compute the rate of incorrect classifications from these values like so:
+
+Incorrect classification rate for 0s (non self-helpers): $$1-\frac{1247}{1247+12} = `r round(1-(1247/(1247+12)), 2)`$$
+
+You can interpret that to mean that we incorrectly classify about one case in every hundred cases (within rounding error). 
+
+Incorrect classification rate for 1s (self-helpers): $$1-\frac{7}{258+7} = `r round(1-(7/(258+7)), 2)`$$
+
+In turn, you can interpret that value to mean that we incorrectly classify about ninety-seven in every hundred cases. 
+
+The LPM is clearly doing pretty poorly in classifying self-helpers. 
+
+#### Limitations of the Linear Probability Model
+
+The OLS estimator has a number of properties that can make it less optimal than alternatives when the dependent variable is binary.
+
+Namely, it has four potential problems: (1) heteroscedasticity; (2) nonsensical predictions; (3) non-normality; and (4) non-linearity.
+
+Given the time we have available, I cannot provide a comprehensive review of these issues (I do so in Grad Stats, instead).
+
+Suffice to say, the linear probability model is sometimes okay to use. The problems of heteroskedasticity, nonsensical predictions (probabilities below 0, above 1), and non-normal residuals are not insurmountable problems.
+
+The biggest issue is with non-linearity, in that the linear probability model assumes the effect of X on Y is constant across all value of X. This becomes very unrealistic at very low and very high probability values.
+
+If those lower or higher probability values are a priority for your analysis, or you are simply concerned with classifying cases into dichotomous categories, then you will want to instead consider a binary response model like logistic regression.
+
+### Logic of the Binary Response Model
+
+To understand the logic of binary response models, suppose that there exists an underlying response variable $Y^{*}_{i}$ that generates the observed (and binary) $Y_{i}$.
+
+Think of this underlying variable as some kind of **latent propensity** for experiencing the outcome event.
+
+This $Y^{*}_{i}$ is continuous but unobserved, with a vertical line at some threshold which is often assumed to be 0.
+
+What we observe instead is a dummy variable, $Y_{i}$, such that:
+
+$$Y_{i} = 
+0 \text{   if } Y^{*}_{i} <0$$ and; 
+$$Y_{i} = 1 \text{   if } Y^{*}_{i} >0$$
+
+```{r, echo=TRUE, warning=FALSE, fig.align='center'}
+label1<-expression("Y"[i]*"=0")
+label2<-expression("Y"[i]*"=1")
+label3<-expression("Y"[i]^"*")
+set.seed(1242021)
+data<-data.frame(norm<-rnorm(100000, mean=0, sd=1))
+ggplot(data,aes(x=norm)) +
+  stat_function(fun=dnorm, color='blue', linetype='solid',
+                args=list(mean=mean(norm),
+                          sd=sd(norm))) +
+  geom_vline(xintercept=0, color='red', linetype='dashed') +
+  annotate("text", x=-1, y=.05, parse=F,
+           label=label1) +
+  annotate("text", x=1, y=.05, parse=F,
+           label=label2) +
+  annotate("text", x=2.5, y=.3, parse=F,
+           label=label3) +
+  geom_hline(yintercept=0, color='black') +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank())
+```
+
+The vertical line represents the threshold on the latent response variable beyond which an observation is *assigned* a value of 1 on the observed response variable. (NOTE: In principle, any value $\tau$ may be chosen for this threshold. It can be shown that the only consequence of selecting $\tau \ne 0$ is a rescaling of the intercept in the binary response model.)
+
+Notice that the distribution can be shifted to the left or the right depending on the relative number of 0s and 1s in the data.
+
+For example, with proportionately more 0s than 1s in the sample, the distribution will be shifted to the left so that there are more negative values underneath the curve.
+
+Regressor variables are incorporated into the latent variable model in the following manner:
+
+$$Y_{i}^{*} = \beta_{0} + \beta_{1}X_{i1} + \cdot \cdot \cdot + \beta_{k} X_{ik} + \epsilon_{i} = \beta_{0} + \sum^{k}_{j=1} \beta_{j}X_{ij}+ \epsilon_{i} = X \beta_{i} + \epsilon_{i}$$ 
+
+To economize the notation, $X\beta_{i}$ will be used to denote the linear predictor for each observation. Notice that this model is actually *linear in the latent variable* whereas it will be non-linear in the observed variable, as we will soon see. The relationship between $Y_{i}$ and $Y^{*}_{i}$ can actually be illustrated in the following way - let's begin with the obvious, the unconditional expectation:
+
+
+$$E(Y_{i}) = Pr(Y_{i}=1) = Pr(Y^{*}_{i})$$
+
+With the inclusion of regressors, the conditional expectation becomes:
+
+$$Pr(Y^{*}_{i} \mid X_{i1},...,X_{ik} >0) = Pr(X\beta_{i} + \epsilon_{i} >0) = Pr (\epsilon_{i} -X\beta_{i})$$
+
+Since $Y^{*}_{i}$ is symmetrical, we can rewrite this:
+
+$$Pr(\epsilon_{i} > -X\beta_{i}) = Pr(\epsilon_{i}<X\beta_{i})$$
+
+The inequality on the right hand side is the notation for a cumulative distribution function (c.d.f.) of the residual, evaluated at $X\beta_{i}$.
+
+In other words, the c.d.f. of the residual is the entire area under a continuous curve from $-\inf$ to $X\beta_{i}$. This is in contrast to the probability density function (p.d.f.), which is the height of a curve evaluated at $X\beta_{i}$.
+
+So the formal notation for the binary response model, with appropriate conditioning on the regressors, is:
+
+$$Pr(Y_{i}=1 \mid X_{i1},...,X_{ik}) = Pr(\epsilon_{i} <X\beta_{i}) = F(X\beta_{i})$$
+
+where $F(\cdot)$ is the notation for a c.d.f.
+
+Now, there are two useful c.d.f.'s that we may choose - the standard normal distribution function and the logistic distribution function. I will not be discussing the former in this lecture (I cover this more comprehensively in Grad Stats).
+
+The logistic CDF is represented by $\Lambda(\cdot)$.
+
+The CDF can be formalized as follows:
+
+$$\text{Logit} \colon \Lambda(X\beta_{i}) = \frac{exp(X\beta_{i})}{1+exp(X\beta_{i})} = \frac{1}{1+exp(-X\beta_{i})}$$
+
+Although it is less important for our purposes, the corresponding PDF is parameterized and shaped as follows:
+
+$$\text{Logit} \colon \Lambda(X\beta_{i}) = \frac{exp(-X\beta_{i})}{[1+exp(-X\beta_{i})]^{2}}$$
+
+#### An Empirical Illustration
+
+To see how the binary response model works, let's begin with an empirical illustration in which the response variable is the self-help indicator utilized in earlier examples, *selfhelp*. The frequency distribution for this response variable is:
+
+```{r}
+table(self_help$selfhelp)
+```
+
+Now let's estimate the intercept-only logit model:
+
+```{r}
+summary(glm(selfhelp~1, data=self_help, family=binomial(link='logit')))
+```
+
+We can evaluate the cumulative logistic distribution at the intercept in order to obtain the mean self-help probability for the sample. This can be performed by plugging the intercept into the formula:
+
+$$\Lambda(-1.558) = \frac{exp(-1.558)}{1+exp(-1.558)} = `r round(exp(-1.558)/(1+exp(-1.558)),3)`$$
+
+In R, we can use the invlogit() function from the *boot* package to compute this value directly:
+
+```{r}
+inv.logit(-1.558)
+```
+
+Let's now consider adding a single regressor to the model. We will again examine *bully*, the dummy variable for having been the victim of repeated bullying. But first, let's get a cross-tabulation of *selfhelp* by *bully*:
+
+```{r}
+with(self_help, table(selfhelp, bully))
+```
+
+This indicates that the likelihood of self-help among bullied youth is 27.5% ($\frac{87}{229}$) compared to 14.7% ($\frac{178}{1030}$) among non-bullied youth.
+
+The logit model should be capable of perfectly replicating these probabilities. The formal equations for the model we are about to estimate is as follows:
+
+$$\Lambda^{-1}[Pr(\text{SelfHelp}_{i}=1)] = \beta_{0} + \beta_{1}\text{Bully}_{i}+\epsilon_{i}$$
+
+```{r}
+logit_bully<-glm(selfhelp~bully, data=self_help, family=binomial(link='logit'))
+summary(logit_bully)
+```
+
+```{r,}
+inv.logit(logit_bully$coefficients[1])
+inv.logit(logit_bully$coefficients[1]+logit_bully$coefficients[2])
+```
+
+We can plot the coefficients and predicted probabilities on the logistic distribution function:
+
+![Logistic Predicted Probabilities](logit_bully.png)
+
+Because the coefficient for bullying is positive, notice that it shifts respondents with *bully*=1 to the right, further along the S-curve. This effectively assigns a higher predicted probability to bullied youth compared to their non-bullied counterparts.
+
+Before we examine the binary response model more closely, let's estimate the full specification with all of the regressors of interest.
+
+$$\Lambda^{-1}[Pr(\text{SelfHelp}_{i}=1)] =  \beta_{0} + \beta_{1}\text{Bully}_{i} + \beta_{2}\text{NonWhite}_{i} + \beta_{3}\text{Grades}_{i} + \beta_{5}\text{Drugs}_{i} + \beta_{6}\text{Crime}_{i} + \epsilon_{i}$$
+
+```{r}
+logit_full<-glm(selfhelp~bully+male+nonwhite+grades+drugs+crime,
+                 data=self_help, family=binomial(link='logit'))
+summary(logit_full)
+```
+
+For easier comparison, I'll put these estimates and those from the LPM (with heteroscedasticity-robust standard errors) in one table:
+
+The coefficients from logit model are interpreted as the impact of a unit increase in the regressor on the latent, continuous response variable $Y^{*}_{i}$ (not on the observed, discrete response variable $Y_{i}$).
+
+So youth who were bullied have a value on latent self-help that is 0.494 unites higher than non-bullied youth.
+
+#### Getting Predictions from the Logistic Regression Model
+
+Obtaining the predicted outcome categories from the **logistic regression model** is also very straightforward and uses the **fitted.values** column from the stored regression model (just like with the LPM):
+
+```{r}
+logit_pred<-ifelse(logit_full$fitted.values>=0.50, 1, 0)
+```
+
+We can then compare these to the observed outcome categories in the original data:
+
+```{r}
+table(self_help$selfhelp, logit_pred)
+```
+
+We could then compute the rate of incorrect classifications from these values like so:
+
+Incorrect classification rate for 0s (non self-helpers): $$1-\frac{1234}{1234+25} = `r round(1-(1234/(1234+25)), 2)`$$
+
+You can interpret that to mean that we incorrectly classify about two cases in every hundred cases (within rounding error). 
+
+Incorrect classification rate for 1s (self-helpers): $$1-\frac{14}{251+14} = `r round(1-(14/(251+14)), 2)`$$
+
+In turn, you can interpret that value to mean that we incorrectly classify about ninety-five in every hundred cases. 
+
+![Bad Performance Review](performance_review.gif)
+
+The logistic regression only performs slightly better than the LPM. Although it performs a little worse in predicting 0s, it performs better in predicting 1s. However, this is a net improvement of one fewer prediction error per hundred cases - not very much at all.  
+
+## Linear Discriminant Analysis
+
+Let's say you have more than two discrete outcomes - what do you do then? You could run multiple logistic regressions, each a dichotomy for being in one of three or more categories, or you could estimate a single model that can accommodate an outcome variable with multiple nominal outcomes. This is where **linear discriminant analysis** comes in.
+
+*Side note*: You could also use multinomial logistic regression. I won't have time to discuss that model this semester, though.
+
+The application of **linear discriminant analysis** differs slightly from **logistic regression** in that the distribution of the independent variable(s) is modeled separately for each category of the response. Following this, Bayes' theorem is used to transform these distributional properties into predicted probabilities that a case belongs to a particular outcome category given its value on the independent variable(s).
+
+### A Quick Word on Bayes' Theorem
+
+Bayes' theorem involves **prior** and **posterior** probabilities where the former is generally some expectation for the likelihood of some outcome without using the evidence you currently have (i.e., results from a statistical model) and the latter represents an updated belief about the likelihood of some outcome after you have observed said evidence.
+
+Bayes' theorem has been around for quite some time, and is the basis for an entirely separate family of statistics known as **Bayesian statistics**.
+
+The primary difference between the methods I've taught you thus far (mostly **frequentist statistics**) is that **Bayesian statistics** does not invoke theoretically infinite repetitions of some process to assign fixed probabilities to a certain event or process.
+
+Instead, **Bayesian statistics** assumes that the data you have observed is fixed, and the probabilities (and their distributions) change when you incorporate new data into your understanding of the event/process.
+
+So, in **Bayesian statistics** you learn new information about population parameters as you observe new evidence (data) so your distribution will change (turn a prior distribution into a posterior distribution).
+
+By contrast, in **frequentist statistics** we assume that the data (variable values) is what varies while the probability distribution remains constant. We then infer things about what the true population parameter is based upon a theoretical world where we take an infinite number of samples.
+
+### Back to Business - Linear Discriminant Analysis
+
+We can use a **linear discriminant analysis** when there are three or more nominal outcome categories. We generally use the letter $k$ to represent the number of outcome categories for a dependent variable.
+
+Our beliefs about the prior distribution - that is, the probability of any given observation to be in a particular category - is represented by $\pi_{k}$.
+
+In turn, the posterior probability that an observation belongs to some category, after we have observed new evidence (data), is sometimes represented as $p_{k}(X)$.
+
+We compute $p_{k}(x)$ using the following equation: $$\text{Pr}(\text{Y}=k|\text{X}=x) = \frac{\pi_{k} f_{k} (x)}{\sum^{K}_{l=1} \pi_{l} f_{l} (x)}$$
+
+Calculating $f_{k}(x)$ is much more complicated than calculating $\pi_{k}$.
+
+$$f_{k}(x) = \frac{1}{\sqrt{2\pi}\sigma_{k}} exp \left( -\frac{1}{2 \sigma^{2}_{k}}(x-\mu_{k})^{2} \right)$$
+
+You can plug that into the prior equation and see how complicated it gets. Luckily, you don't have to manually estimate that equation!
+
+That equation is meaningful for a specific reason - whichever is the highest value of $p_{k}(x)$ for an observation in the sample (across the $k$ groups), that's the group the Bayes classifier will assign that observation to as its **predicted group**. 
+
+#### Applied Example - Violent Self-help
+
+Let's run an LDA using the self_help data we used earlier in this lecture. 
+
+First, we need to create the training and test data:
+
+```{r}
+samp_size<-(0.75*nrow(self_help)) ## sets size of training data
+train_obs<-sample(seq_len(nrow(self_help)), size=samp_size) ## flags train obs
+
+sh_train<-self_help[train_obs,] ## puts train obs in training data
+sh_test<-self_help[-train_obs,] ## puts test obs in testing data
+```
+
+Now, it's time to fit the LDA using the same model we used for the logistic regression model:
+
+```{r}
+sh_lda_fit<-lda(selfhelp~bully+male+nonwhite+grades+drugs+crime, data=sh_train)
+sh_lda_fit
+plot(sh_lda_fit)
+```
+
+The prior probabilities tell us that 81.6% of the sample **do not** engage in violent self-help and just 18.4% of the sample **do**. This is actually a good sign for prediction - if the percentages were closer to 50% it's usually more difficult to predict the right class (holding all else equal). 
+
+The group means will tell us something about the observed differences between youth who engage in self-help (the row starting with **1**) and those who do not (the row starting with **0**). 
+
+The coefficients provide an indication about which predictors are more strongly related to belonging in a particular outcome class. Here we just have one class (the left out one being 0). 
+
+As we might suspect from the mean differences, being bullied, using drugs, and engaging in criminal behavior is positively predictive of engaging in violent self-help. 
+
+Now it's time to predict the test data and see how well the model performed:
+
+```{r}
+sh_lda_pred<-predict(sh_lda_fit, sh_test)
+sh_pred<-sh_lda_pred$class
+table(sh_test$selfhelp, sh_pred)
+```
+
+In that table, the columns represent the predicted class from the LDA while the rows represent the observed class in the test data. 
+
+The LDA performed pretty poorly here. There were 55 observed self-help cases in the test data and the LDA only classified six of those correctly. 
+
+By contrast, it classified 24 non-self-help cases as self-help, but overall did a much better job at predicting non-self-help cases. 
+
+Let's take a look at the ROC curve for this LDA to visualize its performance. To do so we will use the **roc** function within the **pROC** package.
+
+```{r}
+sh_roc<-roc(sh_test$selfhelp, sh_lda_pred$posterior[,2])
+plot(sh_roc, print.auc=TRUE, main="ROC Curve", 
+     xlab="False Positive Rate", ylab="True Positive Rate")
+```
+
+So, it's definitely outperforming using the modal category for prediction (i.e., predicting no one engages in self-help) but not by too much. 
+
+What we want to see here is that the ROC curve (the somewhat jagged solid black line) hugs the left side and top of the plot. It obviously does not do that here. 
+
+So, using the observed characteristics makes our predictions better, but not by very much. 
+
+There are a variety of other techniques we could use that may perform better **or** we could work on creating a better model than the one we currently have. 
+
+In most scenarios, I would recommend the latter - incorporating more predictors would undoubtedly improve the performance of the LDA model. 
+
+# Advanced Classifiers
+
+We've discussed some clustering methods before - like tree-based methods or k-means clustering - that also fit into the category of simple classifiers. The advanced classifier we will discuss today is actually an aggregated form of the simpler tree-based methods, called **random forests**. 
+
+I call this an advanced classifier because it involves more complicated statistical techniques than the simpler classifiers we discuss above but, practically speaking, it's also fairly simple to estimate a random forest and interpret its results. 
+
+## Random Forests
+
+The logic behind a **random forest** rests on one simple technique - random sampling of **predictors** at each split in a decision tree. 
+
+![Not that kind of random Forrest](random_forrest.gif)
+
+If you recall from an earlier discussion of tree-based methods, the data are basically dropped down a series of decisions or **splits**, where some condition based upon values of a predictor determines which branches the observation goes down. 
+
+As a thought experiment, consider what we could gain from creating hundreds of trees where not only is the sample randomly selected, but we also randomly select the predictor variables used at each split? We would have hundreds of potential ways to split the sample and predictors across all of those trees - if we were to then aggregate the results across those trees we could see which predictors are the most important in accurately classifying each observation. 
+
+That's the underlying logic of the **random forest** method - randomly selecting a sample **and** predictors for the splits leaves us with hundreds of **uncorrelated** trees that we can then aggregate to give us better predictions than any single tree could. 
+
+**Note** - the **uncorrelated** part is a result of randomly selecting predictors, otherwise the tree would just select the best predictor for each split and all the trees would look alike. 
+
+### Applied Example - Violent Self-help
+
+Let's work through a **random forest** example using the **selfhelp** data. 
+
+We already have our training and test data so we can skip that step and go right to estimating a random forest on the training data. To estimatea random forest, we need to use the **randomForest()** function within the **randomForest** package (note that this is case-sensitive - randomforest() will not work). 
+
+```{r}
+sh_forest<-randomForest(as.factor(selfhelp)~., data=sh_train, importance=TRUE,
+                        proximity=TRUE)
+sh_forest
+```
+
+The **randomForest** function expects a formula first, and I specify *selfhelp~.* which tells R to predict **selfhelp** using all the other predictors in the **sh_test** data frame (that's what the period does). 
+
+I then set the data to be **sh_train** (you've seen this before), **importance=TRUE**, and **proximity=TRUE**. 
+
+The importance option tells R to retain results from an assessment of the importance of the model predictors while the proximity setting calculates similarity across observations observations (i.e., do they end up falling down the decision tree the same way?). The latter can be very helpful for imputing missing values on predictor variables. 
+
+Okay, so the error rate for youth who do not engage in violent self-help is very low - the model is doing a good job at predicting that outcome. By contrast, we see again that the error rate for youth who do engage in violent self-help is **very** high. This outcome is very difficult to predict well!
+
+Let's take a look at the importance of the variables in the model to see which are more or less helpful in predicting **selfhelp**:
+
+```{r}
+varImpPlot(sh_forest, main="Variable Importance Plot")
+```
+
+There are two metrics to use for comparison here: the **mean decrease in accuracy** score and the **mean decrease in Gini impurity** score. Both scores indicate the reduction in accuracy of the model predictions if the variable were **excluded** from consideration. 
+
+The key difference between the two indicators is that the **mean decrease in accuracy** score is sensitive to variables that are highly correlated with one another - this is likely why we see *piat97*, and *thomewk* score lower in this metric than for the **mean decrease in Gini impurity** measure. 
+
+The results in the figure suggest that there are some high correlations among some of the variables in the **selfhelp** data frame. In such an event, it is helpful to compare the results across measure and see which variables tend to be higher on both scores. 
+
+One potential set of variables to pay attention to here are *crime*, *grades*, and *drugs*, which all tend to have higher scores on both measures (and we know from prior models that these tend to better predict violent self-help). 
+
+Now, let's see how the model built on the training data performs when applied to the test data:
+
+```{r}
+sh_forest_test <- predict(sh_forest, sh_test)
+table(sh_test$selfhelp, sh_forest_test)
+```
+
+I use the **predict()** function to apply the random forest model built on the training data (**sh_forest**) to the test data (**sh_test**). This creates a vector of 0/1 predictions that I can then compare to the observed values of **selfhelp** stored in the test data. 
+
+I generally expect the accuracy of the model to at least slightly decline when applied to the test data. With respect to youth who do not engage in violent self-help, our predictive accuracy is: $$1- \frac{314}{314+12} = `r round(1-(314/(314+12)), 2)`$$
+
+So, our classification error for non self-helpers increases slightly from about 0.02 to 0.04. Let's see how the classification error for self-helpers changes: $$1- \frac{3}{52+3} = `r round(1-(12/(52+3)), 2)`$$
+
+It actually improves by a bit! I'm not convinced this is due to the model performing better, though. Remember that the training error rate was about 0.91 on 210 observations. 
+
+I'm pretty sure the difference observed here is because the number is lower, not that the model is somehow better when applied to the test data instead of the training data. 
+
+So, what now? Well, I there are a few ways you might be able to improve the model, namely by increasing the number of trees to create and use for aggregation (the default is 500) or by incorporating additional predictors in the data frame. 
+
+I generally find that the former will result in nominal increase to accuracy while the latter can be much more effective, assuming that the predictors you add are helpful in reducing classification errors. It's not a foolproof method, though - some predictors may further obscure the observed relationships with current predictors and self-help, so it won't always help to add additional variables. 
+
+All told, it looks like self-help is a difficult outcome to predict! This does fall in line with existing literature on predicting violent behavior. That is, trying to predict specific types of criminal behavior tends to be very difficult, especially when it comes to rare outcomes like violence. 
+
+# Two Questions
+
+What are your two questions?
+
+![Lost in the Forest](lostinwoods.gif)

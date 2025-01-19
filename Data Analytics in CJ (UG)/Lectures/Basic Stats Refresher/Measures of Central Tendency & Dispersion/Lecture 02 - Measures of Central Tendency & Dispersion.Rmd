@@ -1,0 +1,1514 @@
+---
+title: "Lecture 02 - Measures of Central Tendency & Dispersion"
+author: "Data Analysis (CJUS 6103)"
+output: 
+  beamer_presentation:
+    includes:
+      in_header: "C:/Users/sd662/Google Drive/Prepped Courses/Statistics (G)/Lectures/Beamer Slides/Common Files/beamer-header.txt"
+classoption: "aspectratio=169"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+
+packages<-c("ggplot2","tidyverse","DescTools","knitr")
+
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+## Review of Order of Operations
+
+P.E.M.D.A.S.
+
+Parentheses, exponents, multiplication & division, addition & subtraction
+
+1)  $4+2*3 \ne (4+2)*3$
+2)  $4+2^{2} \ne (4+2)^{2}$
+
+For multiplication & division (as well as addition & subtraction), just work from left to right.
+
+1)  $15/3*4 \ne 15/(3*4)$
+
+## Measures of Central Tendency
+
+Outline
+
+1)  Describing a data series
+2)  What is central tendency?
+3)  Mode, median, and mean
+4)  A note on rounding
+5)  Evaluating skewness
+6)  Least squares property of the mean
+
+## Decribing a Data Series
+
+$n$ is sample size (sometimes, $N$)
+
+Raw data - $x_{1}, x_{2}, x_{3}, \dots x_{n}$
+
+$x_{i}$ denotes a single observation, where $i=1,2,3,\dots,n$
+
+Summation operator: $\displaystyle \sum^{n}_{i=1} x_{i}$ - This tells you to add all the values of x from obs. 1 to obs. $n$.
+
+## What is Central Tendency?
+
+Single number that represents the most common or *typical* score around which others in the distribution tend to cluster.
+
+Three different measures:
+
+1)  Mode: The most frequently occurring value
+2)  Median: Value in the middle of the distribution
+3)  Mean: Arithmetic average of a distribution
+
+## Mode
+
+Qualitative data: Mode is a category
+
+Quantitative data: Mode is a value
+
+Advantages:
+
+1)  Simple to compute
+2)  Used with all types of data (only measure that works with nominal data)
+
+Disadvantages:
+
+1)  Fails to take into account data values
+2)  Not very useful with interval/ratio level data
+
+## Median
+
+Value or score that divides a rank-ordered distribution exactly in half
+
+1)  50th percentile
+
+"Positional" measure of central tendency
+
+1)  The middle score
+
+Requires ordinal data or higher
+
+## Calculating the Median from Raw Data
+
+Steps
+
+1)  Arrange the data in ascending order
+
+2)  Find the median position (MP) using the formula (n + 1) / 2
+
+3)  Count up to identify the value (or midpoint between two values) in this position
+
+\vspace{8pt}
+
+**Important**: The median is the value in the position, not the position itself.
+
+## Calculating the Median from a Frequency Distribution
+
+Add a cumulative frequency column to the table and proceed as usual.
+
+1)  Compute MP = (n + 1) / 2
+2)  Identify the value (or midpoint) in this position
+
+Or, use cumulative percent/proportion
+
+1)  Identify the first value with a cumulative percent greater than 50%
+2)  If exactly 50%, take the midpoint of that value and the next one
+
+## Mean
+
+Most common measure of central tendency
+
+Requires interval data or higher
+
+**Balancing** score
+
+1)  Positive differences cancel out negative differences
+2)  Known as the **least squares** property: $$\sum(x-\overline{x})=0$$
+
+## Mean
+
+Advantages
+
+\begin{itemize}
+  \item Desirable mathematical properties
+  \begin{itemize}
+    \item Least squares, minimum variance
+  \end{itemize}
+  \item Stable measure of central tendency
+  \item Utilizes all information provided in the data
+  \begin{itemize}
+    \item In other words, it takes into account the values
+  \end{itemize}
+\end{itemize}
+
+Disadvantages
+
+\begin{itemize}
+  \item Only useful for quantitative (interval-ratio) data
+  \item Is not always a value that exists in the data
+  \item Sensitive to extreme scores, or “outliers”
+\end{itemize}
+
+## Calculating the Mean
+
+\begin{itemize}
+
+\item Add up all the value of $x$
+
+\item Divide by the number of observations: $$\overline{x}=\frac{1}{n} \sum^{n}_{i=1} = \frac{x_{1}+x_{2}+x_{3}+ \dots x_{n}}{n} = \frac{\sum x}{n}$$
+
+\end{itemize}
+
+
+## A Note On Rounding
+
+\begin{itemize}
+  \item Round your final answers to at least one additional decimal unit than contained in the original values.
+  \begin{itemize}
+    \item \# of drinks consumed: 4,2,3,8,6,6
+    \item Mean = 29 / 6 = 4.8333 = ~4.8
+  \end{itemize}
+\end{itemize}
+
+\begin{itemize}
+  \item Do not round off your calculations at each intermediate step; wait to round until your final answer if possible
+  \begin{itemize}
+    \item Cumulative rounding error can be problematic
+  \end{itemize}
+\end{itemize}
+
+## A Note on Rounding
+
+\begin{itemize}
+  \item Decide how many decimal places you want to round your answer to
+  \item Look at the digit to the right of the last decimal place that you want to keep
+  \begin{itemize}
+    \item If the digits are larger than .5, round up
+    \item If the digits are smaller than .5, round down
+  \end{itemize}
+  \item If the digits are exactly .5, look at the interval place that you want to round
+  \begin{itemize}
+    \item If the digit is even, round up ($2.85 \to 2.9$)
+    \item If the digit is odd, round down ($6.35 \to 6.3$)
+  \end{itemize}
+\end{itemize}
+
+## A Simple Example - Measures of Central Tendency
+
+\begin{itemize}
+  \item Data series ($n=10$):
+  \begin{itemize}
+    \item 1 2 3 4 5 6 7 8 9 10
+  \end{itemize}
+  \item Mode = not defined
+  \item Median
+  \begin{itemize}
+    \item Median position = $(10+1)/2 =$ 5.5th position
+    \item Median = $(5+6)/2=5.5$
+  \end{itemize}
+  \item Mean = $55/10 = 5.5$
+\end{itemize}
+
+## Another Simple Example
+
+\begin{itemize}
+  \item Data series ($n=15$):
+  \begin{itemize}
+    \item 1 1 1 2 2 3 4 4 4 4 4 5 5 6 6
+  \end{itemize}
+  \item Mode = 4
+  \item Median
+  \begin{itemize}
+    \item Median position = $(15+1)/2 =$ 8th position
+    \item Median = 4
+  \end{itemize}
+  \item Mean = $52/15 = 3.466667 = 3.5$
+\end{itemize}
+
+## Frequency Distributions
+
+Mode & Median?
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccccccc}
+\hline
+Score(x)  &   $f$   &  $p$  &   $\%$   &  $cf$   &   $cp$   &   $c\%$ \\ 
+\hline  \hline
+1 & 3 & .06 & 6\% & 3 & .06 & 6\%\\
+2 & 4 & .08 & 8\% & 7 & .14 & 14\%\\
+3 & 5 & .10 & 10\% & 12 & .24 & 24\%\\
+4 & 10 & .20 & 20\% & 22 & .44 & 44\%\\
+5 & 7 & .14 & 14\% & 29 & .58 & 58\%\\
+6 & 6 & .12 & 12\% & 35 & .70 & 70\%\\
+7 & 6 & .12 & 12\% & 41 & .82 & 82\%\\
+8 & 5 & .10 & 10\% & 46 & .92 & 92\%\\
+9 & 3 & .06 & 6\% & 49 & .98 & 98\%\\
+10 & 1 & .02 & 2\% & 50 & 1.00 & 100\% \\ \hline
+\end{tabular}
+\end{table}
+
+## Frequency Distributions
+
+Mode & Median?
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccccccc}
+\hline
+Score(x)  &   $f$   &  $p$  &   $\%$   &  $cf$   &   $cp$   &   $c\%$ \\ 
+\hline  \hline
+1 & 2 & .02 & 2\% & 2 & .02 & 2\%\\
+2 & 5 & .05 & 5\% & 7 & .07 & 7\%\\
+3 & 9 & .09 & 9\% & 16 & .16 & 16\%\\
+4 & 11 & .11 & 11\% & 27 & .27 & 27\%\\
+5 & 13 & .13 & 13\% & 40 & .40 & 40\%\\
+6 & 10 & .10 & 10\% & 50 & .50 & 50\%\\
+7 & 12 & .12 & 12\% & 62 & .62 & 62\%\\
+8 & 8 & .08 & 8\% & 70 & .70 & 70\%\\
+9 & 5 & .05 & 5\% & 75 & .75 & 75\%\\
+10 & 25 & .25 & 25\% & 100 & 1.00 & 100\% \\ \hline
+\end{tabular}
+\end{table}
+
+## Computing a Mean from a Frequency Distribution
+
+Weighted Mean formula: $$\overline{x} = \frac{\sum (w*x)}{\sum (w)}$$
+
+Where $w$ is the **weight** assigned to each observation.
+
+With raw (i.e., **unweighted**) data, each observation is assigned a weight of one, so... $$\overline{x}=\frac{\sum (w*x)}{\sum w} = \frac{\sum (1*x)}{\sum 1} = \frac{\sum x}{n}$$
+
+## Frequency Distributions
+
+Mean using frequencies as weights:
+
+\begin{columns}
+\begin{column}{0.75\textwidth}
+\begin{table}
+\begin{tabular}{ccccc}
+\hline
+Score(x)  &   $f$   &  $p$  &   $\%$   &  $f*x$ \\ 
+\hline  \hline
+1 & 3 & .06 & 6\% & `r 1*3` \\
+2 & 4 & .08 & 8\% & `r 2*4` \\
+3 & 5 & .10 & 10\% & `r 3*5` \\
+4 & 10 & .20 & 20\% & `r 4*10` \\
+5 & 7 & .14 & 14\% & `r 5*7` \\
+6 & 6 & .12 & 12\% & `r 6*6` \\
+7 & 6 & .12 & 12\% & `r 7*6` \\
+8 & 5 & .10 & 10\% & `r 8*5` \\
+9 & 3 & .06 & 6\% & `r 9*3`  \\
+10 & 1 & .02 & 2\% & `r 10*1` \\ \hline
+Total & 50 & 1.00 & 100\% & 256 \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.25\textwidth}
+\large
+\begin{align}
+\begin{split}
+\overline{x}  & =\frac{\sum (f*x)}{\sum f} \\
+              &  \\
+              & = \frac{256}{50} \\
+              & \\
+              & = 5.1
+\end{split}
+\end{align}
+\end{column}
+\end{columns}
+
+## Frequency Distributions
+
+Mean using proportions as weights:
+
+\begin{columns}
+\begin{column}{0.75\textwidth}
+\begin{table}
+\begin{tabular}{ccccc}
+\hline
+Score(x)  &   $f$   &  $p$  &   $\%$   &  $p*x$ \\ 
+\hline  \hline
+1 & 3 & .06 & 6\% & `r 1*.06` \\
+2 & 4 & .08 & 8\% & `r 2*.08` \\
+3 & 5 & .10 & 10\% & `r 3*.10` \\
+4 & 10 & .20 & 20\% & `r 4*.20` \\
+5 & 7 & .14 & 14\% & `r 5*.14` \\
+6 & 6 & .12 & 12\% & `r 6*.12` \\
+7 & 6 & .12 & 12\% & `r 7*.12` \\
+8 & 5 & .10 & 10\% & `r 8*.10` \\
+9 & 3 & .06 & 6\% & `r 9*.06`  \\
+10 & 1 & .02 & 2\% & `r 10*.02` \\ \hline
+Total & 50 & 1.00 & 100\% & 5.12 \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.25\textwidth}
+\large
+\begin{align}
+\begin{split}
+\overline{x}  & =\frac{\sum (p*x)}{\sum p} \\
+              &  \\
+              & = \frac{5.12}{1.00} \\
+              & \\
+              & = 5.1
+\end{split}
+\end{align}
+\end{column}
+\end{columns}
+
+## North Carolina Index Offenses
+
+\begin{itemize}
+  \item Offenses Reported to the Police, 2016
+  \begin{itemize}
+    \item What measures of C.T. are appropriate?
+  \end{itemize}
+\end{itemize}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrc}
+\hline
+Type of Offense & $f$ & $p$ \\ \hline \hline
+Murder & 678 & 0.002 \\
+Forcible Rape & 2849 & 0.009 \\
+Robbery & 9336 & 0.030 \\
+Aggravated Assault & 24906 & 0.079 \\
+Burglary & 72082 & 0.228 \\
+Larceny/Theft & 190377 & 0.603 \\
+Motor Vehicle Theft & 15306 & 0.048 \\ \hline
+& 315534 & \~1.00 \\ \hline
+\end{tabular}
+\end{table}
+
+## Family Structure
+
+Relationship to parent figure(s):
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrcrc}
+\hline
+& \multicolumn{2}{c}{\textbf{White Youth}} & \multicolumn{2}{c}{\textbf{Black Youth}} \\
+Family Structure & $f$ & $p$ & $f$ & $p$ \\ \hline \hline
+Both Bio Parents & 2743 & .594 & 607 & .263 \\
+One Bio/One Step & 706 & .153 & 296 & .128 \\
+Bio Mom only & 864 & .187 & 1108 & .480 \\
+Bio Dad only & 172 & .037 & 61 & .026 \\
+Other Family & 136 & .029 & 236 & .102 \\ \hline
+& 4621 & 1.00 & 2308 & .999 \\ \hline
+\end{tabular}
+\end{table}
+
+## Educational Attainment
+
+Educational attainment of police officers:
+
+\begin{table}
+\centering
+\begin{tabular}{lrcrc}
+\hline
+Educational Attainment & $f$ & $p$ & $cf$ & $cp$ \\ \hline \hline
+Less than HS & 16 & 0.048 & 16 & 0.048 \\
+HS Grad & 67 & 0.199 & 83 & 0.247 \\
+Some College & 117 & 0.348 & 200 & 0.595 \\
+College Grad & 72 & 0.214 & 272 & 0.809 \\
+Post Grad & 64 & 0.190 & 336 & 0.999 \\ \hline
+& 336 & 0.99 & & 
+\end{tabular}
+\end{table}
+
+## Scholastic Performance
+
+Grades in the 8th grade:
+
+\begin{table}
+\begin{tabular}{lrcrcrcrc}
+\hline
+& \multicolumn{4}{c}{\textbf{Males}} & \multicolumn{4}{c}{\textbf{Females}} \\
+Grades & $f$ & $p$ & $cf$ & $cp$ & $f$ & $p$ & $cf$ & $cp$ \\ \hline \hline
+Mostly As \& Bs & 1268 & .293 & 1268 & .293 & 1898 & .452 & 1898 & .452 \\
+Mostly Bs \& Cs & 1687 & .389 & 2955 & .682 & 1524 & .363 & 3422 & .815 \\
+Mostly Cs \& Ds & 1160 & .268 & 4115 & .950 & 671 & .160 & 4093 & .975 \\
+Mostly Ds \& Fs & 217 & .050 & 4332 & 1.000 & 109 & .026 & 4202 & 1.001 \\ \hline
+& 4332 & 1.000 & & & 4202 & 1.001 & & \\ \hline
+\end{tabular}
+\end{table}
+
+## Time Spent on Homework
+
+\# of weekdays spent doing homework:
+
+\begin{table}
+\centering
+\begin{tabular}{lrccrrccr}
+\hline
+& \multicolumn{4}{c}{\textbf{Non-Delinquents}} & \multicolumn{4}{c}{\textbf{Delinquents}} \\
+\# Days & $f$ & $p$ & $cp$ & $f*x$ & $f$ & $p$ & $cp$ & $f*x$ \\ \hline \hline
+0 & 233 & .084 & .084 & 0 & 371 & .148 & .148 & 0 \\
+1 & 93 & .033 & .117 & 93 & 127 & .051 & .199 & 127 \\
+2 & 210 & .075 & .192 & 420 & 260 & .104 & .303 & 520 \\
+3 & 488 & .175 & .367 & 1464 & 526 & .210 & .513 & 1578 \\
+4 & 678 & .244 & .611 & 2712 & 498 & .198 & .711 & 1992 \\
+5 & 1080 & .388 & .999 & 5400 & 727 & .290 & 1.001 & 3635 \\ \hline
+& 2782 & .999 & & 10089 & 2509 & 1.001 & & 7852 \\ \hline
+\end{tabular}
+\end{table}
+
+$$\overline{x}_{ND} = \frac{\sum (f*x)}{\sum f} = \frac{10089}{2782} = 3.6 \text{; } \overline{x}_{D} = \frac{\sum (f*x)}{\sum f} = \frac{7852}{2509} = 3.1$$
+
+## Juvenile Delinquency
+
+Variety scale of six different delinquent acts youths have committed:
+
+\begin{columns}
+\begin{column}{0.75\textwidth}
+\begin{table}
+\begin{tabular}{ccccc}
+\hline
+\# Delinquent Acts  &   $f$   &  $p$  &   $cp$   &  $p*x$ \\ \hline  \hline
+0 & 4597 & .515 & .515 & .000 \\
+1 & 1916 & .214 & .729 & .214 \\
+2 & 1216 & .136 & .865 & .272 \\
+3 & 638 & .071 & .936 & .213 \\
+4 & 279 & .031 & .967 & .124 \\
+5 & 182 & .020 & .987 & .100 \\
+6 & 106 & .012 & .999 & .072 \\ \hline
+& 8934 & .999 & & .995 \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.25\textwidth}
+\large
+\begin{align}
+\begin{split}
+\overline{x}  & =\frac{\sum (p*x)}{\sum p} \\
+              &  \\
+              & = \frac{.995}{.999} \\
+              & \\
+              & = 1.0
+\end{split}
+\end{align}
+\end{column}
+\end{columns}
+
+
+## Sentence Length
+
+\begin{itemize}
+  \item Sentence length in months for armed robbery ($n$=40)
+  \begin{itemize}
+    \item 36 38 39 47 50 51 51 53 55 55 ($\sum = 475$)
+    \item 56 57 60 62 63 64 64 66 67 68 ($\sum = 627$)
+    \item 69 70 70 70 71 75 78 79 80 80 ($\sum = 742$)
+    \item 81 83 85 86 87 89 95 98 99 99 ($\sum = 902$)
+  \end{itemize}
+\end{itemize}
+
+Mode = 70 (but not very informative)
+
+MP = (40 + 1) / 2 = 20.5 $\to$ Median = (68 +69) / 2 = 68. 5
+
+Mean = (475+627+742+902) / 40 = 2746 / 40 = 68.7
+
+## Unemployment Rate
+
+\begin{itemize}
+  \item State-level unemployment rates, 2016
+  \begin{itemize}
+    \item 2.8  2.8  3.0  3.2  3.2  3.3  3.3  3.4  3.7  3.7 ($\sum=32.4$)
+    \item 3.8  3.9  3.9  4.0  4.0  4.1  4.1  4.2  4.3  4.4 ($\sum=40.7$)
+    \item 4.4  4.5  4.6  4.8  4.8  4.8  4.9  4.9  4.9  4.9 ($\sum=47.5$)
+    \item 4.9  5.0  5.0  5.1  5.1  5.3  5.3  5.3  5.4  5.4 ($\sum=53.8$)
+    \item 5.4  5.4  5.7  5.8  5.9  6.0  6.0  6.1  6.6  6.7 ($\sum=59.6$)
+  \end{itemize}
+\end{itemize}
+
+Mode = 4.9
+
+MP = (50+1) / 2 = 25.5 $\to$ Median = (4.8+4.8) / 2 = 4.8
+
+Mean = (32.4+40.7+47.5+53.8+59.6) / 50 = 234 / 50 = 4.68
+
+## City Homicide Rates
+
+Washington & Baltimore, 1985 - 1995 ($n=11$)
+
+\begin{columns}
+\begin{column}{0.75\textwidth}
+\scriptsize
+\begin{table}
+\begin{tabular}{cccc}
+\hline
+& & \multicolumn{2}{c}{\textbf{Rank Ordered}} \\
+Washington, DC  &   Baltimore, MD   &  Wash.  &   Balt. \\ \hline  \hline
+23.5 & 27.6 & 23.5 & 27.6 \\
+31.0 & 30.6 & 31.0 & 29.5 \\
+36.2 & 29.5 & 36.2 & 30.6 \\
+59.5 & 30.6 & 59.5 & 30.6 \\
+71.9 & 34.3 & 65.2 & 34.3 \\
+77.8 & 41.4 & 70.0 & 40.6 \\
+80.6 & 40.6 & 71.9 & 41.4 \\
+75.2 & 44.3 & 75.2 & 43.4 \\ 
+78.5 & 48.2 & 77.8 & 44.3 \\
+70.0 & 43.4 & 78.5 & 45.2 \\
+65.2 & 45.2 & 80.6 & 48.2 \\ \hline
+& & 669.4 & 415.7 \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.25\textwidth}
+\footnotesize
+\begin{align}
+\begin{split}
+\overline{x}_{Wash}  & =\frac{669.4}{11} \\
+              & =60.85 \\
+\overline{x}_{Balt} & =\frac{415.7}{11} \\
+              & =37.79
+\end{split}
+\end{align}
+
+Washington's mean homicide rate for this period was 61.0\% higher than Baltimore's: $$\frac{60.85-37.79}{37.79} = .610$$
+\end{column}
+\end{columns}
+
+## Evaluating Skewness - A Normal Distribution
+
+```{r norm_dist, echo=FALSE, fig.height=3.25, fig.width=8, warning=FALSE}
+set.seed(1234)
+tempdata<-data.frame(height=rnorm(100000, mean=69.1))
+ggplot(tempdata, aes(x=height))+geom_histogram(binwidth=.25)
+```
+
+## Evaluating Skewness - Positive (Right) Skew
+
+```{r rightskew, echo=FALSE, fig.height=3.25, fig.width=8, warning=FALSE}
+tempdata<-data.frame(arrests<-(rnorm(10000, mean=1)^2))
+ggplot(tempdata, aes(x=arrests))+geom_histogram(binwidth=.25)
+```
+
+## Evaluating Skewness - Negative (Left) Skew
+
+```{r leftskew, echo=FALSE, fig.height=3.25, fig.width=8, warning=FALSE}
+tempdata<-data.frame(ageatdeath<-rbeta(10000,100,20)*90)
+ggplot(tempdata, aes(x=ageatdeath))+geom_histogram(binwidth=.25)
+```
+
+## Skewed Data in the Social Sciences
+
+\begin{itemize}
+  \item Examples of skewed variables:
+  \begin{itemize}
+    \item Income
+    \item Number of arrests
+    \item Crime rate
+    \item Sentence length
+  \end{itemize}
+  \item General rule
+  \begin{itemize}
+    \item If mean > median, then positive (right) skew
+    \item If mean < median, then negative (left) skew
+  \end{itemize}
+\end{itemize}
+
+## Desirable Property of the Mean as a Measure of CT
+
+Least squares or minimum variance
+
+I.e., positive deviations from the mean cancel out negative deviations: $$ \sum (x-\overline{x})=0$$
+
+Squared deviations are smallest around the mean as compared to any other fixed value: $$\sum (x-\overline{x})^{2}=minimum$$ $$\sum (x-\overline{x})^{2}< \sum (x-median)^{2}$$
+
+## A Simple Example of Least Squares
+
+Hypothetical data series ($n=5$); mode/median=2; mean = 8/5 = 16
+
+\begin{table}
+\centering
+\begin{tabular}{ccccc}
+\hline
+$x$ & $x-median$ & $x-\overline{x}$ & $(x-median)^{2}$ & $(x-\overline{x})^{2}$ \\ \hline \hline
+1 & -1.0 & -0.6 & 1.00 & 0.36 \\
+1 & -1.0 & -0.6 & 1.00 & 0.36 \\
+2 & 0.0 & 0.4 & 0.00 & 0.16 \\
+2 & 0.0 & 0.4 & 0.00 & 0.16 \\
+2 & 0.0 & 0.4 & 0.00 & 0.16 \\ \hline
+& -2.0 & 0.0 & 2.00 & 1.20 \\ \hline
+\end{tabular}
+\end{table}
+
+Sum of squared deviations from the mean is smaller (1.20) than the sum of squared deviations from the median (2.00)
+
+## Measures of Dispersion
+
+Now we will begin to talk about measures of dispersion, which reflect the variation of scores around a central cluster of values.
+
+\begin{itemize}
+  \item Overview of Dispersion
+  \item Dispersion in qualitative (NO) data
+  \item Dispersion in quantitative (IR) data
+  \item Computational formula for variance
+  \item Parameters v. statistics
+\end{itemize}
+
+## Overview of Dispersion
+
+\begin{itemize}
+  \item Central tendency: Value around which others tend to cluster
+  \begin{itemize}
+    \item Provides a \textbf{best guess} of the single value that is most reflective of the data
+  \end{itemize}
+  \item Dispersion: How widely scores are scattered about the central score
+  \begin{itemize}
+    \item Reflects the degree of uncertainty
+    \item How good of a \textit{guess} is our \textbf{best guess}?
+  \end{itemize}
+\end{itemize}
+
+## Overview of Dispersion
+
+\begin{itemize}
+  \item Central tendency v. dispersion
+  \begin{itemize}
+    \item Measures of central tendency are useful as \textit{stand-alone} or \textbf{absolute} measures
+  \end{itemize}
+  \item Dispersion is easier to interpret when two or more groups are compared
+  \begin{itemize}
+    \item Measures of dispersion are only useful as \textbf{relative} measures
+  \end{itemize}
+\end{itemize}
+
+## Importance of Dispersion
+
+\begin{itemize}
+  \item Crossing a river but not a good swimmer
+  \begin{itemize}
+    \item You know that the mean depth is 3 feet
+  \end{itemize}
+  \item Do you cross?
+  \begin{itemize}
+    \item Mean says nothing about the depth of the river \textbf{at any particular point}
+  \end{itemize}
+  \item Measurement of depth at five-foot intervals
+  \begin{itemize}
+    \item Scenario \#1: 3 3 3 3 3 3 3 3 3 3
+    \item Scenario \#2: 1 2 2 3 3 3 4 4 4 4
+    \item Scenario \#3: 1 1 1 1 2 2 2 2 9 9
+    \item Scenario \#4: 1 1 1 1 1 1 1 1 1 21
+  \end{itemize}
+\end{itemize}
+
+## Comparing distributions
+
+\small
+The distribution of a variable with the same mean can look very different depending on the degree of variability
+
+```{r dispersion_plot, echo=FALSE, fig.align='center', fig.height=3.25}
+set.seed(08302021)
+df<-data.frame(group<-c(rep('sd=05',1000), rep('sd=10',1000), 
+                        rep('sd=15',1000), rep('sd=20',1000)),
+               values<-c(rnorm(1000,25,5),rnorm(1000,25,10),
+                      rnorm(1000,25,15),rnorm(1000,25,20)))
+ggplot(df, aes(x=values, fill=group)) +
+  geom_histogram(alpha=0.4, position='identity', binwidth=2)
+```
+
+## Measures of Dispersion
+
+\begin{itemize}
+  \item Qualitative data (nominal \& ordinal)
+  \begin{itemize}
+    \item Variation ratio (VR)
+  \end{itemize}
+  \item Quantitative data
+  \begin{itemize}
+    \item Range
+    \item Interquartile range (IQR)
+    \item Mean deviation
+    \item Variance ($s^{2}$) and standard deviation ($s$)
+  \end{itemize}
+\end{itemize}
+
+
+## Variation Ratio
+
+Proportion of cases that lie *outside* the **modal** category.
+
+Counterpart to the mode; bound between 0.0 and 1.0
+
+Can multiply by 100 to turn into a percentage
+
+$$VR = 1-\left( \frac{f_{mode}}{n} \right) = 1-p_{mode}$$
+
+**Note** - not defined with bimodal distributions
+
+## Variation Ratio
+
+Relationship to parent figure(s):
+
+
+\begin{table}
+\begin{tabular}{lrc}
+\hline
+Family Structure & $f$ & $p$ \\ \hline \hline
+Both Bio & 3350 & .483 \\
+One Bio/One Step & 1002 & .145 \\
+Bio Mom only & 1972 & .285 \\
+Bio Dad only & 233 & .034 \\
+Other Family & 372 & .054 \\ \hline
+& 6929 & 1.001 \\ \hline
+\end{tabular}
+\end{table}
+
+$$ VR = 1-.483 = .517$$
+
+51.7% of cases are *outside* of the **modal** category.
+
+## Variation Ratio
+
+Relationship to parent figure(s) by race:
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrcrc}
+\hline
+& \multicolumn{2}{c}{\textbf{White Youth}} & \multicolumn{2}{c}{\textbf{Black Youth}} \\
+Family Structure & $f$ & $p$ & $f$ & $p$ \\ \hline \hline
+Both Bio Parents & 2743 & .594 & 607 & .263 \\
+One Bio/One Step & 706 & .153 & 296 & .128 \\
+Bio Mom only & 864 & .187 & 1108 & .480 \\
+Bio Dad only & 172 & .037 & 61 & .026 \\
+Other Family & 136 & .029 & 236 & .102 \\ \hline
+& 4621 & 1.00 & 2308 & .999 \\ \hline
+\end{tabular}
+\end{table}
+
+\small
+
+Which group has more variability?
+
+$VR_{Whites} = 1-.594 = `r 1-.594` \text{;  } VR_{Blacks} = 1-.480 = `r 1-.480`$
+
+Whites are more homogeneous than blacks with respect to family structure.
+
+## Interquartile Range
+
+\small
+
+
+\begin{itemize}
+  \item The range of the middle 50\% of data
+  \begin{itemize}
+    \item Counterpart to median as measure of C.T.
+    \item 25th to 75th percentile
+    \item Less sensitive to outliers than range ($x_{max} – x_{min}$)
+  \end{itemize}
+  \item Calculating the IQR
+  \begin{itemize}
+    \item Arrange the data in ascending order
+    \item Compute the MP \& truncate it to get TMP
+    \item Find the quartile position $QP=(TMP + 1)/2$
+    \item Count up from the lowest \& down from the highest
+  \end{itemize}
+\end{itemize}
+
+\center
+
+$IQR = Q_{3} - Q_{1}$
+
+## Mean Deviation
+
+Average deviation of scores about the mean
+
+
+\begin{itemize}
+  \item Calculating the mean deviation
+  \begin{itemize}
+    \item Calculate the sample mean
+    \item Subtract mean from each score (the \textbf{deviation})
+    \item Sum of the \textbf{absolute} deviations and divide by \textbf{sample size}
+  \end{itemize}
+\end{itemize}
+
+$$MD = \frac{\sum |{x-\overline{x}|}}{n}$$
+
+## Variance and Standard Deviation
+
+Variance ($s^{2}$) = Average **squared** deviation of scores about the mean ($s$ = standard deviation).
+
+Counterpart to the mean as a measure of CT
+
+Calculating the variance:
+
+1)  Calculate the sample mean
+2)  Subtract the mean from each score
+3)  Square the deviation score for each case
+4)  Sum up squared deviations and divide by $n$
+
+$$s^{2} = \frac{\sum (x-\overline{x})^{2}}{n} \text{;  } s = \sqrt{\frac{\sum (x-\overline{x})^{2}}{n}}$$
+
+## More on the Variance & Standard Deviation
+
+\begin{itemize}
+  \item Relies on the \textbf{least squares} property of the mean
+  \begin{itemize}
+    \item Variance is at a minimum when taking squared deviations from the mean v. any other value
+  \end{itemize}
+\item Squaring deviations makes other statistical analyses easier
+  \begin{itemize}
+    \item But, this changes the unit of measurement, giving it a cumbersome interpretation
+    \item We report standard deviation ($s$) more often
+  \end{itemize}
+\end{itemize}
+
+## Note on Mean Deviation & Variance
+
+Mean deviation - the average **absolute** deviation from the mean: $$MD=\frac{\sum |x-\overline{x}|}{n}$$
+
+Variance - the average **squared** deviation: $$s^{2} = \frac{\sum (x-\overline{x})^{2}}{n}$$
+
+Mean deviation applies equal weight to deviations, whereas the variance weights large deviations more.
+
+## River Crossing Example Revisited
+
+\footnotesize
+
+
+\begin{table}
+\centering
+\begin{tabular}{cccccccc}
+\hline
+\multicolumn{2}{l}{\textbf{Scenario\# 1}} & \multicolumn{2}{l}{\textbf{Scenario\# 2}} & \multicolumn{2}{l}{\textbf{Scenario\# 3}} & \multicolumn{2}{l}{\textbf{Scenario\# 4}} \\ 
+$x$ & $(x-\overline{x})^{2}$ & $x$ & $(x-\overline{x})^{2}$ & $x$ & $(x-\overline{x})^{2}$ & $x$ & $(x-\overline{x})^{2}$ \\ \hline \hline
+3 & 0 & 1 & 4 & 1 & 4 & 1 & 4 \\
+3 & 0 & 2 & 1 & 1 & 4 & 1 & 4 \\
+3 & 0 & 2 & 1 & 1 & 4 & 1 & 4 \\
+3 & 0 & 3 & 0 & 1 & 4 & 1 & 4 \\
+3 & 0 & 3 & 0 & 2 & 1 & 1 & 4 \\
+3 & 0 & 3 & 0 & 2 & 1 & 1 & 4 \\
+3 & 0 & 4 & 1 & 2 & 1 & 1 & 4 \\
+3 & 0 & 4 & 1 & 2 & 1 & 1 & 4 \\
+3 & 0 & 4 & 1 & 9 & 36 & 1 & 4 \\
+3 & 0 & 4 & 1 & 9 & 36 & 21 & 324 \\ \hline
+& 0 & & 10 & & 92 & & 360 \\ \hline
+\multicolumn{2}{l}{$VR = 0$} & \multicolumn{2}{l}{$VR = 0.6$} & \multicolumn{2}{l}{$VR = undefined$} & \multicolumn{2}{l}{$VR = 0.1$} \\
+\multicolumn{2}{l}{$IQR = 3-3=0$} & \multicolumn{2}{l}{$IQR = 4-2=2$} & \multicolumn{2}{l}{$IQR = 2-1=1$} & \multicolumn{2}{l}{$IQR = 1-1=0$} \\
+\multicolumn{2}{l}{$s = \sqrt{\frac{0}{10}} = 0$} & \multicolumn{2}{l}{$s = \sqrt{\frac{10}{10}} = 1.0$} & \multicolumn{2}{l}{$s = \sqrt{\frac{92}{10}} = 3.0$} & \multicolumn{2}{l}{$s = \sqrt{\frac{360}{10}} = 6.0$} \\ \hline
+\end{tabular}
+\end{table}
+
+
+## Frequency Distributions
+
+Calculate variation ratio and interquartile range:
+
+
+\begin{columns}
+\begin{column}{0.70\textwidth}
+\begin{table}
+\begin{tabular}{lrcrrc}
+\hline
+Score(x) & $f$ & $p$ & $cf$ & $rcf$ & $cp$ \\ \hline \hline
+1 & 3 & .06 & 3 & 50 & .06 \\
+2 & 4 & .08 & 7 & 47 & .14 \\
+3 & 5 & .10 & 12 & 43 & .24 \\
+4 & 10 & .20 & 22 & 38 & .44 \\
+5 & 7 & .14 & 29 & 28 & .58 \\
+6 & 6 & .12 & 35 & 21 & .70 \\
+7 & 6 & .12 & 41 & 15 & .82 \\
+8 & 5 & .10 & 46 & 9 & .92 \\
+9 & 3 & .06 & 49 & 4 & .98 \\
+10 & 1 & .02 & 50 & 1 & 1.00 \\ \hline
+& 50 & 1.00 & & & \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.30\textwidth}
+
+\small
+
+\pause
+$VR = 1-0.20 = 0.80$
+
+\pause
+\vspace{8pt}
+IQR using frequencies: 
+
+1) $MP = (50+1) / 2 = 25.5$
+2) $QP = (25+1)/2 = 13$
+
+3) $IQR = 7-4 = 3$
+
+\pause
+\vspace{8pt}
+IQR using proportions: 
+
+1) $IQR = 7-4 = 3$
+
+\end{column}
+\end{columns}
+
+
+## Frequency Distributions
+
+How can we calculate variance & standard deviation with frequency distributions?
+
+Must modify formulas to use frequencies (or proportions/percents) as weights.
+
+$$s^{2} = \frac{\sum f*(x-\overline{x})^{2}}{\sum f} \text{;  or } s^{2} = \sum p*(x-\overline{x})^{2}$$
+
+$$s = \sqrt{\frac{\sum f*(x-\overline{x})^{2}}{\sum f}} \text{;  or } s = \sqrt{\sum p*(x-\overline{x})^{2}}$$
+
+## Frequency Distributions
+
+Calculate $s$ using $f$ ($\overline{x}=5.1$):
+
+\small
+
+
+\begin{columns}
+\begin{column}{0.70\textwidth}
+\begin{table}
+\begin{tabular}{lrccr}
+\hline
+Score (x) & $f$ & $x-\overline{x}$ & $(x-\overline{x})^{2}$ & $f*(x-\overline{x})^{2}$ \\ \hline \hline
+1 & 3 & $1-5.1=`r 1-5.1`$ & $`r (1-5.1)^2`$ & $`r 3*(1-5.1)^2`$ \\
+2 & 4 & $2-5.1=`r 2-5.1`$ & $`r (2-5.1)^2`$ & $`r 4*(2-5.1)^2`$ \\
+3 & 5 & $3-5.1=`r 3-5.1`$ & $`r (3-5.1)^2`$ & $`r 5*(3-5.1)^2`$ \\
+4 & 10 & $4-5.1=`r 4-5.1`$ & $`r (4-5.1)^2`$ & $`r 10*(4-5.1)^2`$ \\
+5 & 7 & $5-5.1=`r 5-5.1`$ & $`r (5-5.1)^2`$ & $`r 7*(5-5.1)^2`$ \\
+6 & 6 & $6-5.1=`r 6-5.1`$ & $`r (6-5.1)^2`$ & $`r 6*(6-5.1)^2`$ \\
+7 & 6 & $7-5.1=`r 7-5.1`$ & $`r (7-5.1)^2`$ & $`r 6*(7-5.1)^2`$ \\
+8 & 5 & $8-5.1=`r 8-5.1`$ & $`r (8-5.1)^2`$ & $`r 5*(8-5.1)^2`$ \\
+9 & 3 & $9-5.1=`r 9-5.1`$ & $`r (9-5.1)^2`$ & $`r 3*(9-5.1)^2`$ \\
+10 & 1 & $10-5.1=`r 10-5.1`$ & $`r (10-5.1)^2`$ & $`r 1*(10-5.1)^2`$ \\ \hline
+& 50 & & & 261.30 \\ \hline
+\end{tabular}
+\end{table}
+
+\end{column}
+\begin{column}{0.30\textwidth}
+
+\pause
+\begin{align}
+\begin{split}
+s & = \sqrt{\frac{\sum f*(x-\overline{x})^{2}}{\sum f}} \\
+  & \\
+  & = \sqrt{\frac{261.30}{50}} \\
+  & \\
+  & = \sqrt{5.226} \\
+  & \\
+  & = 2.29
+\end{split}
+\end{align}
+\end{column}
+\end{columns}
+
+
+## Frequency Distributions
+
+Calculate $s$ using $p$ ($\overline{x}=5.1$):
+
+\small
+
+
+\begin{columns}
+\begin{column}{0.70\textwidth}
+\begin{table}
+\begin{tabular}{lrccr}
+\hline
+Score (x) & $p$ & $x-\overline{x}$ & $(x-\overline{x})^{2}$ & $p*(x-\overline{x})^{2}$ \\ \hline \hline
+1 & .06 & $1-5.1=`r 1-5.1`$ & $`r (1-5.1)^2`$ & $`r .06*(1-5.1)^2`$ \\
+2 & .08 & $2-5.1=`r 2-5.1`$ & $`r (2-5.1)^2`$ & $`r .08*(2-5.1)^2`$ \\
+3 & .10 & $3-5.1=`r 3-5.1`$ & $`r (3-5.1)^2`$ & $`r .10*(3-5.1)^2`$ \\
+4 & .20 & $4-5.1=`r 4-5.1`$ & $`r (4-5.1)^2`$ & $`r .20*(4-5.1)^2`$ \\
+5 & .14 & $5-5.1=`r 5-5.1`$ & $`r (5-5.1)^2`$ & $`r .14*(5-5.1)^2`$ \\
+6 & .12 & $6-5.1=`r 6-5.1`$ & $`r (6-5.1)^2`$ & $`r .12*(6-5.1)^2`$ \\
+7 & .12 & $7-5.1=`r 7-5.1`$ & $`r (7-5.1)^2`$ & $`r .12*(7-5.1)^2`$ \\
+8 & .10 & $8-5.1=`r 8-5.1`$ & $`r (8-5.1)^2`$ & $`r .10*(8-5.1)^2`$ \\
+9 & .06 & $9-5.1=`r 9-5.1`$ & $`r (9-5.1)^2`$ & $`r .06*(9-5.1)^2`$ \\
+10 & .02 & $10-5.1=`r 10-5.1`$ & $`r (10-5.1)^2`$ & $`r .02*(10-5.1)^2`$ \\ \hline
+& 1.00 & & & 5.226 \\ \hline
+\end{tabular}
+\end{table}
+
+\end{column}
+\begin{column}{0.30\textwidth}
+
+\pause
+\begin{align}
+\begin{split}
+s & = \sqrt{\frac{\sum p*(x-\overline{x})^{2}}{\sum p}} \\
+  & \\
+  & = \sqrt{\frac{5.226}{1}} \\
+  & \\
+  & = \sqrt{5.226} \\
+  & \\
+  & = 2.29
+\end{split}
+\end{align}
+\end{column}
+\end{columns}
+
+
+## Computational Formula for Variance & Standard Deviation
+
+With a small \# of values, the **definitional** formula is fine.
+
+With a large \# of values, the **computational**, or shortcut formula, is better.
+
+Requires less information (only $x$ & $x^{2}$): $$s^{2} = \frac{\sum(x^{2})-(\sum x)^{2}}{n} = \frac{\sum (x^{2})}{n}-\overline{x}^{2} \text{;  where } \overline{x}=\frac{\sum x}{n}$$
+
+$$s^{2} = \frac{\sum(w*x^{2})-(\sum w*x)^{2}}{\sum w} = \frac{\sum (w*x^{2})}{\sum w}-\overline{x}^{2} \text{;  where } \overline{x}=\frac{\sum w*x}{\sum w}$$
+
+## Sentence Length (Again)
+
+
+\begin{itemize}
+  \item Sentence length in months for armed robbery ($n$=40)
+  \begin{itemize}
+    \item 36 38 39 47 50 51 51 53 55 55
+    \item 56 57 60 62 63 64 64 66 67 68
+    \item 69 70 70 70 71 75 78 79 80 80
+    \item 81 83 85 86 87 89 95 98 99 99
+  \end{itemize}
+\end{itemize}
+
+\small
+
+Mode = 70
+
+Median = 68.5
+
+Mean = 68.7
+
+VR = 1-(3/40) = 1-0.75 = .925
+
+QP = (20+1)/2 = 10.5 $\to$ IQR = 80.5-55.5 = 25.0
+
+## Sentence Length
+
+\small
+
+For $s$, first **square** all raw values:
+
+
+\begin{itemize}
+  \item Sentence length in months for armed robbery ($n$=40)
+  \begin{itemize}
+    \item 1296 1444 1521 2209 2500 2601 2601 2809 3025 3025
+    \item 3136 3249 3600 3844 3969 4096 4096 4356 4489 4624
+    \item 4761 4900 4900 4900 5041 5625 6084 6241 6400 6400
+    \item 6561 6889 7225 7396 7569 7921 9025 9604 9801 9801
+    \item Sum = 199,534
+  \end{itemize}
+\end{itemize}
+
+Then, plug the relevant numbers into the formulas: $$s^{2} = \frac{\sum (x^{2})}{n}-\overline{x}^{2} = \frac{199534}{40}-68.7^{2} = 268.66$$
+
+$$s = \sqrt{268.66} = 16.39$$
+
+## City Homicide Rate
+
+\small
+
+
+\begin{columns}
+\begin{column}{0.70\textwidth}
+\begin{table}
+\begin{tabular}{cccc}
+\hline
+Washington, DC & $\text{Wash}^{2}$ & Baltimore, MD & $\text{Balt}^{2}$ \\ \hline \hline
+23.5 & `r 23.5^2` & 27.6 & `r 27.6^2` \\
+31.0 & `r 31.0^2` & 30.6 & `r 30.6^2` \\
+36.2 & `r 36.2^2` & 29.5 & `r 29.5^2` \\
+59.5 & `r 59.5^2` & 30.6 & `r 30.6^2` \\
+71.9 & `r 71.9^2` & 34.3 & `r 34.3^2` \\
+77.8 & `r 77.8^2` & 41.4 & `r 41.4^2` \\
+80.6 & `r 80.6^2` & 40.6 & `r 40.6^2` \\
+75.2 & `r 75.2^2` & 44.3 & `r 44.3^2` \\
+78.5 & `r 78.5^2` & 48.2 & `r 48.2^2` \\
+70.0 & `r 70.0^2` & 43.4 & `r 43.4^2` \\
+65.2 & `r 65.2^2` & 45.2 & `r 45.2^2` \\ \hline
+& `r format(552.25+961+1310.44+3540.25+5169.61+6052.84+6496.36+5655.04+6162.25+4900+4251.04, scientific=F)` & & `r format(761.76+936.36+870.25+936.36+1176.49+1713.96+1648.36+1962.49+2323.24+1883.56+2043.04, scientific=F)` \\ \hline
+\end{tabular}
+\end{table}
+\end{column}
+
+\begin{column}{0.30\textwidth}
+\begin{align}
+\begin{split}
+s_{Wash} & = \sqrt{\frac{45051.08}{11}-60.85^{2}} \\
+         & \\ 
+         & = \sqrt{392.830} = 19.82 \\
+         & \\
+s_{Balt} & = \sqrt{\frac{16255.87}{11}-37.79^{2}} \\
+         & \\
+         & = \sqrt{49.722} = 7.05
+\end{split}
+\end{align}
+\end{column}
+\end{columns}
+
+
+## Reviews of Formulas for Standard Deviation
+
+\begin{center}
+\textbf{Unweighted data (i.e. raw numbers):}
+\end{center}
+\vspace{10pt}
+
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
+Definitional formula: $s=\sqrt{\frac{\sum(x-\overline{x})^{2}}{n}}$
+\end{column}
+\begin{column}{.55\textwidth}
+Computational formula: $s=\sqrt{\frac{\sum(x^{2})}{n}-\overline{x}^{2}}$
+\end{column}
+\end{columns}
+
+
+\vspace{10pt}
+\begin{center}
+\textbf{Weighted data (i.e., frequency distribution):}
+\end{center}
+\vspace{12pt}
+
+
+\begin{columns}
+\begin{column}{0.47\textwidth}
+Definitional formula: $s=\sqrt{\frac{\sum w*(x-\overline{x})^{2}}{\sum w}}$
+\end{column}
+\begin{column}{.53\textwidth}
+Computational formula: $s=\sqrt{\frac{\sum(w*x^{2})}{\sum w}-\overline{x}^{2}}$
+\end{column}
+\end{columns}
+
+
+## Populations v. Sample Means & Standard Deviations
+
+\begin{itemize}
+  \item Population mean \& standard deviation
+  \begin{itemize}
+    \item $\mu$ = mean; $\sigma$ = standard deviation
+    \item $\mu = \frac{\sum x}{N}$;  $\sigma = \sqrt{\frac{\sum(x-\mu)^{2}}{N}}$
+    \item Where N represents the size of the population
+    \item Known as population \textbf{parameters}
+  \end{itemize}
+  \item Sample mean \& standard deviation
+  \begin{itemize}
+    \item $\overline{x}$ = mean; $s$ = standard deviation
+    \item $\overline{x}=\frac{\sum x}{n}$; $s = \sqrt{\frac{\sum(x-\overline{x})^{2}}{n}}$
+    \item Where $n$ represents the size of the sample
+    \item Known as sample \textbf{statistics}
+  \end{itemize}
+\end{itemize}
+
+
+## Populations v. Sample Means & Standard Deviations
+
+\begin{itemize}
+  \item For inferential purposes, we want to use sample \textbf{statistics} as estimates of population \textbf{parameters}.
+  \begin{itemize}
+    \item Can we use $\overline{x}$ as a valid estimate of $\mu$?
+    \item Can we use $s$ as a valid estimate of $\sigma$?
+  \end{itemize}
+  \item Fortunately, $\overline{x}$ provides an \textbf{unbiased} estimate of $\mu$: $$\overline{x} = \hat{\mu}$$
+  \begin{itemize}
+    \item We say \textit{mu hat}, where the hat signifies an estimate of the true quantity of interest. 
+  \end{itemize}
+\end{itemize}
+
+
+## Populations v. Sample Means & Standard Deviations
+
+\begin{itemize}
+  \item However, for reasons we will discuss later in the semester $s$ is a biased estimate $\sigma$: $$s \ne \hat{\sigma}$$
+  \begin{itemize}
+    \item We call the term on the right-hand side of the equality \textbf{sigma hat}. 
+    \item An unbiased estimate of $\sigma$ substitutes $n-1$ in the denominator rather than $n$.
+  \end{itemize}
+\end{itemize}
+
+\vspace{8pt}
+
+\begin{columns}
+\begin{column}{0.50\textwidth}
+$$s=\sqrt{\frac{\sum(x-\overline{x})^{2}}{n}}$$ 
+\end{column}
+\begin{column}{0.50\textwidth}
+$$\hat{\sigma} = \sqrt{\frac{\sum(x-\overline{x})^{2}}{n-1}}$$
+\end{column}
+\end{columns}
+
+## R Tutorial - Sentence Length Example
+  
+All of this is made to seem pretty easy and it is if you're doing manual hand calculations (apart from human error - i.e., writing down the wrong values). When it comes to entering these data into R it's likely a bit more intimidating at first - but it's also pretty simple.
+
+The following slides will break down how to add the sentence length data from earlier in this lecture into R and then compute measures of central tendency and dispersion for that sample. 
+
+For each measure I will show you manual and automatic computation methods. You won't be permitted to use the automatic methods for a while, but it's helpful to know them so you can check your answers. 
+
+## R Tutorial - Sentence Length Example
+
+Here's the list of values again, for reference:
+
+\begin{itemize}
+  \item Sentence length in months for armed robbery ($n$=40)
+  \begin{itemize}
+    \item 36 38 39 47 50 51 51 53 55 55
+    \item 56 57 60 62 63 64 64 66 67 68
+    \item 69 70 70 70 71 75 78 79 80 80
+    \item 81 83 85 86 87 89 95 98 99 99
+  \end{itemize}
+\end{itemize}
+
+## R Tutorial - Sentence Length Example
+
+Step 1. Manually enter the data into R. 
+
+This can be accomplished using the c() function, as so:
+
+```{r sentlength_setup, echo=TRUE}
+sent_length<-c(36,38,39,47,50,51,51,53,55,55,56,57,60,62,63,64,64,66,
+               67,68,69,70,70,70,71,75,78,79,80,80,81,83,85,86,87,89,
+               95,98,99,99)
+length(sent_length)
+```
+I add the length() function at the end to make sure I entered 40 separate values. Next we will want to compute the mean. 
+
+## R Tutorial - Sentence Length Example
+
+Step 2. Compute the mean.
+
+\scriptsize
+```{r sentlength_mean, echo=TRUE}
+## Manual Computation
+xbar1<-(sum(sent_length)/length(sent_length)) 
+## Sum() function adds together all values in the vector
+xbar1
+## Automatic Computation
+xbar2<-mean(sent_length)
+xbar2
+```
+I want you to use the manual method for this class until you are told otherwise. Using the mean() function is kind of cheating until you properly understand what it is doing. You'll hopefully have noticed that I stored the value of the mean in a separate object - that will be helpful for a later step.
+
+## R Tutorial - Sentence Length Example
+
+Step 3. Identify the median value.
+
+Note: I first have to randomize the order for the purpose of the tutorial. 
+
+\scriptsize
+```{r sentlength_median1, echo=TRUE}
+sent_length<-sample(sent_length,40,replace=FALSE)
+sent_length ## No longer in order!
+```
+## R Tutorial - Sentence Length Example
+
+Step 3. Identify the median value.
+
+Now, onto regularly scheduled programming...
+
+\scriptsize
+```{r sentlength_median2, echo=TRUE}
+## Manual Computation
+sent_length<-sort(sent_length) ## Have to re-sort or I will get the wrong value
+sent_length
+(length(sent_length)+1)/2 ## Obtain the median position
+median1<-(sent_length[20]+sent_length[21])/2
+median1
+```
+
+## R Tutorial - Sentence Length Example
+
+Step 3. Identify the median value.
+
+```{r sentlength_median3, echo=TRUE}
+## Automatic Computation
+median2<-median(sent_length)
+median2
+```
+
+Again, I want you to use the manual method until I tell you otherwise (mostly so I can see your work and know you understand how to calculate these statistics), but it's helpful to use the automatic computation to check your math at first. 
+
+## R Tutorial - Sentence Length Example
+
+Step 4. Identify the mode. 
+
+Perhaps quite astoundingly, there is not a built-in function to compute the mode in R. Instead, you can do so by examining a frequency table of values for a variable (or build a function to compute the mode - there's a lot of example code out there to do this and it's pretty straightforward). 
+
+\scriptsize
+```{r sentlength_mode1, echo=TRUE}
+table(sent_length)
+```
+## R Tutorial - Sentence Length Example
+
+Step 4. Identify the mode. 
+
+An example of building a function to get the mode:
+
+```{r sentlength_mode2, echo=TRUE}
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+getmode(sent_length)
+```
+
+## R Tutorial - Sentence Length Example
+
+Step 5. Compute the range.
+
+Computing the range is very straightforward and you can use two built-in functions to help you do so. 
+
+```{r sentlength_range, echo=TRUE}
+max(sent_length)-min(sent_length)
+```
+And there you have it - the difference between the maximum and minimum sentence lengths is 63 months. 
+
+## R Tutorial - Sentence Length Example
+
+\scriptsize
+Step 5. Compute the interquartile range.
+
+I'll show you two ways to do this, as well. 
+
+```{r sentlength_IQR1, echo=TRUE}
+(trunc((length(sent_length)+1)/2)+1)/2
+```
+The trunc() function truncates the decimal value - i.e., it replaces a positive decimal value with 0. I then compute the quartile position by dividing the truncated median position (+1) in half. I get 10.5, so that means I count up and down 10.5 values to the the 25th and 75th percentile values, respectively. Or, I can manually compute those values. 
+
+## R Tutorial - Sentence Length Example
+
+\scriptsize
+Step 5. Compute the interquartile range.
+
+```{r sentlength_IQR2, echo=TRUE}
+## Manual Computation
+## 25th Percentile Value
+q1<-(sent_length[10]+sent_length[11])/2
+## 75th percentile Value
+q3<-(sent_length[30]+sent_length[29])/2
+## IQR Value
+q3-q1
+```
+Now we know that the difference between the values defining the middle 50% of the data is 24.5 months. In the next slide I will show you how to compute this value automatically to check your math. 
+
+## R Tutorial - Sentence Length Example
+
+Step 5. Compute the interquartile range.
+
+```{r sentlength_IQR3, echo=TRUE}
+## Automatic Computation
+IQR(sent_length)
+```
+Whelp, that was a lot less verbose - but again, you have to estimate these statistics manually until I tell you otherwise. The automatic functions are just to help you check your math!
+
+NOTE: The way this function calculates the IQR is different from the manual method. In certain scenarios the answer from this function may be slightly different than the one you get using the manual calculation. 
+
+## R Tutorial - Sentence Length Example
+
+Step 6. Compute the mean deviation.
+
+This one is a bit more complex and is partway toward calculating the standard deviation. 
+
+\scriptsize
+```{r sentlength_MAD1, echo=TRUE}
+## Manual Computation
+sent_dev<-(sent_length-xbar1) ## Individual deviations from means.
+sent_dev_abs<-abs(sent_dev) ## Stores absolute values of deviations
+mad_sentlength<-(sum(sent_dev_abs)/length(sent_dev_abs))
+mad_sentlength
+```
+The abs() function calculates absolute values of the sent_dev vector.
+
+## R Tutorial - Sentence Length Example
+
+Step 6. Compute the mean deviation.
+
+I installed a package in the setup code chunk that has a function to automatically compute the mean absolute deviation - MeanAD(). I use it to check my math above. 
+
+```{r sentlength_MAD2, echo=TRUE}
+MeanAD(sent_length)
+```
+
+Note: the MeanAD() function is a part of the DescTools package. The package must be installed and loaded before you can use it. 
+
+## R Tutorial - Sentence Length Example
+
+Step 7. Compute the standard deviation.
+
+This one is the most complicated - it can be done in a single step, or multiple. I suggest the latter when you first start out then use a single step only when you are more comfortable using R. Here goes...
+
+\scriptsize
+```{r sentlength_SD1, echo=TRUE}
+sent_dev_sq<-sent_dev^2 ## Square the individual deviations
+sum_dev_sq<-sum(sent_dev_sq) ## Sum the squared deviations
+variance<-sum_dev_sq/(length(sent_length)-1) ## Compute variance with sample correction
+variance ## Display variance value
+standard_deviation<-sqrt(variance) ## Compute the standard deviation
+standard_deviation ## Display standard deviation value
+```
+## R Tutorial - Sentence Length Example
+
+Step 7. Compute the standard deviation.
+
+Now to do it automatically...
+
+```{r sentlength_SD2, echo=TRUE}
+var(sent_length) ## Compute and display variance value
+sd(sent_length) ## Compute and display standard deviation value
+```
+Note - the var() and sd() functions in R automatically estimate these values with the sample correction (n-1). For our purposes we can assume that we have population data at first, then use these corrections when I tell you to do so. 
+
+## R Tutorial - Sentence Length Example
+
+Step 8. Now for the real kick in the pants....
+
+The summarize_all function can provide you with almost all of this information OR it provides the intermediate calculations you need to easily compute the final values. **But** you do not get to use it! You have to walk before you can run, and computing these statistics manually is an important step towards understanding what these values actually mean. 
+
+## R Tutorial - Sentence Length Example
+
+Step 8. Now for the real kick in the pants.... (on this slide)
+
+\scriptsize
+```{r sentlength_summary, echo=TRUE}
+summarize_all(data.frame(sent_length), list(mean=mean, median=median,
+                                            sd=sd, IQR=IQR, var=var,
+                                            range=range, MeanAD=MeanAD))
+```
+## R Tutorial - Sentence Length Example
+
+Step 8. Now for the real kick in the pants.... (an explanation of the function)
+
+summarize_all() belongs to the dplyr package (in tidyverse). It allows you to easily create a table containing all of the descriptive statistics you want (defined by the list() option within the function). The "mean=" part names the column and the "mean" part tells R which function to use to calculate that descriptive statistic. I wrap the sent_length variable within a data.frame function because the summarize_all() function does not work with vectors outside of data frames (to my knowledge!). 
+
+Note - the range returns the maximum and minimum values, you still need to do the last step for that one. 
+
+## The End
+
+\huge
+\center
+
+Time for your Two Questions!
+
+```{r gump, echo=FALSE, out.width="50%", out.height="50%"}
+include_graphics("gump.jpg")
+```

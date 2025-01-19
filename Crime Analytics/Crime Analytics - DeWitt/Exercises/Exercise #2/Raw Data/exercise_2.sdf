@@ -1,0 +1,21 @@
+
+
+Reference
+Number     Year  Variable Description                                              Question Name          
+------------------------------------------------------------------------------------------------------------
+R00001.00  1997  PUBID, YOUTH CASE IDENTIFICATION CODE                             PUBID                  
+R05363.00  1997  KEY!SEX, RS GENDER (SYMBOL)                                       KEY!SEX                
+R05364.02  1997  KEY!BDATE, RS BIRTHDATE MONTH/YEAR (SYMBOL)                       KEY!BDATE_Y            
+R14826.00  1997  KEY!RACE_ETHNICITY, COMBINED RACE AND ETHNICITY (SYMBOL)          KEY!RACE_ETHNICITY     
+R25636.00  1998  RS RELATIONSHIP TO HOUSEHOLD PARENT FIGURE                        CV_YTH_REL_HH_CURRENT  
+R25683.02  1998  YEAR R INTERVIEWED                                                CV_INTERVIEW_DATE~Y    
+R35086.00  1999  # DAYS SMOKED IN LAST 30 DAYS                                     YSAQ-361               
+R35105.00  1999  # TIMES R USE MARIJUANA BEFORE OR DURING SCHOOL OR WORK           YSAQ-372               
+R35113.00  1999  # TIMES R USE COCAINE/HARD DRUGS BEFORE OR DURING SCHOOL OR WORK  YSAQ-372E              
+R35162.00  1999  # TIMES DESTROYED PROPERTY SINCE DLI?                             YSAQ-397               
+R35169.00  1999  # TIMES R STOLE < $50 SINCE DLI?                                  YSAQ-405B              
+R35177.00  1999  # TIMES R STOLE > $50 SINCE DLI?                                  YSAQ-413               
+R35182.00  1999  # TIMES OTHER PROPERTY CRIMES SINCE DLI?                          YSAQ-420               
+R35192.00  1999  # TIMES SELL ILLEGAL DRUGS SINCE DLI?                             YSAQ-434               
+R49075.00  2000  # DAYS R DRINK ALCOHOL LAST 30 DAYS                               YSAQ-365               
+Z90608.00  XRND  # WEEKS R WORKED EMPLOYEE JOB YEAR 98                             CVC_WKSWK_YR_ET.98     

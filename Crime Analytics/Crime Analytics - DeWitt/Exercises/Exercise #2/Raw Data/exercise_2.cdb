@@ -1,0 +1,537 @@
+R00001.00    [PUBID]                                        Survey Year: 1997
+  PRIMARY VARIABLE
+
+ 
+             PUBID, YOUTH CASE IDENTIFICATION CODE
+ 
+COMMENT: YOUTH CASE IDENTIFICATION CODE
+ 
+       0           0
+     998           1 TO 999
+     999        1000 TO 1999
+     997        2000 TO 2999
+     996        3000 TO 3999
+     998        4000 TO 4999
+     996        5000 TO 5999
+     994        6000 TO 6999
+     994        7000 TO 7999
+     989        8000 TO 8999
+      23        9000 TO 9999
+  -------
+    8984
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+TOTAL =========>    8984   VALID SKIP(-4)       0     NON-INTERVIEW(-5)       0
+ 
+Min:              1        Max:           9022        Mean:              4504.3
+ 
+Lead In: R72976.00[Default]
+Default Next Question: R05363.00
+--------------------------------------------------------------------------------
+R05363.00    [KEY!SEX]                                      Survey Year: 1997
+  PRIMARY VARIABLE
+
+ 
+             KEY!SEX, RS GENDER (SYMBOL)
+ 
+COMMENT: Gender of Youth
+ 
+    4599       1 Male
+    4385       2 Female
+       0       0 No Information
+  -------
+    8984
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+TOTAL =========>    8984   VALID SKIP(-4)       0     NON-INTERVIEW(-5)       0
+ 
+Min:              1        Max:              2        Mean:                1.49
+ 
+Lead In: R00001.00[Default]
+Default Next Question: R05364.00
+--------------------------------------------------------------------------------
+R05364.02    [KEY!BDATE_Y]                                  Survey Year: 1997
+  PRIMARY VARIABLE
+
+ 
+             KEY!BDATE, RS BIRTHDATE MONTH/YEAR (SYMBOL)
+ 
+COMMENT: Birthdate of Youth
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+TOTAL =========>    8984   VALID SKIP(-4)       0     NON-INTERVIEW(-5)       0
+ 
+Min:           1980        Max:           1984        Mean:             1982.01
+ 
+Earliest (NonMissing): JANUARY/1980
+Latest   (NonMissing): DECEMBER/1984
+ 
+Lead In: R05364.01[Default]
+Default Next Question: R05366.00
+--------------------------------------------------------------------------------
+R14826.00    [KEY!RACE_ETHNICITY]                           Survey Year: 1997
+  PRIMARY VARIABLE
+
+ 
+             KEY!RACE_ETHNICITY, COMBINED RACE AND ETHNICITY (SYMBOL)
+ 
+COMMENT: Combined race - ethnicity variable
+ 
+    2335       1 Black
+    1901       2 Hispanic
+      83       3 Mixed Race (Non-Hispanic)
+    4665       4 Non-Black / Non-Hispanic
+  -------
+    8984
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+TOTAL =========>    8984   VALID SKIP(-4)       0     NON-INTERVIEW(-5)       0
+ 
+Min:              1        Max:              4        Mean:                2.79
+ 
+Lead In: R05387.00[Default]
+Default Next Question: R05389.00
+--------------------------------------------------------------------------------
+R25636.00    [CV_YTH_REL_HH_CURRENT]                        Survey Year: 1998
+  PRIMARY VARIABLE
+
+ 
+             RS RELATIONSHIP TO HOUSEHOLD PARENT FIGURE
+ 
+Relationship of the parent figure(s)/guardian(s) in household to the youth as of
+the survey date.
+ 
+    3984       1 Both biological parents
+     915       2 Two parents, biological mother
+     200       3 Two parents, biological father
+    2221       4 Biological mother only
+     305       5 Biological father only
+      59       6 Adoptive parent(s)
+      30       7 Foster parent(s)
+     190       8 No parents, grandparents
+     107       9 No parents, other relatives
+     336      10 Anything else
+  -------
+    8347
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+Invalid Skip(-3)      39
+TOTAL =========>    8386   VALID SKIP(-4)       0     NON-INTERVIEW(-5)     598
+ 
+Min:              1        Max:             10        Mean:                2.78
+ 
+Lead In: R25635.00[Default]
+Default Next Question: R25637.00
+--------------------------------------------------------------------------------
+R25683.02    [CV_INTERVIEW_DATE~Y]                          Survey Year: 1998
+  PRIMARY VARIABLE
+
+ 
+             YEAR R INTERVIEWED
+ 
+Youth's interview date.
+ 
+       0        1980 TO 1995: 1980 to 1995
+       0        1996
+       0        1997
+    4913        1998
+    3473        1999
+       0        2000
+  -------
+    8386
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+TOTAL =========>    8386   VALID SKIP(-4)       0     NON-INTERVIEW(-5)     598
+ 
+Min:           1998        Max:           1999        Mean:             1998.41
+ 
+Earliest (NonMissing): OCTOBER/1998
+Latest   (NonMissing): MAY/1999
+ 
+Lead In: R25683.01[Default]
+Default Next Question: R25684.00
+--------------------------------------------------------------------------------
+R35086.00    [YSAQ-361]                                     Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # DAYS SMOKED IN LAST 30 DAYS
+ 
+During the past 30 days, on how many days did you smoke a cigarette?
+ 
+UNIVERSE: R has answered smoking questions in prev round; has smoked since DLI
+ 
+     631           0   (Go To R35088.00)
+     623           1 TO 4
+     185           5 TO 9
+     131          10 TO 14
+     108          15 TO 19
+     133          20 TO 24
+     153          25 TO 29
+    1078          30
+  -------
+    3042
+ 
+Refusal(-1)            4
+Don't Know(-2)        19
+TOTAL =========>    3065   VALID SKIP(-4)    5143     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             30        Mean:               14.64
+ 
+Lead In: R35085.00[1:1]
+Default Next Question: R35087.00
+--------------------------------------------------------------------------------
+R35105.00    [YSAQ-372]                                     Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES R USE MARIJUANA BEFORE OR DURING SCHOOL OR WORK
+ 
+In the last 30 days, how many times have you used marijuana right before or 
+during school or work hours?
+ 
+UNIVERSE: R answered question if had ever tried marijuana; has used marijuana 
+since DLI; did not answer 0 to marijuana use in the last 30 days
+ 
+     869           0
+      95           1
+      66           2
+      33           3
+      13           4
+      30           5
+       4           6
+       6           7
+       1           8
+       2           9
+      24          10
+       6          11
+       8          12
+       3          13
+       1          14
+     115          15 TO 99: 15+
+  -------
+    1276
+ 
+Refusal(-1)            2
+Don't Know(-2)         9
+TOTAL =========>    1287   VALID SKIP(-4)    6921     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             30        Mean:                2.85
+ 
+Lead In: R35104.00[Default]
+Default Next Question: R35106.00
+--------------------------------------------------------------------------------
+R35113.00    [YSAQ-372E]                                    Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES R USE COCAINE/HARD DRUGS BEFORE OR DURING SCHOOL OR WORK
+ 
+In the last 30 days, how many times, if any, did you use this drug or other 
+substance right before school or during school or work hours?
+ 
+UNIVERSE: R has used cocaine/drugs; has used cocaine/drugs at least once since 
+DLI
+ 
+     352           0
+      36           1
+      14           2
+      11           3
+       5           4
+       8           5
+       1           6
+       1           7
+       0           8
+       0           9
+       2          10
+       3          11
+       2          12
+       0          13
+       0          14
+      19          15 TO 99: 15+
+  -------
+     454
+ 
+Refusal(-1)            1
+Don't Know(-2)         2
+TOTAL =========>     457   VALID SKIP(-4)    7751     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             50        Mean:                1.73
+ 
+Lead In: R35112.00[Default]
+Default Next Question: R35114.00
+--------------------------------------------------------------------------------
+R35162.00    [YSAQ-397]                                     Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES DESTROYED PROPERTY SINCE DLI?
+ 
+You indicated earlier that you had purposely damaged or destroyed property that 
+did not belong to you. How many times have you purposely damaged or destroyed 
+property that did not belong to you since the last interview?
+ 
+UNIVERSE: R has destroyed other people's property
+ 
+      46           0   (Go To R35164.00)
+     284           1   (Go To R35164.00)
+     135           2   (Go To R35164.00)
+      59           3   (Go To R35164.00)
+      26           4   (Go To R35164.00)
+      58           5   (Go To R35164.00)
+       8           6   (Go To R35164.00)
+       5           7   (Go To R35164.00)
+       2           8   (Go To R35164.00)
+       3           9   (Go To R35164.00)
+      20          10   (Go To R35164.00)
+       3          11   (Go To R35164.00)
+       4          12   (Go To R35164.00)
+       2          13   (Go To R35164.00)
+       0          14   (Go To R35164.00)
+      37          15 TO 99: 15+   (Go To R35164.00)
+  -------
+     692
+ 
+Refusal(-1)            2
+Don't Know(-2)         7
+TOTAL =========>     701   VALID SKIP(-4)    7507     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             99        Mean:                4.36
+ 
+Lead In: R35161.00[1:1]
+Default Next Question: R35163.00
+--------------------------------------------------------------------------------
+R35169.00    [YSAQ-405B]                                    Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES R STOLE < $50 SINCE DLI?
+ 
+How many times have you stolen something from a store or something that did not 
+belong to you worth less than 50 dollars since the last interview on [date of 
+last interview]?
+ 
+UNIVERSE: R has stolen < $50 in property
+ 
+      68           0   (Go To R35171.00)
+     234           1   (Go To R35171.00)
+     142           2   (Go To R35171.00)
+      70           3   (Go To R35171.00)
+      39           4   (Go To R35171.00)
+      65           5   (Go To R35171.00)
+       6           6   (Go To R35171.00)
+       9           7   (Go To R35171.00)
+       2           8   (Go To R35171.00)
+       3           9   (Go To R35171.00)
+      40          10   (Go To R35171.00)
+       2          11   (Go To R35171.00)
+       7          12   (Go To R35171.00)
+       1          13   (Go To R35171.00)
+       0          14   (Go To R35171.00)
+      80          15 TO 99: 15+   (Go To R35171.00)
+  -------
+     768
+ 
+Refusal(-1)            3
+Don't Know(-2)         9
+TOTAL =========>     780   VALID SKIP(-4)    7428     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             99        Mean:                5.89
+ 
+Lead In: R35168.00[Default]
+Default Next Question: R35170.00
+--------------------------------------------------------------------------------
+R35177.00    [YSAQ-413]                                     Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES R STOLE > $50 SINCE DLI?
+ 
+How many times have you stolen something from a store, person or house, or 
+something that did not belong to you worth 50 dollars or more including stealing
+a car since the last interview on [date of last interview]?
+ 
+UNIVERSE: R answered yes/no to ever stealing property; R has stolen > $50 in 
+property
+ 
+      63           0   (Go To R35179.00)
+      98           1   (Go To R35179.00)
+      39           2   (Go To R35179.00)
+      22           3   (Go To R35179.00)
+       9           4   (Go To R35179.00)
+       9           5   (Go To R35179.00)
+       3           6   (Go To R35179.00)
+       3           7   (Go To R35179.00)
+       4           8   (Go To R35179.00)
+       1           9   (Go To R35179.00)
+       5          10   (Go To R35179.00)
+       0          11   (Go To R35179.00)
+       3          12   (Go To R35179.00)
+       1          13   (Go To R35179.00)
+       0          14   (Go To R35179.00)
+      26          15 TO 99: 15+   (Go To R35179.00)
+  -------
+     286
+ 
+Refusal(-1)            0
+Don't Know(-2)         4
+TOTAL =========>     290   VALID SKIP(-4)    7918     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             99        Mean:                4.82
+ 
+Lead In: R35176.00[Default]
+Default Next Question: R35178.00
+--------------------------------------------------------------------------------
+R35182.00    [YSAQ-420]                                     Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES OTHER PROPERTY CRIMES SINCE DLI?
+ 
+You indicated earlier that you had committed other property crimes such as 
+fencing, receiving, possessing or selling stolen property, or cheating someone 
+by selling them something that was worthless or worth much less than what you 
+said. How many times have you committed other property crimes since the last 
+interview on [date of last interview]?
+ 
+UNIVERSE: R has committed other property crimes
+ 
+      67           0
+      66           1
+      39           2
+      25           3
+       8           4
+      23           5
+       5           6
+       5           7
+       1           8
+       0           9
+      12          10
+       3          11
+       1          12
+       2          13
+       0          14
+      25          15 TO 99: 15+
+  -------
+     282
+ 
+Refusal(-1)            3   (Go To R35183.00)
+Don't Know(-2)         6   (Go To R35183.00)
+TOTAL =========>     291   VALID SKIP(-4)    7917     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             99        Mean:                5.54
+ 
+Lead In: R35181.00[1:1]
+Default Next Question: R35184.00
+--------------------------------------------------------------------------------
+R35192.00    [YSAQ-434]                                     Survey Year: 1999
+  PRIMARY VARIABLE
+
+ 
+             # TIMES SELL ILLEGAL DRUGS SINCE DLI?
+ 
+How many times have you sold or helped to sell marijuana, hashish or other hard 
+drugs since the last interview on [date of last interview]?
+ 
+UNIVERSE: R has sold illegal drugs
+ 
+      45           0
+      60           1
+      57           2
+      40           3
+      16           4
+      45           5
+      16           6
+       4           7
+       4           8
+       3           9
+      32          10
+       0          11
+       8          12
+       0          13
+       1          14
+     172          15 TO 99: 15+
+  -------
+     503
+ 
+Refusal(-1)            1
+Don't Know(-2)        11   (Go To R35193.00)
+TOTAL =========>     515   VALID SKIP(-4)    7693     NON-INTERVIEW(-5)     776
+ 
+Min:              0        Max:             99        Mean:               19.28
+ 
+Lead In: R35191.00[Default]
+Default Next Question: R35194.00
+--------------------------------------------------------------------------------
+R49075.00    [YSAQ-365]                                     Survey Year: 2000
+  PRIMARY VARIABLE
+
+ 
+             # DAYS R DRINK ALCOHOL LAST 30 DAYS
+ 
+During the last 30 days, on how many days did you have one or more drinks of an 
+alcoholic beverage?
+ 
+UNIVERSE: R answered yes/no to ever having had a drink; has drank since DLI
+ 
+    1041           0   (Go To R49079.00)
+    2135           1 TO 4
+     737           5 TO 9
+     352          10 TO 14
+     180          15 TO 19
+     113          20 TO 24
+      54          25 TO 29
+      49          30
+  -------
+    4661
+ 
+Refusal(-1)            9
+Don't Know(-2)        14
+TOTAL =========>    4684   VALID SKIP(-4)    3396     NON-INTERVIEW(-5)     904
+ 
+Min:              0        Max:             30        Mean:                4.41
+ 
+Lead In: R49074.00[1:1]
+Default Next Question: R49076.00
+--------------------------------------------------------------------------------
+Z90608.00    [CVC_WKSWK_YR_ET.98]                           Survey Year: XRND
+  PRIMARY VARIABLE
+
+ 
+             # WEEKS R WORKED EMPLOYEE JOB YEAR 98
+ 
+Number of weeks worked at any job employee-type job during the year. This 
+variable is created for all respondents regardless of interview status in the 
+current round; CVC_RND provides the actual round of the respondent's most recent
+interview.
+ 
+    4499           0: weeks
+     362           1 TO 5: weeks
+     611           6 TO 10: weeks
+     456          11 TO 15: weeks
+     343          16 TO 20: weeks
+     340          21 TO 25: weeks
+     409          26 TO 30: weeks
+     289          31 TO 35: weeks
+     222          36 TO 40: weeks
+     202          41 TO 45: weeks
+     227          46 TO 50: weeks
+     868          51 TO 999: weeks
+  -------
+    8828
+ 
+Refusal(-1)            0
+Don't Know(-2)         0
+Invalid Skip(-3)      79
+TOTAL =========>    8907   VALID SKIP(-4)      77     NON-INTERVIEW(-5)       0
+ 
+Min:              0        Max:             52        Mean:               13.61
+ 
+Lead In: Z90607.00[Default]
+Default Next Question: Z90609.00

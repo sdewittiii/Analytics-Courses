@@ -1,0 +1,384 @@
+---
+title: "The Data Analytics Life Cycle"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## From Start to Finish: A Data Anaylytics Project
+
+Data analytics is an inherently complicated research endeavor, often searching for meaning and knowledge in messy data sets that need to be identified, cleaned, merged, and sifted through.
+
+A single analytics project moves through several phases.
+
+* Phase 1: Discovery
+* Phase 2: Data preparation
+* Phase 3: Model planning
+* Phase 4: Model building
+* Phase 5: Communication of results
+* Phase 6: Operationalize (Debrief and Deployment)
+
+A closer look at each phase helps understand its purpose and specific function in the context of crime analysis and applicability to the criminal justice system.
+
+## Phase 1: Discovery
+
+At this stage, analysts need to define the proper questions, and the bounds for those questions.
+
+In other words, it's a conscious step down from data science (an assortment of interrelated tools and techniques) to data analytics (the targeted application of particular tools to answer a specific question).
+
+Asking the right question at the outset is often responsible for the ultimate success or failure of the project.
+
+This question should be well understood by the analysts and any stakeholders (i.e. managers, funding agencies, etc.).
+
+This process is known as **FRAMING**
+
+Proper framing defines:
+
+* Main objectives of the project
+* Terms of victory
+* Criteria for failure (when to stop or abandon the project)
+
+If necessary, this phase requires an analyst to **learn the domain to which the question relates.**
+
+It also requires an inventory of resources. 
+
+Resources might mean:
+
+* Money
+* Hardware
+* People X skill-sets
+* Data - a good time to think about potential data sources
+
+Developing a comprehensive scope of the resources required to answer the question **before** the analysis process begins is very important for a variety of reasons. 
+
+* Completing a thorough review can help you identify potential issues you may encounter later on.
+* Requesting resources mid-project is more likely to fail.
+
+That said, it takes some time to become skilled at anticipating all the resources required for an analysis, so you'll probably make some mistakes if you ever do this yourself. I don't know anyone who hasn't made such mistakes. 
+
+## Phase 2: Data Preparation
+
+Before you can proceed with a data analytics project, you have to identify which data set(s) you will be analyzing.
+
+You need to make sure that the data you intend to analyze contain the specific information you need to answer the question you defined in Phase 1.
+
+You also need to make sure you have access to the data. There are lots of data which are not publicly available - you may need to request special access, or even pay for access. 
+
+*Helpful hint: Make sure the data actually have the variables you need before paying for data.*
+
+Once you've identified your data, it's time to begin Phase 2 in earnest.
+
+This involves:
+
+* Exploring
+* Preprocessing (basic cleaning steps to allow for preliminary or exploratory analyses)
+* Conditioning (getting the data to behave)
+
+### Analytic Sandbox
+
+An environment in which you can interact with, load, query, and analyze all the data you need.
+
+This may be very simple (like a spreadsheet loaded into R or SAS) or very complicated (a data lake featuring immense numbers of data files that can be merged together through distributed computing)
+
+### Preprocessing & Conditioning
+
+A fancy data preparation acronym: ETLT
+
+Extract, transform, load, transform
+
+Essentially it's just a data cleaning step.
+
+Data come to you (usually) in a form that's not immediately useful. You have to prepare it, clean it, transform it, maybe even merge it. 
+
+Often, you'll create exploratory data visualizations at this stage to get a better sense of how your data behave.
+
+This is somewhere in the neighborhood of 85-95% of the hard work in a data analytics project.
+
+Some examples of preprocessing/conditioning:
+
+* Examining prevalence of missing data
+* Recoding missing values
+* Transforming contents of a variable (e.g., log transformations)
+* Combining variables
+* Merging data files
+
+## Phase 3: Model Planning
+
+Once you have workable data, and you have reasonably well-developed hypotheses, you need to think about what models would allow you to test those hypotheses.
+
+* What's the ideal model to answer the question?
+* What model can I build based on my data?
+* How does the model I can build differ from the ideal one?
+
+Improve and refine the model selection, to the extent you can, and to the extent you can't, keep track of the limitations
+
+Analysts at this stage ask questions like:
+
+*Is this statistical problem?*
+
+*Should I use a frequentist or Bayesian approach?*
+
+*Am I worried about statistical significance?*
+
+*Do I need to run an an experiment?*
+
+The goal is to figure out the best method to answer the question, based on the data you have in your analytic sandbox.
+
+### Methodological Toolbox
+
+I like to think of research methods and data analysis as a toolbox you add to over your career. 
+
+When you are trying to fix something or to make something you will need some familiarity with the tools required to complete the task. As a corollary, you will not be able to fix/make something if you do not have the right tools for the task. 
+
+Luckily, some tasks can be accomplished with a variety of tools! For example, if you have a categorical outcome with two values (Yes/No) you could run an OLS regression model (called a linear probability model), you could estimate a probit regression, or you could run a logistic regression model. 
+
+You may not have every one of these options in your methodological toolbox, but if you have at least one of them you can plan out a reasonable model. It just may not be the best one for that specific task. 
+
+All this to say, learning new techniques adds to your methodological toolbox and means that you'll have more options available to you when planning out a research project. 
+
+### Caveat about course reading 
+
+In the social sciences it's generally unacceptable to plan a model based upon the variables that seem statistically important. Rather, theory and prior literature guide this step, not statistical results. 
+
+One offshoot of the strategy the book describes is stepwise regression, which is largely frowned upon outside of strictly data science jobs. 
+
+## Phase 4: Model Building
+
+Theoretically, this is the most straightforward step.
+
+Now that you know how you want to model the problem, just go do it!
+
+After you estimate your models, you will need to assess the relative merits of that model (perform diagnostics), to make sure the model meets conventional standards
+
+If it does, then you can take stock of what the model is showing you in terms of answering your project's question.
+
+*Does the model appear valid and accurate?* 
+
+*Does the model output make sense to domain experts? That is, does it behave the way we think it ought to?*
+
+*Does the model answer the question we were trying to answer?*
+
+## Phase 5: Communication of Results
+
+Deliver the results to the analytic team and stakeholders
+
+Tell them if the project was a success or failure... *and why*
+
+The trick at this phase is figuring out **how** to communicate the results.
+
+* Formal report
+* Oral presentation
+* May require packages like PowerPoint or Slides, R Markdown or Shiny
+
+## Phase 6: Debrief and Disseminate
+
+Now that the project is nearing completion, take stock.
+
+If the project failed, why did it fail? Could you start over, fix the problems, and have a good chance to succeed? Or is there a fatal flaw somewhere that means the question couldn't be answered?
+
+If the project succeeded, what then? What do you do with the results? Change policy? Deploy a product to the organization? 
+
+## Crime Analytics Life Cycle
+
+When analyzing data in the crime or criminal justice context, the process is often the same, but may be a bit flatter due to the nature of the data.
+
+Data sets tend to be less complicated - we don't usually deal with data lakes, and our analytics sandbox is usually a flat data file or two.
+
+The catch is that the nature of the questions we can answer are also simple, and therefore can be less interesting, or less robust. 
+
+The final phase is often different, depending on the stakeholders.
+
+You're rarely going to be deploying some product. More likely, you're trying to influence a policy decision (either a policy in a CJ agency like a police department, or maybe even influence legal policy)
+
+In terms of crime and security, the data analytics life cycle strongly resembles the traditional intelligence cycle.
+
+* Requirements
+* Collection
+* Processing/Exploitation
+* Analysis
+* Dissemination
+
+The key difference between the general data analytics life cycle and one that's more tailored for crime analytics is the end-user. 
+
+## Final Words
+
+Spend some time clearly thinking about the research problem in front of you and the resources available (data included). The saying "garbage in, garbage out" also applies to the planning of a research project, not just poor data resulting in poor analyses. 
+
+Making it up as you go along can work out (eventually) but that's a formula for a lot of stress later on in the process coupled with a high failure rate (i.e., the end product fails to reach any meaningful conclusions, regardless of hypotheses).
+
+So, spend a decent time thinking in the Discovery part of the process and plan to spend more time than you think you will on cleaning your data. 
+
+![Not really. Class isn't over yet. Stay seated.](its-over-ferris-bueller.gif)
+
+## Social Networks
+
+Social network analysis is generally a blend of statistics and data visualization. 
+
+Statistical social network analysis usually concerns:
+
+- how central some nodes are to networks, 
+- how some nodes may connect otherwise disconnected clusters of nodes (i.e., they act as a "bridge") and; 
+- how far nodes tend to be from one another (i.e., how many paths, or "edges" are there between nodes, on average?). 
+
+Some of this kind of analysis is simple calculation, which can be difficult to convey in numeric form alone. This is why visualizations became pretty important for social network analyses. 
+
+Before we go over network graphs, it is important to review some common terminology:
+
+- **Nodes** or **Vertices**: Individual rows in the data, can be any number of entities from an individual person to a business. 
+- **Edges**, **Paths**, of **Connections**: These refer to the lines between nodes in a network graph which indicate that a relationship exists between two nodes.
+- **Directed** or **Undirected**: Edges or paths can have directions to them (as discussed previously). For a path to have a direction we need to know if either or both Nodes involved in a relationship report it. If both report it, there will be an arrow on both sides of the line connecting the nodes. You will only know this information if you collect network data yourself or if you define direction in a way that allows you to infer it. 
+- **Egos**: Not the Marvel villain and not your perception of yourself. In the social network context, an ego is the center of a network they report to you. Unless you get the same report from all members of this network, you have ego-centric network data. I'm not making this up.
+- **Attributes**: These are characteristics about the node itself or about the tie between two nodes. You can have both in a data set. 
+
+### Madmen Network
+
+To begin to explore social networks, I'm going to use some data from the R Graphics Cookbook examples. The data are from the Madmen TV show. You'll first need to install the **gcookbook** package to use these data. 
+
+```{r}
+data(madmen2)
+head(madmen2, 10)
+```
+
+Pretty simply layout here - just two columns and each row is just a relationship between two nodes. No attributes are present for a particular node nor for the relationships. 
+
+Let's plot these data to see what they look like but before we do, a quick note about plotting of social network data. 
+
+Note that there are no indications in the data frame about where a node should be plotted! That is, there are no X and Y values that R can follow to place a point on a figure representing the relationship between two nodes. That means it is up to us to tell R how to do this or we allow R to randomly select the plot coordinates. 
+
+In the following example, we will use the Fruchterman-Reingold algorithm to determine placement of nodes and ties. The basics behind this algorithm is that individual nodes try to be far apart from one another, but joint ties to other nodes pull them closer together. Let's see this in action:
+
+```{r}
+madmen_graph <- graph.data.frame(madmen2, directed=FALSE)
+par(mar=c(0,0,0,0))
+plot(madmen_graph, layout=layout.fruchterman.reingold, vertex.size=6, edge.arrow.size=0.25, vertex.label=NA)
+```
+
+In that example, I specified directed=FALSE because I wanted to show you what the edges look like when they do not have a direction to them. 
+
+The direction is in the data frame, even if it is not a column. Direction is implied by Node 1 having a tie to Node 2, but Node 2 not also reporting a tie to Node 1. As an example, in these data Arthur Case has a tie to Betty Draper, but Betty Draper does not have a tie to Arthur Case. 
+
+Let's see what the plot looks like with directional edges:
+
+```{r}
+madmen_graph <- graph.data.frame(madmen2, directed=TRUE)
+par(mar=c(0,0,0,0))
+plot(madmen_graph, layout=layout.fruchterman.reingold, vertex.size=6, edge.arrow.size=0.25, vertex.label=NA)
+```
+
+Notice that there are multiple edges with only one arrow- this tells you that a tie is outgoing from one node, but not the other. 
+
+Now, let's add node names to the graph:
+
+```{r}
+madmen_reduced <- madmen[1:nrow(madmen) %% 2 ==1, ]
+madmen_red_graph <- graph.data.frame(madmen_reduced,
+                                     directed=FALSE)
+plot(madmen_red_graph, layout=layout.fruchterman.reingold,
+     vertex.size=4,
+     vertex.label=V(madmen_red_graph)$name,
+     vertex.label.cex=0.7, 
+     vertex.label.dist=0.9,
+     vertex.label.color="black")
+```
+
+### The Downfall of a Karate Club
+
+Let's work on another example with some different functions that also can plot network data. I'll use a data set called "Zachary's Karate Club." These data were collected for a study on the ties between club members before and after the group split apart due to a conflict between two instructors. 
+
+Using these data, "Zachary" (a pseudonym) was able to predict which group each member (n=32) would go to after the split occurred. You can call these data by using the data() function after you install the **igraphdata** package:
+
+```{r}
+data(karate)
+head(karate, 5)
+```
+
+Those data are a bit more complex than normal! That's because they are stored what's called **graph modeling language** which used to be popular because multiple programs used this language to store and plot network data. 
+
+Luckily, the **igraph** function knows how to read this information!
+
+```{r}
+plot.igraph(karate)
+```
+
+That shows the distribution of club members after the split but the graph itself leaves a bit to be desired. Let's add some elements to it to spruce it up:
+
+```{r}
+plot.igraph(karate, layout=layout.fruchterman.reingold,
+            main="Zachary's Karate Club",
+            vertex.label.color="black",
+            vertex.label.font=1,
+            vertex.label=V(karate)$name,
+            vertex.label.cex=0.60,
+            vertex.size=degree(karate)*1.5, #changes node size based upon number of connections)
+            edge.arrow.size=2)
+```
+
+#### Can We Visualize Cliques?
+
+Yes, we can! There are a number of algorithms out there that can automatically detect cliques in network data. A clique is simply a smaller group of relationships within the larger network itself. 
+
+Let's see the cliques that one algorithm - the **fast-greedy algorithm** - finds in these data:
+
+```{r}
+karate_comm <- fastgreedy.community(karate)
+plot(karate_comm, karate)
+```
+
+The important part of this plot to take note of is that there is a higher density of ties within these communities than between them. 
+
+Notice that there are only a small handful of ties going out to other communities from one particular community, but there are many ties to other members within the same community. This is visual evidence for three clusters in these data. 
+
+#### Can We Make an Interactive Graph?
+
+I think you already know the answer...
+
+For this example you will need the **visNetwork** and **shiny** packages installed and loaded. 
+
+```{r}
+karate <- set.vertex.attribute(karate, "name", 
+          value=c("Chloe", "Emily", "Aaliyah", "Emma",
+                  "Jennifer", "Olivia", "Hannah", "Jessica",
+                  "Sarah", "Lily", "Charlotte", "Elizabeth",
+                  "Abigail", "Rebecca", "Samantha", "Jacob",
+                  "Muhammad", "Shawn", "Aaron", "Daniel", 
+                  "Jonah", "Alex", "Michael", "James", 
+                  "Ryan", "Jordan", "Alexander", "Ali", 
+                  "Tyler", "Kevin", "Jack", "Ethan", "Luke",
+                  "Harry"))
+
+deg <- degree(karate)
+
+kInt <- toVisNetworkData(karate)
+    
+nodes <- kInt$nodes
+nodes$label <- rownames(nodes)
+nodes$id <- rownames(nodes)
+
+edges <- kInt$edges
+
+visNetwork(nodes, edges, height="600px", width="100%") %>%
+  visOptions(highlightNearest = TRUE) %>%
+  visInteraction(navigationButtons = TRUE)
+  
+observe({
+  nodes_selection <- names(deg[deg >= min(input$slide_me) & deg <= max(input$slide_me)])
+  print(names(nodes_selection))
+  print(nodes_selection)
+  visNetworkProxy("network") %>%
+    visSelectNodes(id = nodes_selection,highlightEdges = TRUE,clickEvent = TRUE)
+})
+```
+
+#### Some Final Notes Re: Social Networks
+
+Collecting social network information can be pretty cumbersome, especially if you want to know multiple things about the node and more about their relationships with other nodes. 
+
+As an example, let's say you want to know 10 things about a node and 5 things about each of its ties. Now, let's suppose that a node reports 10 ties to other unique nodes. How many questions are we now asking that node? 
+
+It's the original 10 about themselves plus 5 for each of the 10 nodes they are tied to - 60 questions total! Suffice to say, social network data collection can be very time consuming, which is why we don't tend to see it very often. 
+
+## The End
+
+![Time for your two questions!](ronswanson_gohome.gif)
